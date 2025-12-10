@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\Auth\AuthApiController;
+use App\Http\Controllers\BusinessOwnerDashboard\CompanyManagement\IndexController;
 use Illuminate\Support\Facades\Route;
 
 // Public authentication routes
@@ -14,15 +15,9 @@ Route::prefix('auth')->group(function () {
     Route::post('verify-otp', [AuthApiController::class, 'verifyOtpApi']);
 });
 
-Route::get('/test-email', function () {
-    try {
-        Mail::raw('Test email from Laravel', function ($message) {
-            $message->to('mamon193p@gmail.com')
-                    ->subject('Test Email');
-        });
-
-        return 'Email sent successfully!';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
+Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
+    Route::post('/add', [IndexController::class, 'addAdministrator']);
+    Route::get('/list', [IndexController::class, 'listAdministrators']);
+    Route::put('/update/{id}', [IndexController::class, 'updateAdministrator']);
+    Route::delete('/remove/{id}', [IndexController::class, 'removeAdministrator']);
 });

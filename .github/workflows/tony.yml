@@ -1,19 +1,20 @@
-name: Deploy project to our server
-on:
-  push:
-    branches:
-      - master
-jobs:
-  FTP-Deploy-Softvence:
-    name: FTP-Deploy-Softvence
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2.1.0
-        with:
-          fetch-depth: 2
-      - name: FTP-Deploy-Action
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
-        with:
-          server: ftp.softvencefsd.xyz
-          username: lawbug@lawbag.softvencefsd.xyz
-          password: "68vdJ6dMid=8"
+# name: Deploy project to our server
+# on:
+#   push:
+#     branches:
+#       - master
+# jobs:
+#   FTP-Deploy-Softvence:
+#     name: FTP-Deploy-Softvence
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2.1.0
+#         with:
+#           fetch-depth: 2
+#       - name: FTP-Deploy-Action
+#         uses: SamKirkland/FTP-Deploy-Action@4.3.0
+#         with:
+#           server: ${{ secrets.FTP_SERVER }}
+#           username: ${{ secrets.FTP_USERNAME }}
+#           password: ${{ secrets.FTP_PASSWORD }}
+#           protocol: ftp

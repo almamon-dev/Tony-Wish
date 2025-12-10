@@ -18,7 +18,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('user_type', ['admin', 'business_owner'])->default('business_owner');
+
+            // Foreign key for business owner who added this user
+            $table->foreignId('added_by')->nullable()->constrained('users')->onDelete('cascade');
+
+            $table->enum('user_type', ['admin', 'business_owner', 'administrator'])->default('business_owner');
             $table->string('avatar')->nullable();
 
             // Password reset

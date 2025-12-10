@@ -53,4 +53,33 @@ class User extends Authenticatable
     {
         return $this->hasOne(Otp::class)->latestOfMany();
     }
+
+    public function managedAdministrators()
+    {
+        return $this->belongsToMany(User::class, 'business_owner_administrators',
+            'business_owner_id', 'administrator_id')
+            ->withPivot(['role', 'is_active', 'assigned_at', 'removed_at'])
+            ->withTimestamps()
+            ->wherePivot('is_active', true); // Only active relationships
+    }
+
+    /**
+     * Get administrator details
+     */
+    public function administratorDetails()
+    {
+        return $this->hasOne(Administrator::class, 'user_id');
+    }
+
+    /**
+     * Get business owners managed by this administrator
+     */
+    public function managedBusinessOwners()
+    {
+        return $this->belongsToMany(User::class, 'business_owner_administrators',
+            'administrator_id', 'business_owner_id')
+            ->withPivot(['role', 'is_active', 'assigned_at', 'removed_at'])
+            ->withTimestamps()
+            ->wherePivot('is_active', true);
+    }
 }
