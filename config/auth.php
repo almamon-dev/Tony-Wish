@@ -122,5 +122,4 @@ return [
         'verify_decay_minutes' => 5, // verification rate limit window
         'queue' => false, // use queue for sending
     ],
-
 ];

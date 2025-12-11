@@ -22,7 +22,7 @@ return new class extends Migration
             // Foreign key for business owner who added this user
             $table->foreignId('added_by')->nullable()->constrained('users')->onDelete('cascade');
 
-            $table->enum('user_type', ['admin', 'business_owner', 'administrator'])->default('business_owner');
+            $table->enum('user_type', ['admin', 'business_owner', 'administrator', 'user'])->default('business_owner');
             $table->string('avatar')->nullable();
 
             // Password reset

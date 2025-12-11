@@ -11,22 +11,7 @@ class Administrator extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'user_id',
-        'business_owner_id',
-        'department',
-        'access_level',
-        'permissions',
-        'invitation_status',
-        'invitation_token',
-        'invitation_sent_at',
-        'invitation_accepted_at',
-    ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be cast.

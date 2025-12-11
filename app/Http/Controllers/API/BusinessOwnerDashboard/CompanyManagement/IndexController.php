@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\BusinessOwnerDashboard\CompanyManagement;
+namespace App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement;
 
 use App\Http\Controllers\Controller;
 use App\Mail\AdministratorInvitationMail;
@@ -57,7 +57,7 @@ class IndexController extends Controller
                     'user_type' => 'administrator',
                     'terms_and_conditions' => true,
                     'terms_and_conditions_at' => now(),
-                    'addd_by' => $businessOwner->id,
+                    'added_by' => $businessOwner->id,
                     'password' => Hash::make(12345678),
                     'email_verified_at' => null, // Will verify when they accept invitation
                 ]);
@@ -345,9 +345,9 @@ class IndexController extends Controller
      * Send invitation email
      * Implement this method based on your email system
      */
-    private function sendInvitationEmail($email, $invitation_token, $businessOwner, $request)
+    private function sendInvitationEmail($email, $invitationToken, $businessOwner, $request)
     {
-        $invitationLink = url("/accept-invitation/{$invitation_token}");
+        $invitationLink = url("/accept-invitation/{$invitationToken}");
 
         // Get the user's full name
         $inviteeName = $request->fname.' '.$request->lname;
@@ -376,6 +376,56 @@ class IndexController extends Controller
             \Log::error('Failed to send invitation email: '.$e->getMessage());
 
             return false;
+        }
+    }
+
+    public function acceptInvitation($token)
+    {
+        try {
+            // Find administrator by invitation token
+            $administrator = Administrator::where('invitation_token', $token)
+                ->where('invitation_status', Administrator::INVITATION_PENDING)
+                ->first();
+
+            if (! $administrator) {
+                // If already accepted or invalid token
+                return redirect(config('app.frontend_url').'/invitation/invalid');
+            }
+
+            // Check if invitation is expired (7 days)
+            $expiryDate = $administrator->invitation_sent_at->addDays(7);
+            if (now()->gt($expiryDate)) {
+                return redirect(config('app.frontend_url').'/invitation/expired');
+            }
+
+            DB::beginTransaction();
+
+            // Update administrator status
+            $administrator->update([
+                'invitation_status' => Administrator::INVITATION_ACCEPTED,
+                'invitation_accepted_at' => now(),
+                'invitation_token' => null,
+            ]);
+
+            // Verify user email if not already verified
+            $user = $administrator->user;
+            if (! $user->email_verified_at) {
+                $user->update([
+                    'email_verified_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            // Redirect to frontend with success message
+            $redirectUrl = config('app.frontend_url');
+
+            return redirect($redirectUrl);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect(config('app.frontend_url'));
         }
     }
 }

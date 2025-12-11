@@ -25,6 +25,7 @@ class User extends Authenticatable
         'reset_password_token_expire_at',
         'otp',
         'purpose',
+        'added_by',
         'avatar',
         'expires_at',
         'is_subscribed',
@@ -81,5 +82,21 @@ class User extends Authenticatable
             ->withPivot(['role', 'is_active', 'assigned_at', 'removed_at'])
             ->withTimestamps()
             ->wherePivot('is_active', true);
+    }
+
+    /**
+     * Check if user is regular user
+     */
+    public function isRegularUser(): bool
+    {
+        return $this->user_type === 'user';
+    }
+
+    /**
+     * Get the administrator profile for this user
+     */
+    public function administratorProfile()
+    {
+        return $this->hasOne(AdministratorUser::class, 'user_id');
     }
 }

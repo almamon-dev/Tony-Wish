@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement\IndexController;
 use App\Livewire\Admin\Products\CreateComponent as ProductsCreateComponent;
 use App\Livewire\Admin\Products\IndexComponent as ProductsIndexComponent;
 use App\Livewire\Admin\Profile\IndexComponent as ProfileIndexComponent;
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/accept-invitation/{token}', [IndexController::class, 'acceptInvitation'])
+    ->name('accept.administrator.invitation');
 
 Route::get('/admin/products', ProductsIndexComponent::class)->name('admin.products.index');
 Route::get('/admin/product/create', ProductsCreateComponent::class)->name('admin.products.create');

@@ -5,156 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administrator Invitation</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            background-color: #f9fafb;
-        }
 
-        .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .header {
-            border-bottom: 1px solid #e5e7eb;
-            padding: 24px;
-            text-align: center;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .content {
-            padding: 32px;
-        }
-
-        .welcome-text {
-            margin-bottom: 24px;
-            font-size: 15px;
-            color: #374151;
-        }
-
-        .details-box {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 20px;
-            margin: 24px 0;
-        }
-
-        .detail-row {
-            margin: 12px 0;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .detail-label {
-            font-weight: 500;
-            width: 140px;
-            flex-shrink: 0;
-            color: #6b7280;
-        }
-
-        .detail-value {
-            color: #111827;
-        }
-
-        .button-container {
-            margin: 32px 0;
-            text-align: center;
-        }
-
-        .accept-button {
-            display: inline-block;
-            background-color: #111827;
-            color: white;
-            text-decoration: none;
-            padding: 12px 32px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 15px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .invitation-link {
-            background: #f9fafb;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            padding: 16px;
-            margin: 24px 0;
-            word-break: break-all;
-            font-size: 14px;
-            color: #4b5563;
-            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-        }
-
-        .instructions {
-            margin: 32px 0;
-            padding-top: 24px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .instructions h3 {
-            margin-top: 0;
-            margin-bottom: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        .instructions ol {
-            margin: 0;
-            padding-left: 20px;
-            color: #4b5563;
-        }
-
-        .instructions li {
-            margin-bottom: 8px;
-        }
-
-        .footer {
-            padding: 24px;
-            color: #6b7280;
-            font-size: 14px;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-        }
-
-        .footer a {
-            color: #374151;
-            text-decoration: none;
-        }
-
-        @media (max-width: 600px) {
-            .content {
-                padding: 24px;
-            }
-
-            .detail-row {
-                flex-direction: column;
-            }
-
-            .detail-label {
-                width: 100%;
-                margin-bottom: 4px;
-            }
-        }
-    </style>
 </head>
+
 
 <body>
     <div class="email-container">
@@ -207,6 +60,24 @@
                 </div>
             </div>
 
+            <!-- 🔴 LOGIN CREDENTIALS ADD HERE 🔴 -->
+            <div class="credentials-box"
+                style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #ddd;">
+                <h3 style="color: #333; margin-top: 0;">Your Login Credentials:</h3>
+                <div class="credential-row" style="margin: 10px 0;">
+                    <strong style="display: inline-block; width: 120px;">Email:</strong>
+                    <span>{{ $invitationData['invitee_email'] }}</span>
+                </div>
+                <div class="credential-row" style="margin: 10px 0;">
+                    <strong style="display: inline-block; width: 120px;">Password:</strong>
+                    <span>12345678</span>
+                </div>
+                <div class="note" style="color: #666; font-size: 14px; margin-top: 10px;">
+                    <small>Please change your password after first login.</small>
+                </div>
+            </div>
+            <!-- 🔴 END LOGIN CREDENTIALS 🔴 -->
+
             <!-- Accept Button -->
             <div class="button-container">
                 <a href="{{ $invitationData['accept_url'] }}" class="accept-button">
@@ -224,8 +95,8 @@
                 <h3>How to accept:</h3>
                 <ol>
                     <li>Click the "Accept Invitation" button</li>
-                    <li>Create your account password</li>
-                    <li>Complete your profile setup</li>
+                    <li>You will be automatically logged in</li>
+                    <li>You can change your password from profile settings</li>
                 </ol>
             </div>
         </div>
