@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
 
     // add user
     Route::post('/add-user', [UserIndexController::class, 'addUser']);
+    Route::post('/edit-user/{id}', [UserIndexController::class, 'editUser']);
     Route::get('/user-list', [UserIndexController::class, 'getUserList']);
 
 });
