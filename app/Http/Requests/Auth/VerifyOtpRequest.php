@@ -13,20 +13,24 @@ class VerifyOtpRequest extends FormRequest
 
     public function rules(): array
     {
+        $otpLength = config('auth.otp.length');
+
         return [
             'email' => 'required|email|exists:users,email',
-            'otp'   => 'required|digits:4',
+            'otp' => "required|digits:{$otpLength}",
         ];
     }
 
     public function messages(): array
     {
+        $otpLength = config('auth.otp.length');
+
         return [
             'email.required' => 'Email address is required.',
             'email.email' => 'Invalid email format.',
             'email.exists' => 'This email is not registered.',
             'otp.required' => 'OTP is required.',
-            'otp.digits' => 'OTP must be exactly 4 digits.',
+            'otp.digits' => "OTP must be exactly {$otpLength} digits.",
         ];
     }
 }

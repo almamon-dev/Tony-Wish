@@ -24,10 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
-    Route::post('/add', [IndexController::class, 'addAdministrator']);
-    Route::get('/list', [IndexController::class, 'listAdministrators']);
-    Route::put('/update/{id}', [IndexController::class, 'updateAdministrator']);
-    Route::delete('/remove/{id}', [IndexController::class, 'removeAdministrator']);
+
     // Invitation routes
     Route::get('/accept-invitation/{token}', [IndexController::class, 'acceptInvitation']);
 
@@ -40,4 +37,11 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
     Route::post('/edit-user/{id}', [UserIndexController::class, 'editUser']);
     Route::get('/user-list', [UserIndexController::class, 'getUserList']);
 
+});
+
+// business owner authentication routes
+Route::middleware('auth:sanctum')->prefix('businesses')->group(function () {
+    Route::post('/add-administrator', [IndexController::class, 'addAdministrator']);
+    Route::get('/list-administrators', [IndexController::class, 'listAdministrators']);
+    Route::delete('/remove-administrator', [IndexController::class, 'removeAdministrator']);
 });

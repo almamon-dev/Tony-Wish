@@ -54,10 +54,6 @@ class IndexController extends Controller
             'time_zone' => 'nullable|string|max:50',
             'preferred_language' => 'nullable|string|max:50',
             'additional_notes' => 'nullable|string',
-
-            // Account Settings
-            'send_welcome_email' => 'boolean',
-            'require_password_change' => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -100,8 +96,6 @@ class IndexController extends Controller
                 'time_zone' => $request->time_zone ?? 'UTC',
                 'preferred_language' => $request->preferred_language ?? 'English',
                 'additional_notes' => $request->additional_notes,
-                'welcome_email_sent' => $request->boolean('send_welcome_email', false),
-                'password_change_required' => $request->boolean('require_password_change', true),
                 'is_active' => true,
             ]);
 

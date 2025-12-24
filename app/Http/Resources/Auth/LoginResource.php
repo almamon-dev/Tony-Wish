@@ -28,11 +28,11 @@ class LoginResource extends JsonResource
             'fname' => $this->fname,
             'lname' => $this->lname,
             'email' => $this->email,
+            'user_type' => $this->user_type,
             'is_verified' => $this->is_verified ?? false,
             'verified_at' => $this->verified_at instanceof \Carbon\Carbon
                 ? $this->verified_at->toDateTimeString()
                 : ($this->verified_at ? Carbon::parse($this->verified_at)->toDateTimeString() : 'N/A'),
-
         ];
     }
 }
