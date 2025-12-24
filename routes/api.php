@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Administrator\Procedure\IndexController as ProcedureIndexController;
 use App\Http\Controllers\API\Administrator\User\IndexController as UserIndexController;
 use App\Http\Controllers\API\Auth\AuthApiController;
 use App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement\IndexController;
@@ -27,11 +28,6 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
 
     // Invitation routes
     Route::get('/accept-invitation/{token}', [IndexController::class, 'acceptInvitation']);
-
-    // update profile
-    Route::get('/profiles', [ProfileIndexController::class, 'getBusinessProfile']);
-    Route::post('/update-profile', [ProfileIndexController::class, 'updateBusinessProfile']);
-
     // add user
     Route::post('/add-user', [UserIndexController::class, 'addUser']);
     Route::post('/edit-user/{id}', [UserIndexController::class, 'editUser']);
@@ -44,4 +40,17 @@ Route::middleware('auth:sanctum')->prefix('businesses')->group(function () {
     Route::post('/add-administrator', [IndexController::class, 'addAdministrator']);
     Route::get('/list-administrators', [IndexController::class, 'listAdministrators']);
     Route::delete('/remove-administrator', [IndexController::class, 'removeAdministrator']);
+
+    // update profile
+    Route::get('/profiles', [ProfileIndexController::class, 'getBusinessProfile']);
+    Route::post('/update-profile', [ProfileIndexController::class, 'updateBusinessProfile']);
+
+});
+
+// procedure routes
+Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
+    Route::get('/procedures', [ProcedureIndexController::class, 'index']);
+    Route::post('/procedure-store', [ProcedureIndexController::class, 'store']);
+    Route::post('/procedure-update/{id}', [ProcedureIndexController::class, 'update']);
+    Route::delete('/procedure-delete/{id}', [ProcedureIndexController::class, 'destroy']);
 });

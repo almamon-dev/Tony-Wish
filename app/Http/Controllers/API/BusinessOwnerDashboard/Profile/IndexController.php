@@ -5,10 +5,8 @@ namespace App\Http\Controllers\API\BusinessOwnerDashboard\Profile;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\BusinessOwnerDashboard\Profile\UpdateProfileRequest;
-use App\Http\Resources\API\BusinessOwnerDashboard\Profile\UpdateProfileResource;
-use App\Models\Administrator;
+use App\Models\BusinessInformation;
 use App\Traits\ApiResponse;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -24,20 +22,24 @@ class IndexController extends Controller
         try {
             $user = auth()->user();
 
-            // Get administrator record
-            $administrator = Administrator::where('user_id', $user->id)->first();
+            $business = BusinessInformation::first();
 
-            if (! $administrator) {
-                return $this->sendError('Business profile not found', [], 404);
-            }
+            $data = [
+                'id' => $user->id,
+                'fname' => $user->fname,
+                'lname' => $user->lname,
+                'email' => $user->email,
+                'company_name' => $business->company_name ?? null,
+                'contact_email' => $business->contact_email ?? null,
+                'country' => $business->country ?? null,
+                'phone' => $business->phone ?? null,
+                'avatar' => Helper::generateURL($user->avatar) ?? '',
+            ];
 
-            return $this->sendResponse(
-                new UpdateProfileResource($administrator),
-                'Business profile retrieved successfully'
-            );
+            return $this->sendResponse($data, 'Business profile retrieved successfully');
 
-        } catch (Exception $e) {
-            return $this->sendError('Failed to retrieve business profile: '.$e->getMessage(), [], 500);
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to retrieve profile: '.$e->getMessage(), [], 500);
         }
     }
 
@@ -51,56 +53,46 @@ class IndexController extends Controller
 
             $user = auth()->user();
 
-            // Get administrator record
-            $administrator = Administrator::where('user_id', $user->id)->first();
-
-            if (! $administrator) {
-                return $this->sendError('Business profile not found', [], 404);
-            }
-
-            // Start with allowed scalar fields from the request
-            $updateData = $request->only([
-                'company_name',
-                'company_type',
-                'phone',
-                'contact_email',
-                'country',
-                'registration_number',
-                'vat_number',
-            ]);
-
-            // Handle avatar upload (file)
             if ($request->hasFile('avatar')) {
 
-                // delete old file if exists
-                if (! empty($administrator->avatar)) {
-                    Helper::deleteFile($administrator->avatar);
+                if (! empty($user->avatar)) {
+                    Helper::deleteFile($user->avatar);
                 }
 
-                // upload new avatar
-                $avatarPath = Helper::uploadFile('administrators_avatar', $request->file('avatar'));
-
-                // add to update data
-                $updateData['avatar'] = $avatarPath;
+                $user->avatar = Helper::uploadFile('users_avatars', $request->file('avatar'));
+                $user->save();
             }
 
-            // Remove keys with null values so we don't overwrite existing values unintentionally
-            $updateData = array_filter($updateData, fn ($value) => ! is_null($value));
-
-            if (! empty($updateData)) {
-                $administrator->update($updateData);
-            }
+            $businessInfo = BusinessInformation::updateOrCreate(
+                ['contact_email' => $request->contact_email ?? $user->email],
+                [
+                    'company_name' => $request->company_name,
+                    'phone' => $request->phone,
+                    'contact_email' => $request->contact_email,
+                    'country' => $request->country,
+                ]
+            );
 
             DB::commit();
 
-            return $this->sendResponse(
-                new UpdateProfileResource($administrator->fresh()),
-                'Business profile updated successfully'
-            );
+            $apiResponse = [
+                'user' => [
+                    'id' => $user->id,
+                    'fname' => $user->fname,
+                    'lname' => $user->lname,
+                    'email' => $user->email,
+                    'avatar' => Helper::generateURL($user->avatar),
+                ],
+                'business' => $businessInfo,
+
+            ];
+
+            return $this->sendResponse($apiResponse, 'Business profile updated successfully');
+
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            return $this->sendError('Failed to update business profile: '.$e->getMessage(), [], 500);
+            return $this->sendError('Failed to update profile: '.$e->getMessage(), [], 500);
         }
     }
 }

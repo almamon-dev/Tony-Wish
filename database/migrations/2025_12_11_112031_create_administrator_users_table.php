@@ -40,10 +40,6 @@ return new class extends Migration
             $table->string('preferred_language')->default('English');
             $table->text('additional_notes')->nullable();
 
-            // Account Settings
-            $table->boolean('welcome_email_sent')->default(false);
-            $table->boolean('password_change_required')->default(false);
-
             // Status tracking
             $table->boolean('is_active')->default(true);
             $table->timestamps();

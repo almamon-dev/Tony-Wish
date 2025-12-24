@@ -24,8 +24,6 @@ class AdministratorUser extends Model
         'time_zone',
         'preferred_language',
         'additional_notes',
-        'welcome_email_sent',
-        'password_change_required',
         'is_active',
     ];
 
@@ -35,8 +33,6 @@ class AdministratorUser extends Model
         'edit_procedure' => 'boolean',
         'manage_task' => 'boolean',
         'start_date' => 'date',
-        'welcome_email_sent' => 'boolean',
-        'password_change_required' => 'boolean',
         'is_active' => 'boolean',
     ];
 

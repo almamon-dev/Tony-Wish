@@ -40,17 +40,6 @@ return new class extends Migration
             // Timestamps
             $table->timestamps();
             $table->softDeletes();
-
-            // profile information
-            $table->string('company_name')->nullable();
-            $table->string('company_type')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('contact_email')->nullable();
-            $table->string('country')->nullable();
-            $table->string('registration_number')->nullable();
-            $table->string('vat_number')->nullable();
-            $table->string('avatar')->nullable();
-
             // Indexes
             $table->index('department');
             $table->index('access_level');

@@ -99,4 +99,17 @@ class User extends Authenticatable
     {
         return $this->hasOne(AdministratorUser::class, 'user_id');
     }
+
+    public function businessOwnerProfile()
+    {
+        return $this->hasOne(BusinessInformation::class, 'user_id');
+    }
+
+    /**
+     * The procedures assigned to the user.
+     */
+    public function assignedProcedures()
+    {
+        return $this->belongsToMany(Procedure::class, 'procedure_assign_members');
+    }
 }
