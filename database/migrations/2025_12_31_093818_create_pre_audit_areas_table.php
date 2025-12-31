@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('procedure_checklist_items', function (Blueprint $table) {
+        Schema::create('pre_audit_areas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('procedure_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->boolean('completed')->default(false);
+            $table->foreignId('pre_audit_checklist_id')->constrained()->onDelete('cascade');
+            $table->string('area_name');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('procedure_checklist_items');
+        Schema::dropIfExists('pre_audit_areas');
     }
 };

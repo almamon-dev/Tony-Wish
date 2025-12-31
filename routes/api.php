@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Administrator\PreAuditChecklist\IndexController as PreAuditChecklistController;
 use App\Http\Controllers\API\Administrator\Procedure\IndexController as ProcedureIndexController;
 use App\Http\Controllers\API\Administrator\User\IndexController as UserIndexController;
 use App\Http\Controllers\API\Auth\AuthApiController;
@@ -53,4 +54,11 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
     Route::post('/procedure-store', [ProcedureIndexController::class, 'store']);
     Route::post('/procedure-update/{id}', [ProcedureIndexController::class, 'update']);
     Route::delete('/procedure-delete/{id}', [ProcedureIndexController::class, 'destroy']);
+});
+
+// pre audit checklist routes
+Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
+    Route::get('/pre-audit-checklist', [PreAuditChecklistController::class, 'index']);
+    Route::post('/pre-audit-checklist-store', [PreAuditChecklistController::class, 'store']);
+    Route::post('/pre-audit-checklist-update/{id}', [PreAuditChecklistController::class, 'update']);
 });

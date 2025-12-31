@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('pre_audit_checklists', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // e.g., ISO 9001 Pre-Audit Q4
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('name');
             $table->string('iso_standard')->nullable();
             $table->string('audit_type')->nullable();
             $table->string('department')->nullable();
-            $table->string('priority_level');
+            $table->enum('priority', ['Low', 'Medium', 'High'])->default('Medium');
             $table->date('scheduled_date');
             $table->text('description')->nullable();
             $table->text('audit_objectives')->nullable();
+            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
             $table->timestamps();
-            $table->enum('status', ['in_progress', 'completed', '', 'cancelled'])->default('pending');
         });
     }
 
