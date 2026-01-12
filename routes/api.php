@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\API\Administrator\PreAuditChecklist\IndexController as PreAuditChecklistController;
 use App\Http\Controllers\API\Administrator\Procedure\IndexController as ProcedureIndexController;
-use App\Http\Controllers\API\Administrator\Record\ControlledDocumentRegister\IndexController as ControlledDocumentRegisters;
+use App\Http\Controllers\API\Administrator\Record\CDRegisterController as ControlledDocumentRegisters;
+use App\Http\Controllers\API\Administrator\Record\PSResponsibilityController;
 use App\Http\Controllers\API\Administrator\User\IndexController as UserIndexController;
 use App\Http\Controllers\API\Auth\AuthApiController;
 use App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement\IndexController;
@@ -37,7 +38,13 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
     Route::get('/user-list', [UserIndexController::class, 'getUserList']);
 
     // records
-    Route::get('/record/control-document-register', [ControlledDocumentRegisters::class, 'index']);
+    Route::prefix('record')->group(function () {
+        Route::get('/control-document-register', [ControlledDocumentRegisters::class, 'index']);
+        Route::get('/personal-responsibilities', [PSResponsibilityController::class, 'index']);
+        Route::post('/personal-responsibilities', [PSResponsibilityController::class, 'store']);
+        Route::delete('/personal-responsibilities/remove', [PSResponsibilityController::class, 'destroy']);
+
+    });
 
 });
 

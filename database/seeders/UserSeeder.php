@@ -103,13 +103,13 @@ class UserSeeder extends Seeder
             [
                 'fname' => 'Emily',
                 'lname' => 'Williams',
-                'email' => 'emily.business@gmail.com',
-                'email_verified_at' => null,
-                'password' => Hash::make('Business4@012'),
-                'user_type' => 'business_owner',
+                'email' => 'administrator@gmail.com',
+                'email_verified_at' => Carbon::now(),
+                'password' => Hash::make('12345678'),
+                'user_type' => 'administrator',
                 'avatar' => null,
-                'is_verified' => false,
-                'verified_at' => null,
+                'is_verified' => true,
+                'verified_at' => Carbon::now(),
                 'is_subscribed' => false,
                 'terms_and_conditions' => true,
                 'terms_and_conditions_at' => Carbon::now()->subDays(7),
@@ -128,29 +128,5 @@ class UserSeeder extends Seeder
         }
 
         // Output success message
-        $this->command->info('Successfully seeded 2 admin users and 4 business owner users.');
-        $this->command->info('=====================================================');
-        $this->command->info('Admin credentials:');
-        $this->command->info('1. admin@gmail.com / Admin@123 (Terms accepted 30 days ago)');
-        $this->command->info('2. admin2@gmail.com / Admin2@456 (Terms accepted 15 days ago)');
-        $this->command->info('');
-        $this->command->info('Business owner credentials:');
-        $this->command->info('1. john.business@gmail.com / Business@123');
-        $this->command->info('   ✓ Verified ✓ Subscribed ✓ Terms accepted (60 days ago)');
-        $this->command->info('');
-        $this->command->info('2. jane.business@gmail.com / Business2@456');
-        $this->command->info('   ✓ Verified ✗ Not subscribed ✓ Terms accepted (45 days ago)');
-        $this->command->info('');
-        $this->command->info('3. robert.business@gmail.com / Business3@789');
-        $this->command->info('   ✗ Not verified ✓ Subscribed ✗ Terms not accepted');
-        $this->command->info('');
-        $this->command->info('4. emily.business@gmail.com / Business4@012');
-        $this->command->info('   ✗ Not verified ✗ Not subscribed ✓ Terms accepted (7 days ago)');
-        $this->command->info('');
-        $this->command->info('=====================================================');
-        $this->command->info('Summary:');
-        $this->command->info('- 5 users accepted terms and conditions');
-        $this->command->info('- 1 user did NOT accept terms and conditions (Robert)');
-        $this->command->info('- Various acceptance dates for realistic testing');
     }
 }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('iso_45001')->default(false);
             $table->boolean('en_15085')->default(false);
             $table->boolean('nhss_20')->default(false);
-            $table->date('modification_date')->nullable();
+            $table->date('revision_date')->nullable();
             $table->timestamps();
         });
     }
