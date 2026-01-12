@@ -8,10 +8,9 @@ jobs:
     name: FTP-Deploy-Softvence
     runs-on: ubuntu-latest
     steps:
-      # v2 থেকে v4 এ আপডেট করা হয়েছে
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: FTP-Deploy-Action
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
