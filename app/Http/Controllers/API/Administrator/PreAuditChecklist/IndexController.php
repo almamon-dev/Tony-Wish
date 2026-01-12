@@ -16,7 +16,7 @@ class IndexController extends Controller
 
     public function index()
     {
-        $checklists = PreAuditChecklist::with('user')->latest()->get();
+        $checklists = PreAuditChecklist::all();
 
         $summary = [
             'total_checklist' => $checklists->count(),

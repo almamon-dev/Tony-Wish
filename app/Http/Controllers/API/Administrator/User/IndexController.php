@@ -53,10 +53,11 @@ class IndexController extends Controller
                 'user_type' => 'user',
                 'is_verified' => false,
                 'terms_and_conditions' => false,
+                'email_verified_at' => now(),
                 'is_subscribed' => false,
             ]);
 
-            $administratorUser = AdministratorUser::create([
+            AdministratorUser::create([
                 'user_id' => $user->id,
                 'administrator_id' => $authUser->id,
                 'phone_number' => $request->phone_number,

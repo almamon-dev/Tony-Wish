@@ -11,9 +11,13 @@ class Procedure extends Model
         'due_date', 'description', 'objectives', 'scope', 'status',
     ];
 
+    protected $casts = [
+        'due_date' => 'date',
+    ];
+
     public function checklistItems()
     {
-        return $this->hasMany(ProcedureChecklistItem::class);
+        return $this->hasMany(ProcedureChecklist::class);
     }
 
     public function members()

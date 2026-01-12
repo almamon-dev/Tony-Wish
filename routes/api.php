@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\API\Administrator\PreAuditChecklist\IndexController as PreAuditChecklistController;
 use App\Http\Controllers\API\Administrator\Procedure\IndexController as ProcedureIndexController;
+use App\Http\Controllers\API\Administrator\Record\ControlledDocumentRegister\IndexController as ControlledDocumentRegisters;
 use App\Http\Controllers\API\Administrator\User\IndexController as UserIndexController;
 use App\Http\Controllers\API\Auth\AuthApiController;
 use App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement\IndexController;
 use App\Http\Controllers\API\BusinessOwnerDashboard\Profile\IndexController as ProfileIndexController;
 use App\Http\Controllers\API\Setting\UpdatePasswordController;
+use App\Http\Controllers\API\User\ProcedureController;
 use Illuminate\Support\Facades\Route;
 
 // Public authentication routes
@@ -33,6 +35,18 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
     Route::post('/add-user', [UserIndexController::class, 'addUser']);
     Route::post('/edit-user/{id}', [UserIndexController::class, 'editUser']);
     Route::get('/user-list', [UserIndexController::class, 'getUserList']);
+
+    // records
+    Route::get('/record/control-document-register', [ControlledDocumentRegisters::class, 'index']);
+
+});
+
+// user
+Route::middleware('auth:sanctum')->prefix('users')->group(function () {
+
+    // procedure routes
+    Route::get('/procedure-list', [ProcedureController::class, 'procedureList']);
+    Route::get('/procedure-show/{id}', [ProcedureController::class, 'shoWProcedure']);
 
 });
 
