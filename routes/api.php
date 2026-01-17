@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\API\Administrator\PreAuditChecklist\IndexController as PreAuditChecklistController;
+use App\Http\Controllers\API\Administrator\Procedure\IndexController as ProcedureIndexController;
 use App\Http\Controllers\API\Administrator\Record\CDRegisterController;
 use App\Http\Controllers\API\Administrator\Record\PSResponsibilityController;
 use App\Http\Controllers\API\Administrator\User\IndexController as UserIndexController;
 use App\Http\Controllers\API\Auth\AuthApiController;
 use App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement\IndexController;
+use App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement\JobTitleManageController;
 use App\Http\Controllers\API\BusinessOwnerDashboard\Profile\IndexController as ProfileIndexController;
 use App\Http\Controllers\API\Setting\UpdatePasswordController;
 use App\Http\Controllers\API\User\ProcedureController;
@@ -39,13 +41,11 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
     // Records Management (REC-01, REC-02, etc.)
     Route::prefix('record')->group(function () {
         Route::get('/control-document-register', [CDRegisterController::class, 'index']);
-
         // REC-02: Personnel Structure & Responsibilities
         Route::get('/personal-responsibilities', [PSResponsibilityController::class, 'index']);
         Route::post('/personal-responsibilities', [PSResponsibilityController::class, 'store']);
         Route::delete('/personal-responsibilities/remove', [PSResponsibilityController::class, 'destroy']);
     });
-
     // Procedure Management
     Route::prefix('procedures')->group(function () {
         Route::get('/', [ProcedureIndexController::class, 'index']);
@@ -60,6 +60,7 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
         Route::post('/store', [PreAuditChecklistController::class, 'store']);
         Route::post('/update/{id}', [PreAuditChecklistController::class, 'update']);
     });
+
 });
 
 // 4. Regular User Routes
@@ -73,6 +74,9 @@ Route::middleware('auth:sanctum')->prefix('businesses')->group(function () {
     Route::post('/add-administrator', [IndexController::class, 'addAdministrator']);
     Route::get('/list-administrators', [IndexController::class, 'listAdministrators']);
     Route::delete('/remove-administrator', [IndexController::class, 'removeAdministrator']);
+
+    // -- Job title Management
+    Route::resource('job-titles', JobTitleManageController::class);
 
     Route::get('/profiles', [ProfileIndexController::class, 'getBusinessProfile']);
     Route::post('/update-profile', [ProfileIndexController::class, 'updateBusinessProfile']);
