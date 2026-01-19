@@ -3,7 +3,11 @@
 use App\Http\Controllers\API\Administrator\PreAuditChecklist\IndexController as PreAuditChecklistController;
 use App\Http\Controllers\API\Administrator\Procedure\IndexController as ProcedureIndexController;
 use App\Http\Controllers\API\Administrator\Record\CDRegisterController;
+use App\Http\Controllers\API\Administrator\Record\CommunicationPlanController;
+use App\Http\Controllers\API\Administrator\Record\CompetenceRegisterController;
+use App\Http\Controllers\API\Administrator\Record\ProjectReviewJobCardController;
 use App\Http\Controllers\API\Administrator\Record\PSResponsibilityController;
+use App\Http\Controllers\API\Administrator\Record\WeldingSpecificationController;
 use App\Http\Controllers\API\Administrator\User\IndexController as UserIndexController;
 use App\Http\Controllers\API\Auth\AuthApiController;
 use App\Http\Controllers\API\BusinessOwnerDashboard\CompanyManagement\IndexController;
@@ -45,6 +49,15 @@ Route::middleware('auth:sanctum')->prefix('administrators')->group(function () {
         Route::get('/personal-responsibilities', [PSResponsibilityController::class, 'index']);
         Route::post('/personal-responsibilities', [PSResponsibilityController::class, 'store']);
         Route::delete('/personal-responsibilities/remove', [PSResponsibilityController::class, 'destroy']);
+
+        // REC- 09
+        Route::resource('/comunication-plan', CommunicationPlanController::class);
+        // REC- 09
+        Route::resource('/competence-register', CompetenceRegisterController::class);
+        // REC- 09
+        Route::resource('/welding-specification', WeldingSpecificationController::class);
+        // REC- 09
+        Route::resource('/project-review-job-card', ProjectReviewJobCardController::class);
     });
     // Procedure Management
     Route::prefix('procedures')->group(function () {
