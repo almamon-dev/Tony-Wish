@@ -1,6 +1,6 @@
 import React from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import {
     Users,
     Clock,
@@ -14,9 +14,12 @@ import {
     ChevronDown,
     ChevronLeft,
     ChevronRight,
+    X,
 } from "lucide-react";
 
 export default function Dashboard({ auth }) {
+    const { flash } = usePage().props;
+    
     const stats = [
         {
             label: "Active Users",
@@ -114,6 +117,20 @@ export default function Dashboard({ auth }) {
             <Head title="Administrator Dashboard" />
 
             <div className="space-y-8 pb-10">
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl flex items-center gap-3">
+                        <CheckCircle2 size={20} className="text-green-600" />
+                        <p className="font-medium text-sm">{flash.success}</p>
+                    </div>
+                )}
+                {flash?.error && (
+                    <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl flex items-center gap-3">
+                        <X size={20} className="text-red-600" />
+                        <p className="font-medium text-sm">{flash.error}</p>
+                    </div>
+                )}
+
                 {/* Header */}
                 <div className="flex flex-col gap-1.5">
                     <h1 className="text-[28px] font-black text-slate-800 tracking-tight leading-none">

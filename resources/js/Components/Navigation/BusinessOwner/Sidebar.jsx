@@ -36,9 +36,9 @@ const Sidebar = ({ isCollapsed }) => {
         },
         {
             label: "Company Management",
-            path: "/business-owner/company-management",
+            path: "/business-owner/company",
             icon: <Building2 size={20} />,
-            active: currentPath === "/business-owner/company-management",
+            active: currentPath === "/business-owner/company",
         },
         {
             label: "Reports",

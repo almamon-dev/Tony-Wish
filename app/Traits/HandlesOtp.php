@@ -13,25 +13,26 @@ trait HandlesOtp
      * Generate and send OTP to the given email.
      *
      * @param string $email
+     * @param string $mailableClazz
      * @return void
      */
-    public function sendOtp($email)
+    public function sendOtp($email, $mailableClass = PasswordResetOtp::class)
     {
         // Generate a 6-digit OTP
         $otp = rand(100000, 999999);
 
-        // Store OTP in database
+        // Store OTP in database (hashed)
         \App\Models\Otp::updateOrCreate(
             ['email' => $email],
             [
-                'otp' => $otp,
+                'otp' => \Illuminate\Support\Facades\Hash::make((string)$otp),
                 'expires_at' => now()->addMinutes(15),
             ]
         );
 
         // specific email sending logic
         try {
-             Mail::to($email)->send(new PasswordResetOtp($otp));
+             Mail::to($email)->send(new $mailableClass($otp));
         } catch (\Exception $e) {
             // Handle mail sending failure if necessary
         }
@@ -47,11 +48,11 @@ trait HandlesOtp
     public function verifyOtp($email, $otp)
     {
         $otpRecord = \App\Models\Otp::where('email', $email)
-            ->where('otp', $otp)
             ->where('expires_at', '>', now())
             ->first();
 
-        if ($otpRecord) {
+        // Check if record exists and hash matches
+        if ($otpRecord && \Illuminate\Support\Facades\Hash::check((string)$otp, $otpRecord->otp)) {
             // OTP is valid
             $otpRecord->delete();
             return true;

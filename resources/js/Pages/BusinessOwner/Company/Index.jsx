@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import BusinessOwnerLayout from "@/Layouts/BusinessOwnerLayout";
-import { Head } from "@inertiajs/react";
+import { Head, useForm, usePage } from "@inertiajs/react";
 import {
     Plus,
     Trash2,
@@ -9,33 +9,34 @@ import {
     Building2,
     Search,
     Pencil,
+    CheckCircle2,
+    Clock,
 } from "lucide-react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
-export default function CompanyManagement() {
+export default function CompanyManagement({ administrators = [] }) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const { flash } = usePage().props;
 
-    const admins = [
-        {
-            name: "Sarah Johnson",
-            email: "sarah.j@company.com",
-            role: "Administrator",
-            status: "Active",
-        },
-        {
-            name: "Sarah Johnson",
-            email: "sarah.j@company.com",
-            role: "Administrator",
-            status: "Active",
-        },
-        {
-            name: "Sarah Johnson",
-            email: "sarah.j@company.com",
-            role: "Administrator",
-            status: "Active",
-        },
-    ];
+    // Form handling with Inertia
+    const { data, setData, post, processing, errors, reset } = useForm({
+        first_name: "",
+        last_name: "",
+        email: "",
+        department: "",
+        access_level: "limited_access",
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route("business-owner.administrators.store"), {
+            onSuccess: () => {
+                setIsAddModalOpen(false);
+                reset();
+            },
+        });
+    };
 
     const departments = [
         "Operations",
@@ -44,10 +45,11 @@ export default function CompanyManagement() {
         "Human Resources",
         "Finance",
     ];
+    
     const accessLevels = [
-        "Full Access - All permissions",
-        "Limited Access - View and Edit",
-        "View Only - Read access",
+        { value: "full_access", label: "Full Access - All permissions" },
+        { value: "limited_access", label: "Limited Access - View and Edit" },
+        { value: "view_only", label: "View Only - Read access" },
     ];
 
     return (
@@ -55,6 +57,20 @@ export default function CompanyManagement() {
             <Head title="Company Management" />
 
             <div className="space-y-8 pb-10">
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl flex items-center gap-3">
+                        <CheckCircle2 size={20} className="text-green-600" />
+                        <p className="font-medium text-sm">{flash.success}</p>
+                    </div>
+                )}
+                {flash?.error && (
+                    <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl flex items-center gap-3">
+                        <X size={20} className="text-red-600" />
+                        <p className="font-medium text-sm">{flash.error}</p>
+                    </div>
+                )}
+
                 {/* Header */}
                 <div>
                     <h1 className="text-[26px] font-bold text-slate-800">
@@ -91,6 +107,9 @@ export default function CompanyManagement() {
                                     <th className="px-8 py-5 text-[14px] font-bold text-slate-500">
                                         Name
                                     </th>
+                                    <th className="px-8 py-5 text-[14px] font-bold text-slate-500">
+                                        Department
+                                    </th>
                                     <th className="px-8 py-5 text-[14px] font-bold text-slate-500 text-center">
                                         Status
                                     </th>
@@ -100,36 +119,65 @@ export default function CompanyManagement() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {admins.map((admin, i) => (
-                                    <tr
-                                        key={i}
-                                        className="hover:bg-slate-50/30 transition-colors group"
-                                    >
-                                        <td className="px-8 py-5">
-                                            <div className="font-medium text-slate-600 text-[14px]">
-                                                {admin.name}
-                                            </div>
-                                            <div className="text-[12px] text-slate-400">
-                                                {admin.email}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5 text-center">
-                                            <span className="px-5 py-1.5 bg-white border border-slate-200 text-slate-600 text-[12px] font-bold rounded-lg group-hover:bg-slate-50 transition-all">
-                                                {admin.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-5 text-center">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 text-slate-400 hover:text-blue-500 hover:border-blue-200 rounded-lg transition-all shadow-sm">
-                                                    <Pencil size={16} />
-                                                </button>
-                                                <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-[13px] font-medium rounded-lg hover:bg-slate-50 transition-all">
-                                                    Remove
-                                                </button>
+                                {administrators.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="4" className="px-8 py-12 text-center">
+                                            <div className="flex flex-col items-center gap-3">
+                                                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                                                    <Plus size={24} className="text-slate-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-slate-600 font-medium">No administrators yet</p>
+                                                    <p className="text-slate-400 text-sm">Add your first administrator to get started</p>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    administrators.map((admin) => (
+                                        <tr
+                                            key={admin.id}
+                                            className="hover:bg-slate-50/30 transition-colors group"
+                                        >
+                                            <td className="px-8 py-5">
+                                                <div className="font-medium text-slate-600 text-[14px]">
+                                                    {admin.name}
+                                                </div>
+                                                <div className="text-[12px] text-slate-400">
+                                                    {admin.email}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-5">
+                                                <span className="text-[13px] text-slate-600 font-medium">
+                                                    {admin.department || "—"}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-5 text-center">
+                                                {admin.verified ? (
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 text-green-700 text-[12px] font-bold rounded-lg">
+                                                        <CheckCircle2 size={14} />
+                                                        Active
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-[12px] font-bold rounded-lg">
+                                                        <Clock size={14} />
+                                                        Pending
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-8 py-5 text-center">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 text-slate-400 hover:text-blue-500 hover:border-blue-200 rounded-lg transition-all shadow-sm">
+                                                        <Pencil size={16} />
+                                                    </button>
+                                                    <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-[13px] font-medium rounded-lg hover:bg-slate-50 transition-all">
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -253,7 +301,7 @@ export default function CompanyManagement() {
                                         your organization
                                     </p>
 
-                                    <form className="space-y-4">
+                                    <form onSubmit={submit} className="space-y-4">
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1.5">
                                                 <label className="text-[12px] font-bold text-slate-700">
@@ -261,9 +309,14 @@ export default function CompanyManagement() {
                                                 </label>
                                                 <input
                                                     type="text"
+                                                    value={data.first_name}
+                                                    onChange={(e) => setData('first_name', e.target.value)}
                                                     placeholder="John"
-                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]"
+                                                    className={`w-full h-10 px-4 bg-slate-50 border ${errors.first_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                                 />
+                                                {errors.first_name && (
+                                                    <p className="text-red-500 text-xs">{errors.first_name}</p>
+                                                )}
                                             </div>
                                             <div className="space-y-1.5">
                                                 <label className="text-[12px] font-bold text-slate-700">
@@ -271,9 +324,14 @@ export default function CompanyManagement() {
                                                 </label>
                                                 <input
                                                     type="text"
+                                                    value={data.last_name}
+                                                    onChange={(e) => setData('last_name', e.target.value)}
                                                     placeholder="Doe"
-                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]"
+                                                    className={`w-full h-10 px-4 bg-slate-50 border ${errors.last_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                                 />
+                                                {errors.last_name && (
+                                                    <p className="text-red-500 text-xs">{errors.last_name}</p>
+                                                )}
                                             </div>
                                         </div>
 
@@ -283,9 +341,14 @@ export default function CompanyManagement() {
                                             </label>
                                             <input
                                                 type="email"
+                                                value={data.email}
+                                                onChange={(e) => setData('email', e.target.value)}
                                                 placeholder="john.doe@company.com"
-                                                className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]"
+                                                className={`w-full h-10 px-4 bg-slate-50 border ${errors.email ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                             />
+                                            {errors.email && (
+                                                <p className="text-red-500 text-xs">{errors.email}</p>
+                                            )}
                                         </div>
 
                                         <div className="space-y-1.5">
@@ -293,7 +356,11 @@ export default function CompanyManagement() {
                                                 Department
                                             </label>
                                             <div className="relative">
-                                                <select className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10">
+                                                <select 
+                                                    value={data.department}
+                                                    onChange={(e) => setData('department', e.target.value)}
+                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
+                                                >
                                                     <option value="">
                                                         Select department
                                                     </option>
@@ -301,7 +368,7 @@ export default function CompanyManagement() {
                                                         (dept, i) => (
                                                             <option
                                                                 key={i}
-                                                                value={dept.toLowerCase()}
+                                                                value={dept}
                                                             >
                                                                 {dept}
                                                             </option>
@@ -320,14 +387,18 @@ export default function CompanyManagement() {
                                                 Access Level
                                             </label>
                                             <div className="relative">
-                                                <select className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10">
+                                                <select 
+                                                    value={data.access_level}
+                                                    onChange={(e) => setData('access_level', e.target.value)}
+                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
+                                                >
                                                     {accessLevels.map(
                                                         (level, i) => (
                                                             <option
                                                                 key={i}
-                                                                value={level.toLowerCase()}
+                                                                value={level.value}
                                                             >
-                                                                {level}
+                                                                {level.label}
                                                             </option>
                                                         ),
                                                     )}
@@ -345,15 +416,24 @@ export default function CompanyManagement() {
                                                 onClick={() =>
                                                     setIsAddModalOpen(false)
                                                 }
-                                                className="px-5 py-2 text-[13px] font-bold text-slate-400 hover:text-slate-600 transition-all border border-slate-100 rounded-lg"
+                                                disabled={processing}
+                                                className="px-5 py-2 text-[13px] font-bold text-slate-400 hover:text-slate-600 transition-all border border-slate-100 rounded-lg disabled:opacity-50"
                                             >
                                                 Cancel
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="bg-[#2c8af8] hover:bg-blue-600 text-white px-5 py-2 rounded-lg text-[13px] font-bold transition-all shadow-lg shadow-blue-500/20"
+                                                disabled={processing}
+                                                className="bg-[#2c8af8] hover:bg-blue-600 text-white px-5 py-2 rounded-lg text-[13px] font-bold transition-all shadow-lg shadow-blue-500/20 disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2"
                                             >
-                                                Add Administrator
+                                                {processing ? (
+                                                    <>
+                                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                        Sending...
+                                                    </>
+                                                ) : (
+                                                    'Send Invitation'
+                                                )}
                                             </button>
                                         </div>
                                     </form>

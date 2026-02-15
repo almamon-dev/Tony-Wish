@@ -39,21 +39,24 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        // Validate that this email doesn't already have a pending registration? 
+        // Not strictly necessary as session overwrites, but good practice.
+        // For now, simple session overwriting.
+
+        $registrationData = [
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'user_type' => 'business_owner',
-        ]);
+        ];
 
-        event(new Registered($user));
+        // Store registration data in session temporarily
+        session(['registration_data' => $registrationData]);
+        session(['verification_email' => $request->email]);
 
         // Send OTP
-        $this->sendOtp($request->email);
-
-        // Store email in session
-        session(['verification_email' => $request->email]);
+        $this->sendOtp($request->email, \App\Mail\UserRegistrationOtp::class);
 
         return redirect()->route('register.verify_otp')->with('status', 'verification-link-sent');
     }
@@ -67,6 +70,9 @@ class RegisteredUserController extends Controller
             'status' => session('status'),
             'targetRoute' => 'register.verify_otp.store',
             'resendRoute' => 'register.resend_otp',
+            'pageTitle' => 'Verify Your Email',
+            'heading' => 'Verify Your Account',
+            'subheading' => 'We have sent a 6-digit confirmation code to your email. Please enter it below to activate your account.',
         ]);
     }
 
@@ -81,21 +87,28 @@ class RegisteredUserController extends Controller
         ]);
 
         $email = session('verification_email');
+        $registrationData = session('registration_data');
 
-        if (! $email) {
-            return redirect()->route('register')->withErrors(['email' => 'Session expired. Please register again.']);
+        if (! $email || ! $registrationData || $email !== $registrationData['email']) {
+            return redirect()->route('register')->withErrors(['email' => 'Session expired or invalid. Please register again.']);
         }
 
         $otp = implode('', $request->otp);
 
         if ($this->verifyOtp($email, $otp)) {
-            $user = User::where('email', $email)->firstOrFail();
+            // OTP is valid, create the user
+            $user = User::create($registrationData);
+
+            event(new Registered($user));
 
             if (! $user->hasVerifiedEmail()) {
                 $user->markEmailAsVerified();
             }
 
             Auth::login($user);
+
+            // Clear session data
+            session()->forget(['verification_email', 'registration_data']);
 
             return redirect(route('dashboard', absolute: false));
         }
@@ -114,7 +127,7 @@ class RegisteredUserController extends Controller
             return redirect()->route('register');
         }
 
-        $this->sendOtp($email);
+        $this->sendOtp($email, \App\Mail\UserRegistrationOtp::class);
 
         return back()->with('status', 'OTP has been resent to your email.');
     }

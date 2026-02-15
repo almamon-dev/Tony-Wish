@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -23,7 +23,20 @@ class User extends Authenticatable
         'email',
         'password',
         'user_type',
+        'business_owner_id',
+        'department',
+        'access_level',
     ];
+
+    public function businessOwner()
+    {
+        return $this->belongsTo(User::class, 'business_owner_id');
+    }
+
+    public function administrators()
+    {
+        return $this->hasMany(User::class, 'business_owner_id');
+    }
 
     /**
      * Get the user's full name.
@@ -56,5 +69,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the company owned by the user.
+     */
+    public function company()
+    {
+        return $this->hasOne(Company::class);
     }
 }

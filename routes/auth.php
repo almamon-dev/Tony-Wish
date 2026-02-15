@@ -53,6 +53,10 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+    
+    Route::get('password-updated', function () {
+        return \Inertia\Inertia::render('Auth/PasswordUpdated');
+    })->name('password.updated');
 });
 
 Route::middleware('auth')->group(function () {

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
+    return Inertia::render('Landing/Index', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
@@ -209,10 +209,37 @@ Route::middleware('auth')->group(function () {
 
     // Business Owner Routes
     Route::prefix('business-owner')->name('business-owner.')->group(function () {
-        Route::get('/company', function () {
-            return Inertia::render('BusinessOwner/Company/Index');
-        })->name('company.index');
+        Route::get('/dashboard', function () {
+            return Inertia::render('BusinessOwner/Dashboard');
+        })->name('dashboard');
+        Route::get('/company', [\App\Http\Controllers\BusinessOwner\CompanyController::class, 'index'])->name('company.index');
+        Route::post('/company', [\App\Http\Controllers\BusinessOwner\CompanyController::class, 'store'])->name('company.store');
+        
+        // Administrator Management
+        Route::post('/administrators', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'store'])
+            ->name('administrators.store')
+            ->middleware('can:manage-administrators');
+            
+        Route::get('/procedures', function () {
+            return Inertia::render('BusinessOwner/Procedures/Index');
+        })->name('procedures.index');
+        Route::get('/reports', function () {
+            return Inertia::render('BusinessOwner/Reports/Index');
+        })->name('reports.index');
+        Route::get('/settings', function () {
+            return Inertia::render('BusinessOwner/Settings/Index');
+        })->name('settings.index');
+        Route::get('/subscription', function () {
+            return Inertia::render('BusinessOwner/Subscription/Index');
+        })->name('subscription.index');
+        Route::get('/help-support', function () {
+            return Inertia::render('BusinessOwner/HelpSupport/Index');
+        })->name('help-support.index');
     });
+    
+    // Administrator Email Verification (outside auth middleware - public link)
+    Route::get('/administrator/verify-email/{id}/{hash}', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'verifyEmail'])
+        ->name('administrator.verify-email');
 });
 
 require __DIR__ . '/auth.php';

@@ -50,6 +50,11 @@ class PasswordResetLinkController extends Controller
     {
         return Inertia::render('Auth/VerifyEmail', [
             'status' => session('status'),
+            'targetRoute' => 'password.verify_otp.store',
+            'resendRoute' => 'password.resend_otp',
+            'pageTitle' => 'Reset Password OTP',
+            'heading' => 'Check your email for OTP',
+            'subheading' => 'We have sent a 6-digit confirmation code to your email. Please enter it below to verify your identity and reset your password.',
         ]);
     }
 
