@@ -27,17 +27,41 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', \Illuminate\Validation\Rule::unique(\App\Models\User::class)->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'country' => ['nullable', 'string', 'max:100'],
+            'photo' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        $data = $request->only(['first_name', 'last_name', 'email', 'phone', 'country']);
+
+        if ($request->hasFile('photo')) {
+            if ($user->avatar) {
+                \App\Helpers\Helper::deleteFile($user->avatar);
+            }
+
+            $upload = \App\Helpers\Helper::uploadFile('avatars', $request->file('photo'));
+            if ($upload) {
+                $data['avatar'] = $upload['original'];
+            }
         }
 
-        $request->user()->save();
+        $user->fill($data);
 
-        return Redirect::route('profile.edit');
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::back()->with('success', 'Profile updated successfully.');
     }
 
     /**

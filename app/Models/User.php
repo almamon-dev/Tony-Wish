@@ -26,6 +26,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'business_owner_id',
         'department',
         'access_level',
+        'phone',
+        'country',
+        'avatar',
+        'created_by',
+        'email_verified_at',
     ];
 
     public function businessOwner()
@@ -36,6 +41,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function administrators()
     {
         return $this->hasMany(User::class, 'business_owner_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**

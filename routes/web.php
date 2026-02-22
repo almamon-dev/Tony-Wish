@@ -129,9 +129,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', function () {
             return Inertia::render('Administrator/Dashboard');
         })->name('dashboard');
-        Route::get('/procedures', function () {
-            return Inertia::render('Administrator/Procedures/Index');
-        })->name('procedures.index');
+        Route::get('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'index'])->name('procedures.index');
+        Route::post('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'store'])->name('procedures.store');
         Route::get('/pre-audit-checklists', function () {
             return Inertia::render('Administrator/PreAuditChecklists/Index');
         })->name('pre-audit-checklists.index');
@@ -193,9 +192,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/upload-center', function () {
             return Inertia::render('Administrator/UploadCenter/Index');
         })->name('upload-center.index');
-        Route::get('/users', function () {
-            return Inertia::render('Administrator/Users/Index');
-        })->name('users.index');
+        Route::get('/users', [\App\Http\Controllers\Administrator\UserController::class, 'index'])->name('users.index');
+        Route::post('/users', [\App\Http\Controllers\Administrator\UserController::class, 'store'])->name('users.store');
         Route::get('/reports', function () {
             return Inertia::render('Administrator/Reports/Index');
         })->name('reports.index');
@@ -220,15 +218,13 @@ Route::middleware('auth')->group(function () {
             ->name('administrators.store')
             ->middleware('can:manage-administrators');
             
-        Route::get('/procedures', function () {
-            return Inertia::render('BusinessOwner/Procedures/Index');
-        })->name('procedures.index');
+        Route::get('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'index'])->name('procedures.index');
         Route::get('/reports', function () {
             return Inertia::render('BusinessOwner/Reports/Index');
         })->name('reports.index');
-        Route::get('/settings', function () {
-            return Inertia::render('BusinessOwner/Settings/Index');
-        })->name('settings.index');
+        Route::get('/settings', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings/profile', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+        Route::patch('/settings/password', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'updatePassword'])->name('settings.password.update');
         Route::get('/subscription', function () {
             return Inertia::render('BusinessOwner/Subscription/Index');
         })->name('subscription.index');
@@ -240,6 +236,10 @@ Route::middleware('auth')->group(function () {
     // Administrator Email Verification (outside auth middleware - public link)
     Route::get('/administrator/verify-email/{id}/{hash}', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'verifyEmail'])
         ->name('administrator.verify-email');
+
+    // User Email Verification
+    Route::get('/user/verify-email/{id}/{hash}', [\App\Http\Controllers\Administrator\UserController::class, 'verifyEmail'])
+        ->name('user.verify-email');
 });
 
 require __DIR__ . '/auth.php';

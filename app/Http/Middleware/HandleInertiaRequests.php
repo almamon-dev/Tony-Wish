@@ -39,10 +39,18 @@ class HandleInertiaRequests extends Middleware
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
                     'user_type' => $request->user()->user_type,
+                    'phone' => $request->user()->phone,
+                    'country' => $request->user()->country,
+                    'avatar' => $request->user()->avatar,
+                    'company' => $request->user()->loadMissing('company')->company,
                 ] : null,
             ],
             'settings' => [
                 'site_name' => config('app.name', 'Admin Panel'),
+            ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
             ],
         ];
     }

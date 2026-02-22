@@ -3,11 +3,8 @@ import BusinessOwnerLayout from "@/Layouts/BusinessOwnerLayout";
 import { Head, useForm, usePage } from "@inertiajs/react";
 import {
     Plus,
-    Trash2,
     X,
     ChevronDown,
-    Building2,
-    Search,
     Pencil,
     CheckCircle2,
     Clock,
@@ -15,12 +12,12 @@ import {
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
-export default function CompanyManagement({ administrators = [] }) {
+export default function CompanyManagement({ administrators = [], company }) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const { flash } = usePage().props;
 
-    // Form handling with Inertia
-    const { data, setData, post, processing, errors, reset } = useForm({
+    // Admin Form
+    const adminForm = useForm({
         first_name: "",
         last_name: "",
         email: "",
@@ -28,12 +25,12 @@ export default function CompanyManagement({ administrators = [] }) {
         access_level: "limited_access",
     });
 
-    const submit = (e) => {
+    const submitAdmin = (e) => {
         e.preventDefault();
-        post(route("business-owner.administrators.store"), {
+        adminForm.post(route("business-owner.administrators.store"), {
             onSuccess: () => {
                 setIsAddModalOpen(false);
-                reset();
+                adminForm.reset();
             },
         });
     };
@@ -58,16 +55,10 @@ export default function CompanyManagement({ administrators = [] }) {
 
             <div className="space-y-8 pb-10">
                 {/* Flash Messages */}
-                {flash?.success && (
-                    <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl flex items-center gap-3">
-                        <CheckCircle2 size={20} className="text-green-600" />
-                        <p className="font-medium text-sm">{flash.success}</p>
-                    </div>
-                )}
-                {flash?.error && (
-                    <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl flex items-center gap-3">
-                        <X size={20} className="text-red-600" />
-                        <p className="font-medium text-sm">{flash.error}</p>
+                {(flash?.success || flash?.error) && (
+                    <div className={`${flash?.success ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'} border px-6 py-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300`}>
+                        {flash?.success ? <CheckCircle2 size={20} className="text-green-600" /> : <X size={20} className="text-red-600" />}
+                        <p className="font-medium text-sm">{flash?.success || flash?.error}</p>
                     </div>
                 )}
 
@@ -182,71 +173,6 @@ export default function CompanyManagement({ administrators = [] }) {
                         </table>
                     </div>
                 </div>
-
-                {/* Company Information Section */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden p-8">
-                    <div className="mb-8">
-                        <h2 className="font-bold text-slate-800 text-[18px]">
-                            Company Information
-                        </h2>
-                        <p className="text-[13px] text-slate-400 font-medium">
-                            Update your company details
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
-                                    Company Name
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Acme Corporation"
-                                    className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-slate-700 font-medium focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
-                                    Registration Number
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="12345678"
-                                    className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-slate-700 font-medium focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
-                                    Industry
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="Manufacturing"
-                                    className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-slate-700 font-medium focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
-                                    VAT Number
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="GB123456789"
-                                    className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-slate-700 font-medium focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end mt-10">
-                        <button className="bg-[#2c8af8] hover:bg-blue-600 text-white px-8 py-3 rounded-xl text-[14px] font-bold transition-all shadow-lg shadow-blue-500/20">
-                            Edit Company Details
-                        </button>
-                    </div>
-                </div>
             </div>
 
             {/* Add Administrator Modal */}
@@ -301,7 +227,7 @@ export default function CompanyManagement({ administrators = [] }) {
                                         your organization
                                     </p>
 
-                                    <form onSubmit={submit} className="space-y-4">
+                                    <form onSubmit={submitAdmin} className="space-y-4">
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1.5">
                                                 <label className="text-[12px] font-bold text-slate-700">
@@ -309,13 +235,13 @@ export default function CompanyManagement({ administrators = [] }) {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    value={data.first_name}
-                                                    onChange={(e) => setData('first_name', e.target.value)}
+                                                    value={adminForm.data.first_name}
+                                                    onChange={(e) => adminForm.setData('first_name', e.target.value)}
                                                     placeholder="John"
-                                                    className={`w-full h-10 px-4 bg-slate-50 border ${errors.first_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
+                                                    className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.first_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                                 />
-                                                {errors.first_name && (
-                                                    <p className="text-red-500 text-xs">{errors.first_name}</p>
+                                                {adminForm.errors.first_name && (
+                                                    <p className="text-red-500 text-xs">{adminForm.errors.first_name}</p>
                                                 )}
                                             </div>
                                             <div className="space-y-1.5">
@@ -324,13 +250,13 @@ export default function CompanyManagement({ administrators = [] }) {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    value={data.last_name}
-                                                    onChange={(e) => setData('last_name', e.target.value)}
+                                                    value={adminForm.data.last_name}
+                                                    onChange={(e) => adminForm.setData('last_name', e.target.value)}
                                                     placeholder="Doe"
-                                                    className={`w-full h-10 px-4 bg-slate-50 border ${errors.last_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
+                                                    className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.last_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                                 />
-                                                {errors.last_name && (
-                                                    <p className="text-red-500 text-xs">{errors.last_name}</p>
+                                                {adminForm.errors.last_name && (
+                                                    <p className="text-red-500 text-xs">{adminForm.errors.last_name}</p>
                                                 )}
                                             </div>
                                         </div>
@@ -341,13 +267,13 @@ export default function CompanyManagement({ administrators = [] }) {
                                             </label>
                                             <input
                                                 type="email"
-                                                value={data.email}
-                                                onChange={(e) => setData('email', e.target.value)}
+                                                value={adminForm.data.email}
+                                                onChange={(e) => adminForm.setData('email', e.target.value)}
                                                 placeholder="john.doe@company.com"
-                                                className={`w-full h-10 px-4 bg-slate-50 border ${errors.email ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
+                                                className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.email ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                             />
-                                            {errors.email && (
-                                                <p className="text-red-500 text-xs">{errors.email}</p>
+                                            {adminForm.errors.email && (
+                                                <p className="text-red-500 text-xs">{adminForm.errors.email}</p>
                                             )}
                                         </div>
 
@@ -357,8 +283,8 @@ export default function CompanyManagement({ administrators = [] }) {
                                             </label>
                                             <div className="relative">
                                                 <select 
-                                                    value={data.department}
-                                                    onChange={(e) => setData('department', e.target.value)}
+                                                    value={adminForm.data.department}
+                                                    onChange={(e) => adminForm.setData('department', e.target.value)}
                                                     className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
                                                 >
                                                     <option value="">
@@ -388,8 +314,8 @@ export default function CompanyManagement({ administrators = [] }) {
                                             </label>
                                             <div className="relative">
                                                 <select 
-                                                    value={data.access_level}
-                                                    onChange={(e) => setData('access_level', e.target.value)}
+                                                    value={adminForm.data.access_level}
+                                                    onChange={(e) => adminForm.setData('access_level', e.target.value)}
                                                     className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
                                                 >
                                                     {accessLevels.map(
@@ -416,17 +342,17 @@ export default function CompanyManagement({ administrators = [] }) {
                                                 onClick={() =>
                                                     setIsAddModalOpen(false)
                                                 }
-                                                disabled={processing}
+                                                disabled={adminForm.processing}
                                                 className="px-5 py-2 text-[13px] font-bold text-slate-400 hover:text-slate-600 transition-all border border-slate-100 rounded-lg disabled:opacity-50"
                                             >
                                                 Cancel
                                             </button>
                                             <button
                                                 type="submit"
-                                                disabled={processing}
+                                                disabled={adminForm.processing}
                                                 className="bg-[#2c8af8] hover:bg-blue-600 text-white px-5 py-2 rounded-lg text-[13px] font-bold transition-all shadow-lg shadow-blue-500/20 disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2"
                                             >
-                                                {processing ? (
+                                                {adminForm.processing ? (
                                                     <>
                                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                                         Sending...

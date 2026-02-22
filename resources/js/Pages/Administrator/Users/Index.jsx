@@ -10,17 +10,20 @@ import {
     Edit2,
     Eye,
     ChevronRight,
+    X,
 } from "lucide-react";
+import { usePage } from "@inertiajs/react";
 import AddUserModal from "./Partials/AddUserModal";
 
-export default function UsersIndex() {
+export default function UsersIndex({ users = [] }) {
+    const { flash } = usePage().props;
     const [searchQuery, setSearchQuery] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const stats = [
         {
             label: "Total Users",
-            value: "24",
+            value: users.length.toString(),
             icon: <Users size={20} />,
             color: "text-blue-500",
             bg: "bg-blue-50",
@@ -29,16 +32,16 @@ export default function UsersIndex() {
         },
         {
             label: "Active Today",
-            value: "18",
+            value: users.filter(u => u.email_verified_at).length.toString(),
             icon: <Activity size={20} />,
             color: "text-amber-500",
             bg: "bg-amber-50",
             iconBg: "bg-amber-100/50",
-            sublabel: "Currently online",
+            sublabel: "Verified members",
         },
         {
             label: "Tasks Assigned",
-            value: "56",
+            value: "0",
             icon: <CheckCircle2 size={20} />,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
@@ -47,7 +50,7 @@ export default function UsersIndex() {
         },
         {
             label: "Avg. Completion",
-            value: "78%",
+            value: "0%",
             icon: <PieChart size={20} />,
             color: "text-purple-500",
             bg: "bg-purple-50",
@@ -56,50 +59,24 @@ export default function UsersIndex() {
         },
     ];
 
-    const users = [
-        {
-            id: 1,
-            name: "Tom Wilson",
-            email: "tom.w@company.com",
-            tasks: 15,
-            completed: 12,
-            updated_at: "02 hours ago",
-            status: "Active",
-        },
-        {
-            id: 2,
-            name: "Tom Wilson",
-            email: "tom.w@company.com",
-            tasks: 15,
-            completed: 12,
-            updated_at: "02 hours ago",
-            status: "Active",
-        },
-        {
-            id: 3,
-            name: "Tom Wilson",
-            email: "tom.w@company.com",
-            tasks: 15,
-            completed: 12,
-            updated_at: "02 hours ago",
-            status: "Active",
-        },
-        {
-            id: 4,
-            name: "Tom Wilson",
-            email: "tom.w@company.com",
-            tasks: 15,
-            completed: 12,
-            updated_at: "02 hours ago",
-            status: "Active",
-        },
-    ];
-
     return (
         <AdministratorLayout>
             <Head title="Users Management" />
 
-            <div className="space-y-8 pb-10">
+            <div className="space-y-8 pb-10 text-left">
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="bg-emerald-50 border border-emerald-100 text-emerald-600 px-6 py-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <CheckCircle2 size={20} />
+                        <p className="font-bold text-[14px]">{flash.success}</p>
+                    </div>
+                )}
+                {flash?.error && (
+                    <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <X size={20} />
+                        <p className="font-bold text-[14px]">{flash.error}</p>
+                    </div>
+                )}
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex flex-col gap-1">
@@ -167,7 +144,7 @@ export default function UsersIndex() {
                                         Completed
                                     </th>
                                     <th className="px-4 py-5 text-[14px] font-bold text-slate-700 text-center">
-                                        updated_at
+                                        Added By
                                     </th>
                                     <th className="px-4 py-5 text-[14px] font-bold text-slate-700 text-center">
                                         Status
@@ -178,47 +155,70 @@ export default function UsersIndex() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {users.map((user) => (
-                                    <tr
-                                        key={user.id}
-                                        className="hover:bg-slate-50/50 transition-colors"
-                                    >
-                                        <td className="px-6 py-5">
-                                            <span className="text-[14px] font-medium text-slate-700">
-                                                {user.name}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500">
-                                            {user.email}
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
-                                            {user.tasks}
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
-                                            {user.completed}
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center whitespace-nowrap">
-                                            {user.updated_at}
-                                        </td>
-                                        <td className="px-4 py-5 text-center">
-                                            <span className="px-4 py-1.5 rounded-full text-[12px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                                {user.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center justify-end gap-2 text-slate-400">
-                                                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white">
-                                                    <Edit2 size={16} />
-                                                    edit
-                                                </button>
-                                                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white">
-                                                    <Eye size={16} />
-                                                    view
+                                {users.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="7" className="px-6 py-12 text-center">
+                                            <div className="flex flex-col items-center justify-center gap-3">
+                                                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300">
+                                                    <Users size={28} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-[16px] font-bold text-slate-700">No users found</h4>
+                                                    <p className="text-[13px] text-slate-400 font-medium">Add your first team member to start managing permissions</p>
+                                                </div>
+                                                <button 
+                                                    onClick={() => setIsModalOpen(true)}
+                                                    className="mt-2 text-[#2185d5] font-bold text-[13px] hover:underline flex items-center gap-1"
+                                                >
+                                                    <Plus size={14} />
+                                                    Add new user
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    users.map((user) => (
+                                        <tr
+                                            key={user.id}
+                                            className="hover:bg-slate-50/50 transition-colors"
+                                        >
+                                            <td className="px-6 py-5">
+                                                <span className="text-[14px] font-medium text-slate-700">
+                                                    {user.name}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500">
+                                                {user.email}
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
+                                                {user.tasks || 0}
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
+                                                {user.completed || 0}
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center whitespace-nowrap">
+                                                {user.creator ? user.creator.name : 'System'}
+                                            </td>
+                                            <td className="px-4 py-5 text-center">
+                                                <span className={`px-4 py-1.5 rounded-full text-[12px] font-bold ${user.email_verified_at ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                                                    {user.email_verified_at ? 'Active' : 'Pending'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center justify-end gap-2 text-slate-400">
+                                                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white">
+                                                        <Edit2 size={16} />
+                                                        edit
+                                                    </button>
+                                                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white">
+                                                        <Eye size={16} />
+                                                        view
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

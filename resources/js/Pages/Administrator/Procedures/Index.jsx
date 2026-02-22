@@ -13,34 +13,13 @@ import {
 } from "lucide-react";
 import AddProcedureModal from "./Partials/AddProcedureModal";
 
-export default function ProceduresIndex() {
+export default function ProceduresIndex({ procedures = [] }) {
     const [activeTab, setActiveTab] = useState("All Procedures");
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState("Details");
 
     const tabs = ["All Procedures", "Active", "Completed", "Pending Review"];
-
-    const procedures = [
-        {
-            name: "ISO 9001 Quality Management",
-            assigned: "Tom Wilson",
-            status: "In Progress",
-            date: "Nov 5, 2025",
-        },
-        // ... (existing procedures)
-        {
-            name: "ISO 9001 Quality Management",
-            assigned: "Tom Wilson",
-            status: "Pending",
-            date: "Nov 5, 2025",
-        },
-    ];
-
-    // For brevity, using the same mock data for others
-    for (let i = 0; i < 8; i++) {
-        procedures.push({ ...procedures[0] });
-    }
 
     const filteredProcedures = procedures.filter((proc) => {
         const matchesSearch =

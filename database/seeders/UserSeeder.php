@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
                 'last_name' => 'Admin',
                 'password' => Hash::make('password'),
                 'user_type' => 'admin',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -32,6 +33,7 @@ class UserSeeder extends Seeder
                 'last_name' => 'Administrator',
                 'password' => Hash::make('password'),
                 'user_type' => 'administrator',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -43,6 +45,7 @@ class UserSeeder extends Seeder
                 'last_name' => 'Owner',
                 'password' => Hash::make('password'),
                 'user_type' => 'business_owner',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -54,6 +57,7 @@ class UserSeeder extends Seeder
                 'last_name' => 'User',
                 'password' => Hash::make('password'),
                 'user_type' => 'userdashboard',
+                'email_verified_at' => now(),
             ]
         );
     }

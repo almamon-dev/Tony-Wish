@@ -56,7 +56,7 @@ const Header = ({ onMenuClick }) => {
                     >
                         <div className="text-right leading-none hidden sm:block">
                             <p className="text-[14px] font-bold text-slate-800">
-                                {auth?.user?.name || "Business Owner"}
+                                {auth?.user?.first_name} {auth?.user?.last_name}
                             </p>
                             <p className="text-[11px] text-emerald-500 font-bold mt-0.5 capitalize">
                                 Company Owner
@@ -64,8 +64,11 @@ const Header = ({ onMenuClick }) => {
                         </div>
                         <img
                             src={
-                                auth?.user?.profile_photo_url ||
-                                `https://ui-avatars.com/api/?name=${auth?.user?.name || "Owner"}&background=10b981&color=fff`
+                                auth?.user?.avatar
+                                    ? `/${auth.user.avatar}`
+                                    : `https://ui-avatars.com/api/?name=${
+                                          auth?.user?.first_name || "Owner"
+                                      }&background=10b981&color=fff`
                             }
                             alt="Avatar"
                             className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-50"

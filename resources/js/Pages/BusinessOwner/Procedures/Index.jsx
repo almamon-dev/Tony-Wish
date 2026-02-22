@@ -3,60 +3,29 @@ import BusinessOwnerLayout from "@/Layouts/BusinessOwnerLayout";
 import { Head } from "@inertiajs/react";
 import { ClipboardList, CheckCircle2, FileText } from "lucide-react";
 
-export default function ProceduresIndex() {
+export default function ProceduresIndex({ procedures = [] }) {
     const stats = [
         {
             label: "Total Procedures",
-            value: "42",
+            value: procedures.length.toString(),
             icon: <ClipboardList size={20} />,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
         },
         {
             label: "Completed",
-            value: "28",
-            sub: "67% completion rate",
+            value: procedures.filter(p => p.status === 'Completed').length.toString(),
+            sub: `${((procedures.filter(p => p.status === 'Completed').length / (procedures.length || 1)) * 100).toFixed(0)}% completion rate`,
             icon: <CheckCircle2 size={20} />,
             color: "text-blue-500",
             bg: "bg-blue-50",
         },
         {
-            label: "Total Procedures",
-            value: "42",
+            label: "Active",
+            value: procedures.filter(p => p.status !== 'Completed').length.toString(),
             icon: <FileText size={20} />,
             color: "text-amber-500",
             bg: "bg-amber-50",
-        },
-    ];
-
-    const procedures = [
-        {
-            name: "ISO 9001 Quality Management",
-            assigned: "Sarah",
-            status: "In Progress",
-            progress: 65,
-            date: "Nov 5, 2025",
-        },
-        {
-            name: "ISO 9001 Quality Management",
-            assigned: "Mike Davis",
-            status: "Completed",
-            progress: 100,
-            date: "Nov 5, 2025",
-        },
-        {
-            name: "ISO 9001 Quality Management",
-            assigned: "Tom Wilson",
-            status: "In Progress",
-            progress: 20,
-            date: "Nov 5, 2025",
-        },
-        {
-            name: "ISO 9001 Quality Management",
-            assigned: "Emma Brown",
-            status: "In Progress",
-            progress: 30,
-            date: "Nov 5, 2025",
         },
     ];
 
