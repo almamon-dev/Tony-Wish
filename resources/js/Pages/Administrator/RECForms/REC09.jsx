@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
     ArrowLeft,
     CheckCircle2,
@@ -12,116 +12,131 @@ import {
     ChevronRight,
     Save,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function REC09() {
-    const alerts = {
-        expired: 3,
-        expiringSoon: 4,
-        valid: 1,
+export default function REC09({ initialSuppliers = [] }) {
+    const { data, setData, post, processing } = useForm({
+        suppliers: [],
+        deletedIds: [],
+    });
+
+    const [alerts, setAlerts] = useState({
+        expired: 0,
+        expiringSoon: 0,
+        valid: 0,
+    });
+
+    useEffect(() => {
+        const formattedSuppliers = initialSuppliers.map(sup => ({
+            ...sup,
+            expiry_date: sup.expiry_date ? sup.expiry_date.split('T')[0] : ''
+        }));
+        
+        setData("suppliers", formattedSuppliers.length > 0 ? formattedSuppliers : [
+            {
+                id: `new_${Date.now()}`,
+                company: "",
+                service: "",
+                en1090: "No",
+                iso9001: false,
+                iso14001: false,
+                iso45001: false,
+                expiry_date: "",
+                comments: "",
+            }
+        ]);
+        
+        // Calculate alerts
+        let expired = 0, soon = 0, valid = 0;
+        const now = new Date();
+        const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        
+        formattedSuppliers.forEach(s => {
+            if (s.expiry_date) {
+                const expDate = new Date(s.expiry_date);
+                if (expDate < now) {
+                    expired++;
+                } else if (expDate <= thirtyDaysFromNow) {
+                    soon++;
+                } else {
+                    valid++;
+                }
+            }
+        });
+        
+        setAlerts({ expired, expiringSoon: soon, valid });
+    }, [initialSuppliers]);
+
+    const addSupplier = () => {
+        setData("suppliers", [
+            ...data.suppliers,
+            {
+                id: `new_${Date.now()}`,
+                company: "",
+                service: "",
+                en1090: "No",
+                iso9001: false,
+                iso14001: false,
+                iso45001: false,
+                expiry_date: "",
+                comments: "",
+            },
+        ]);
     };
 
-    const suppliers = [
-        {
-            id: 1,
-            company: "A H Allen",
-            service: "Steel stock holder",
-            en1090: "2",
-            iso9001: true,
-            iso14001: true,
-            iso45001: true,
-            expiryDate: "12/15/2025",
-            comments: "Comments",
-        },
-        {
-            id: 2,
-            company: "Upton Steel",
-            service: "Steel stock holder",
-            en1090: "2",
-            iso9001: true,
-            iso14001: true,
-            iso45001: true,
-            expiryDate: "12/15/2025",
-            comments: "2 loads return dust",
-        },
-        {
-            id: 3,
-            company: "Aalco",
-            service: "Steel stock holder",
-            en1090: "2",
-            iso9001: false,
-            iso14001: true,
-            iso45001: true,
-            expiryDate: "12/15/2025",
-            comments: "Comments",
-        },
-        {
-            id: 4,
-            company: "Thermacut",
-            service: "Powder coat paint",
-            en1090: "No",
-            iso9001: true,
-            iso14001: false,
-            iso45001: false,
-            expiryDate: "12/15/2025",
-            comments: "Comments",
-        },
-        {
-            id: 5,
-            company: "Punities",
-            service: "Fasteners",
-            en1090: "No",
-            iso9001: false,
-            iso14001: false,
-            iso45001: false,
-            expiryDate: "12/15/2025",
-            comments: "Comments",
-        },
-        {
-            id: 6,
-            company: "Charles Watts",
-            service: "Welding supplies",
-            en1090: "No",
-            iso9001: false,
-            iso14001: false,
-            iso45001: false,
-            expiryDate: "12/15/2025",
-            comments: "Comments",
-        },
-        {
-            id: 7,
-            company: "Jotun",
-            service: "Powder coat paint",
-            en1090: "No",
-            iso9001: true,
-            iso14001: false,
-            iso45001: false,
-            expiryDate: "12/15/2025",
-            comments: "Comments",
-        },
-        {
-            id: 8,
-            company: "Punities",
-            service: "Fasteners",
-            en1090: "No",
-            iso9001: false,
-            iso14001: false,
-            iso45001: false,
-            expiryDate: "12/15/2025",
-            comments: "Comments",
-        },
-    ];
+    const updateSupplier = (index, field, value) => {
+        const newSuppliers = [...data.suppliers];
+        newSuppliers[index][field] = value;
+        setData("suppliers", newSuppliers);
+    };
 
-    const StatusBadge = ({ status }) => {
-        return status ? (
-            <div className="flex items-center gap-1 text-emerald-500 font-medium">
-                <CheckCircle2 size={16} />
-                <span>Yes</span>
-            </div>
-        ) : (
-            <div className="flex items-center gap-1 text-red-500 font-medium">
-                <XCircle size={16} />
-                <span>NO</span>
-            </div>
+    const removeSupplier = (index) => {
+        const supplierToRemove = data.suppliers[index];
+        const newSuppliers = [...data.suppliers];
+        newSuppliers.splice(index, 1);
+
+        if (typeof supplierToRemove.id === "number") {
+            setData((prevData) => ({
+                ...prevData,
+                suppliers: newSuppliers,
+                deletedIds: [...prevData.deletedIds, supplierToRemove.id],
+            }));
+        } else {
+            setData("suppliers", newSuppliers);
+        }
+    };
+
+    const handleSave = () => {
+        post(route("administrator.rec-forms.rec-09.store"), {
+            onSuccess: () => {
+                toast.success("Approved Suppliers saved successfully!");
+                setData("deletedIds", []); // Clear deleted IDs on success
+            },
+            onError: (errors) => {
+                console.error("Save Errors:", errors);
+                toast.error("Failed to save data. Please check the form.");
+            },
+        });
+    };
+
+    const StatusBadge = ({ status, onClick }) => {
+        return (
+            <button 
+                onClick={onClick}
+                className="flex items-center gap-1 focus:outline-none"
+            >
+                {status ? (
+                    <div className="flex items-center gap-1 text-emerald-500 font-medium">
+                        <CheckCircle2 size={16} />
+                        <span>Yes</span>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-1 text-slate-400 font-medium">
+                        <XCircle size={16} />
+                        <span>NO</span>
+                    </div>
+                )}
+            </button>
         );
     };
 
@@ -129,7 +144,7 @@ export default function REC09() {
         <AdministratorLayout>
             <Head title="REC-09 - Approved Supplier" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -145,15 +160,23 @@ export default function REC09() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 bg-[#2185d5] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-600 transition-colors">
-                            <Save size={18} />
+                        <button 
+                            onClick={handleSave}
+                            disabled={processing}
+                            className="flex items-center gap-2 bg-[#2185d5] text-white px-4 py-2 rounded-sm text-sm font-bold shadow-sm hover:bg-blue-600 transition-colors disabled:opacity-50"
+                        >
+                            {processing ? (
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <Save size={18} />
+                            )}
                             Save Changes
                         </button>
                     </div>
                 </div>
 
                 {/* Alerts Section */}
-                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                <div className="bg-amber-50 border border-amber-100 rounded-sm p-4">
                     <h3 className="text-slate-700 font-bold mb-3">
                         Supplier Approval Alerts
                     </h3>
@@ -171,7 +194,7 @@ export default function REC09() {
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+                <div className="bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden p-6">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
@@ -183,7 +206,7 @@ export default function REC09() {
                                         Service Description
                                     </th>
                                     <th className="px-4 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        EN1090 EX Class ▾
+                                        EN1090 EX Class
                                     </th>
                                     <th className="px-4 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                                         ISO9001
@@ -206,67 +229,89 @@ export default function REC09() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {suppliers.map((supplier) => (
+                                {data.suppliers.map((supplier, index) => (
                                     <tr
                                         key={supplier.id}
                                         className="hover:bg-slate-50/50 transition-colors"
                                     >
                                         <td className="px-4 py-3">
-                                            <div className="bg-slate-50 px-3 py-2 rounded text-[13px] font-medium text-slate-700">
-                                                {supplier.company}
-                                            </div>
+                                            <input
+                                                type="text"
+                                                value={supplier.company}
+                                                onChange={(e) => updateSupplier(index, 'company', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Company Name"
+                                            />
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="bg-slate-50 px-3 py-2 rounded text-[13px] font-medium text-slate-700">
-                                                {supplier.service}
-                                            </div>
+                                            <input
+                                                type="text"
+                                                value={supplier.service}
+                                                onChange={(e) => updateSupplier(index, 'service', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Service"
+                                            />
                                         </td>
                                         <td className="px-4 py-3 text-[13px] font-medium text-slate-600">
-                                            <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded min-w-[60px]">
-                                                {supplier.en1090}
-                                                <ChevronLeft className="rotate-[-90deg] h-3 w-3 text-slate-400" />
-                                            </div>
+                                            <select 
+                                                value={supplier.en1090}
+                                                onChange={(e) => updateSupplier(index, 'en1090', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none min-w-[80px]"
+                                            >
+                                                <option value="No">No</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                            </select>
                                         </td>
                                         <td className="px-4 py-3 text-[13px]">
-                                            <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded min-w-[80px]">
+                                            <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-sm min-w-[80px]">
                                                 <StatusBadge
                                                     status={supplier.iso9001}
+                                                    onClick={() => updateSupplier(index, 'iso9001', !supplier.iso9001)}
                                                 />
-                                                <ChevronLeft className="rotate-[-90deg] h-3 w-3 text-slate-400" />
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-[13px]">
-                                            <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded min-w-[80px]">
+                                            <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-sm min-w-[80px]">
                                                 <StatusBadge
                                                     status={supplier.iso14001}
+                                                    onClick={() => updateSupplier(index, 'iso14001', !supplier.iso14001)}
                                                 />
-                                                <ChevronLeft className="rotate-[-90deg] h-3 w-3 text-slate-400" />
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-[13px]">
-                                            <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded min-w-[80px]">
+                                            <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-sm min-w-[80px]">
                                                 <StatusBadge
                                                     status={supplier.iso45001}
+                                                    onClick={() => updateSupplier(index, 'iso45001', !supplier.iso45001)}
                                                 />
-                                                <ChevronLeft className="rotate-[-90deg] h-3 w-3 text-slate-400" />
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="bg-slate-50 px-3 py-2 rounded text-[13px] font-medium text-slate-700">
-                                                {supplier.expiryDate}
-                                            </div>
+                                            <input
+                                                type="date"
+                                                value={supplier.expiry_date}
+                                                onChange={(e) => updateSupplier(index, 'expiry_date', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-500 border border-transparent focus:border-blue-500 outline-none"
+                                            />
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="bg-slate-50 px-3 py-2 rounded text-[13px] font-medium text-slate-500">
-                                                {supplier.comments}
-                                            </div>
+                                            <input
+                                                type="text"
+                                                value={supplier.comments}
+                                                onChange={(e) => updateSupplier(index, 'comments', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Comments"
+                                            />
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center justify-center gap-2">
-                                                <button className="text-blue-500 hover:text-blue-700 transition-colors">
-                                                    <Download size={16} />
-                                                </button>
-                                                <button className="text-red-500 hover:text-red-700 transition-colors">
+                                                <button 
+                                                    onClick={() => removeSupplier(index)}
+                                                    className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-sm transition-colors"
+                                                >
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>
@@ -279,7 +324,10 @@ export default function REC09() {
 
                     {/* Add Button */}
                     <div className="mt-8">
-                        <button className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+                        <button 
+                            onClick={addSupplier}
+                            className="w-full py-4 border-2 border-dashed border-slate-200 rounded-sm text-slate-500 font-bold flex items-center justify-center gap-2 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 transition-colors"
+                        >
                             <Plus size={20} />
                             Add New Supplier
                         </button>

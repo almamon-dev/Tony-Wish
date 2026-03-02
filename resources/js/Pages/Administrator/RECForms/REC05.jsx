@@ -1,293 +1,287 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
     ArrowLeft,
-    Download,
     Save,
     AlertTriangle,
     Upload,
     Trash2,
-    Calendar,
-    Users,
-    MoreHorizontal,
     Plus,
+    Calendar,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function REC05() {
-    const alerts = {
-        overdue: 2,
-        dueSoon: 1,
-        scheduled: 0,
+export default function REC05({ initialLogs = [] }) {
+    const { data, setData, post, processing } = useForm({
+        logs: initialLogs.length > 0 ? initialLogs.map(l => ({
+            ...l,
+            last_service_date: l.last_service_date ? l.last_service_date.split('T')[0] : '',
+            next_due_date: l.next_due_date ? l.next_due_date.split('T')[0] : '',
+        })) : [],
+        deletedIds: [],
+    });
+
+    const addLog = () => {
+        const newLog = {
+            id: 'new_' + Date.now(),
+            type: 'Calibration',
+            description: '',
+            serial_no: '',
+            location: '',
+            notes: '',
+            last_service_date: '',
+            next_due_date: '',
+        };
+        setData('logs', [...data.logs, newLog]);
     };
 
-    const items = [
-        {
-            id: 1,
-            type: "Calibration",
-            description: "Weld set",
-            serialNo: "WS001",
-            location: "Main shop",
-            notes: "Yearly Calibration",
-            lastService: "9/1/2024",
-            nextDue: "9/1/2025",
-            status: "overdue",
-        },
-        {
-            id: 2,
-            type: "Calibration",
-            description: "Weld set",
-            serialNo: "WS002",
-            location: "Main shop",
-            notes: "Yearly Calibration",
-            lastService: "9/1/2024",
-            nextDue: "9/1/2025",
-            status: "overdue",
-        },
-        {
-            id: 3,
-            type: "Calibration",
-            description: "Weld set",
-            serialNo: "WS001",
-            location: "Main shop",
-            notes: "Yearly Calibration",
-            lastService: "9/1/2024",
-            nextDue: "9/1/2025",
-            status: "overdue",
-        },
-        {
-            id: 4,
-            type: "Calibration",
-            description: "Weld set",
-            serialNo: "WS001",
-            location: "Main shop",
-            notes: "Yearly Calibration",
-            lastService: "9/1/2024",
-            nextDue: "9/1/2025",
-            status: "overdue",
-        },
-        {
-            id: 5,
-            type: "Service",
-            description: "Overhead Crane",
-            serialNo: "OC01",
-            location: "Main Shop",
-            notes: "LOLER inspection",
-            lastService: "9/1/2024",
-            nextDue: "9/1/2025",
-            status: "overdue",
-        },
-        {
-            id: 6,
-            type: "Service",
-            description: "Fork Truck",
-            serialNo: "FT001",
-            location: "Main Shop",
-            notes: "LOLER inspection",
-            lastService: "9/1/2024",
-            nextDue: "9/1/2025",
-            status: "overdue",
-        },
-        {
-            id: 7,
-            type: "Service",
-            description: "Fork Truck",
-            serialNo: "FT002",
-            location: "Main Shop",
-            notes: "LOLER inspection",
-            lastService: "9/1/2024",
-            nextDue: "9/1/2025",
-            status: "overdue",
-        },
-        {
-            id: 8,
-            type: "Service",
-            description: "Laser",
-            serialNo: "No 1",
-            location: "Main Shop",
-            notes: "Service",
-            lastService: "12/1/2024",
-            nextDue: "12/1/2025",
-            status: "dueSoon",
-        },
-    ];
+    const deleteLog = (id) => {
+        if (typeof id === 'string' && id.startsWith('new_')) {
+            setData('logs', data.logs.filter(l => l.id !== id));
+        } else {
+            setData({
+                ...data,
+                logs: data.logs.filter(l => l.id !== id),
+                deletedIds: [...data.deletedIds, id]
+            });
+        }
+    };
+
+    const handleInputChange = (id, field, value) => {
+        const updatedLogs = data.logs.map(l => 
+            l.id === id ? { ...l, [field]: value } : l
+        );
+        setData('logs', updatedLogs);
+    };
+
+    const handleSave = () => {
+        post(route('administrator.rec-forms.rec-05.store'), {
+            onSuccess: () => {
+                toast.success("Maintenance and calibration logs saved successfully!");
+            },
+            onError: () => {
+                toast.error("Failed to save data. Please check the form.");
+            }
+        });
+    };
+
+    const getDateClass = (date) => {
+        if (!date) return "bg-[#f8fafb] text-[#94a3b8]";
+        
+        const today = new Date();
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return "bg-[#f8fafb] text-[#94a3b8]";
+
+        const diffTime = d - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) return "bg-[#fee2e2] text-[#ef4444]";
+        if (diffDays < 30) return "bg-[#fef3c7] text-[#d97706]";
+        return "bg-[#eefcf4] text-[#1aa15f]";
+    };
+
+    const getStats = () => {
+        let overdue = 0, soon = 0, scheduled = 0;
+        data.logs.forEach(l => {
+            if (!l.next_due_date) return;
+            const cls = getDateClass(l.next_due_date);
+            if (cls.includes('fee2e2')) overdue++;
+            else if (cls.includes('fef3c7')) soon++;
+            else if (cls.includes('eefcf4')) scheduled++;
+        });
+        return { overdue, soon, scheduled };
+    };
+
+    const stats = getStats();
 
     return (
         <AdministratorLayout>
             <Head title="REC-05 - Maintenance & Calibration" />
 
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <Link
-                            href={route("administrator.rec-forms.index")}
-                            className="inline-flex items-center gap-2 text-slate-500 hover:text-[#2185d5] transition-colors mb-2 text-sm font-medium"
-                        >
-                            <ArrowLeft size={16} />
-                            Back to REC Forms
-                        </Link>
-                        <h1 className="text-2xl font-bold text-slate-800">
+            <div className="space-y-4 pb-10">
+                {/* Header Section */}
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm p-4 text-[14px]">
+                    <div className="flex items-center justify-between">
+                        <h1 className="font-bold text-slate-800 tracking-tight">
                             REC-05: Maintenance & Calibration
                         </h1>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all text-sm font-bold shadow-sm">
-                            <Download size={18} />
-                            Export PDF
-                        </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#2185d5] text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-blue-500/20">
-                            <Save size={18} />
-                            Save Changes
-                        </button>
+                        <Link
+                            href={route("administrator.rec-forms.index")}
+                            className="text-slate-400 hover:text-blue-500 transition-colors"
+                        >
+                            <ArrowLeft size={18} />
+                        </Link>
                     </div>
                 </div>
 
-                {/* Alerts Section */}
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                {/* Alerts Dashboard matching screenshot */}
+                <div className="bg-[#fff9ef] border border-amber-100/50 rounded-sm p-5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-amber-100/50 flex items-center justify-center text-amber-600 shrink-0 border border-amber-200/30">
                             <AlertTriangle size={20} />
                         </div>
-                        <div>
-                            <h3 className="text-slate-800 font-bold text-sm mb-1">
+                        <div className="space-y-1">
+                            <h3 className="text-[14px] font-bold text-slate-700 tracking-tight leading-none">
                                 Maintenance/Calibration Due Alerts
                             </h3>
-                            <div className="flex items-center gap-2">
-                                <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                    {alerts.overdue} Overdue
+                            <div className="flex items-center gap-3 mt-2">
+                                <span className="bg-[#ef4444] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                    {stats.overdue} Overdue
                                 </span>
-                                <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                    {alerts.dueSoon} Due Soon (30 days)
+                                <span className="bg-[#f59e0b] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                    {stats.soon} Due Soon (30 days)
                                 </span>
-                                <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                    {alerts.scheduled} Scheduled
+                                <span className="bg-[#10b981] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                    {stats.scheduled} Scheduled
                                 </span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Main Content */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
+                {/* Table Section */}
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden p-6">
+                    <div className="overflow-x-auto scrollbar-hide">
+                        <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Service or Calibration
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Description
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Serial No.
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Location
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Notes / Actions Required
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Last Service / Calibration
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Next Due Date
-                                    </th>
-                                    <th className="px-6 py-4 text-center text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                <tr className="bg-slate-50/80 border-b border-slate-100/50 text-slate-600">
+                                    <th className="px-3 py-4 text-[13px] font-semibold min-w-[150px]">Service or Calibration</th>
+                                    <th className="px-3 py-4 text-[13px] font-semibold min-w-[150px]">Description</th>
+                                    <th className="px-3 py-4 text-[13px] font-semibold min-w-[120px]">Serial No.</th>
+                                    <th className="px-3 py-4 text-[13px] font-semibold min-w-[140px]">Location</th>
+                                    <th className="px-3 py-4 text-[13px] font-semibold min-w-[180px]">Notes / Actions Required</th>
+                                    <th className="px-3 py-4 text-[13px] font-semibold min-w-[140px] text-center">Last Service</th>
+                                    <th className="px-3 py-4 text-[13px] font-semibold min-w-[140px] text-center">Next Due Date</th>
+                                    <th className="px-3 py-4 text-[13px] font-semibold text-right pr-4">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {items.map((item) => (
-                                    <tr
-                                        key={item.id}
-                                        className="hover:bg-slate-50/50 transition-colors"
-                                    >
-                                        <td className="px-6 py-3">
+                            <tbody className="divide-y divide-slate-50/50">
+                                {data.logs.map((l) => (
+                                    <tr key={l.id} className="group">
+                                        <td className="px-2 py-3">
                                             <div className="relative">
                                                 <select
-                                                    className="w-full bg-slate-50 border-none rounded-lg px-3 py-2 text-[13px] font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-blue-500/10"
-                                                    defaultValue={item.type}
+                                                    value={l.type}
+                                                    onChange={(e) => handleInputChange(l.id, "type", e.target.value)}
+                                                    className="w-full bg-[#f8fafb] border-0 rounded-md text-[12px] font-medium text-slate-600 px-3 py-1.5 appearance-none cursor-pointer focus:ring-1 focus:ring-blue-100"
                                                 >
-                                                    <option>Calibration</option>
-                                                    <option>Service</option>
+                                                    <option value="Calibration">Calibration</option>
+                                                    <option value="Service">Service</option>
                                                 </select>
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                                                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                                        <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-3">
-                                            <input
+                                        <td className="px-2 py-3">
+                                            <input 
                                                 type="text"
-                                                defaultValue={item.description}
-                                                className="w-full bg-slate-50 border-none rounded-lg px-3 py-2 text-[13px] font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-blue-500/10"
+                                                value={l.description}
+                                                onChange={(e) => handleInputChange(l.id, "description", e.target.value)}
+                                                className="w-full bg-[#f8fafb] border-0 rounded-md text-[13px] font-medium text-slate-700 px-3 py-1.5 focus:ring-1 focus:ring-blue-100"
+                                                placeholder="Weld set..."
                                             />
                                         </td>
-                                        <td className="px-6 py-3">
-                                            <input
+                                        <td className="px-2 py-3">
+                                            <input 
                                                 type="text"
-                                                defaultValue={item.serialNo}
-                                                className="w-full bg-slate-50 border-none rounded-lg px-3 py-2 text-[13px] font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-blue-500/10"
+                                                value={l.serial_no}
+                                                onChange={(e) => handleInputChange(l.id, "serial_no", e.target.value)}
+                                                className="w-full bg-[#f8fafb] border-0 rounded-md text-[13px] font-medium text-slate-700 px-3 py-1.5 focus:ring-1 focus:ring-blue-100 uppercase"
+                                                placeholder="S/N"
                                             />
                                         </td>
-                                        <td className="px-6 py-3">
-                                            <input
+                                        <td className="px-2 py-3">
+                                            <input 
                                                 type="text"
-                                                defaultValue={item.location}
-                                                className="w-full bg-slate-50 border-none rounded-lg px-3 py-2 text-[13px] font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-blue-500/10"
+                                                value={l.location}
+                                                onChange={(e) => handleInputChange(l.id, "location", e.target.value)}
+                                                className="w-full bg-[#f8fafb] border-0 rounded-md text-[13px] font-medium text-slate-700 px-3 py-1.5 focus:ring-1 focus:ring-blue-100"
+                                                placeholder="Location"
                                             />
                                         </td>
-                                        <td className="px-6 py-3">
-                                            <input
+                                        <td className="px-2 py-3">
+                                            <input 
                                                 type="text"
-                                                defaultValue={item.notes}
-                                                className="w-full bg-slate-50 border-none rounded-lg px-3 py-2 text-[13px] font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-blue-500/10"
+                                                value={l.notes}
+                                                onChange={(e) => handleInputChange(l.id, "notes", e.target.value)}
+                                                className="w-full bg-[#f8fafb] border-0 rounded-md text-[13px] font-medium text-slate-700 px-3 py-1.5 focus:ring-1 focus:ring-blue-100"
+                                                placeholder="Notes"
                                             />
                                         </td>
-                                        <td className="px-6 py-3">
-                                            <input
-                                                type="text"
-                                                defaultValue={item.lastService}
-                                                className="w-full bg-slate-50 border-none rounded-lg px-3 py-2 text-[13px] font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-blue-500/10"
+                                        <td className="px-2 py-3 text-center">
+                                            <input 
+                                                type="date"
+                                                value={l.last_service_date}
+                                                onChange={(e) => handleInputChange(l.id, "last_service_date", e.target.value)}
+                                                className="w-full bg-[#f8fafb] border-0 rounded-md text-[11px] px-3 py-1.5 font-bold focus:ring-1 focus:ring-blue-100 text-center"
                                             />
                                         </td>
-                                        <td className="px-6 py-3">
-                                            <span
-                                                className={`text-[11px] font-bold px-2 py-1 rounded inline-block w-full text-center ${
-                                                    item.status === "overdue"
-                                                        ? "bg-red-50 text-red-600"
-                                                        : item.status ===
-                                                            "dueSoon"
-                                                          ? "bg-amber-50 text-amber-600"
-                                                          : "bg-emerald-50 text-emerald-600"
-                                                }`}
-                                            >
-                                                {item.nextDue}
-                                            </span>
+                                        <td className="px-2 py-3 text-center">
+                                            <input 
+                                                type="date"
+                                                value={l.next_due_date}
+                                                onChange={(e) => handleInputChange(l.id, "next_due_date", e.target.value)}
+                                                className={`w-full border-0 rounded-md text-[11px] px-3 py-1.5 font-bold focus:ring-1 focus:ring-blue-100 transition-all text-center ${getDateClass(l.next_due_date)}`}
+                                            />
                                         </td>
-                                        <td className="px-6 py-3">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:text-red-500 hover:bg-red-50 transition-all">
+                                        <td className="px-2 py-3 text-right pr-4">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button 
+                                                    onClick={() => deleteLog(l.id)}
+                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-all"
+                                                >
                                                     <Trash2 size={16} />
                                                 </button>
-                                                <button className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-[#2185d5] hover:bg-blue-50 transition-all">
-                                                    <MoreHorizontal size={16} />
+                                                <button className="p-2 text-slate-400 hover:bg-slate-50 rounded-md transition-all">
+                                                    <Upload size={16} />
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
                                 ))}
+                                {data.logs.length === 0 && (
+                                    <tr>
+                                        <td colSpan="8" className="py-20 text-center">
+                                            <div className="flex flex-col items-center gap-2 text-slate-300">
+                                                <Calendar size={40} strokeWidth={1} />
+                                                <p className="text-[14px]">No maintenance logs found. Click below to add one.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
-                    {/* Add New Button */}
-                    <div className="p-4 border-t border-slate-100">
-                        <button className="w-full py-3 rounded-xl border border-slate-200 border-dashed text-slate-500 font-bold hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2">
-                            <Plus size={18} />
+
+                    <div className="flex justify-center mt-6">
+                        <button 
+                            onClick={addLog}
+                            className="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 font-bold text-[13px] px-10 py-3 rounded-md flex items-center justify-center gap-2 transition-all shadow-sm"
+                        >
+                            <Plus size={16} strokeWidth={2.5} className="text-slate-400" />
                             Add New Item
                         </button>
                     </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="flex justify-end pt-4">
+                    <button 
+                        onClick={handleSave}
+                        disabled={processing}
+                        className="flex items-center gap-2 px-10 py-3 bg-[#2c8af8] text-white rounded-sm hover:bg-blue-600 transition-all text-[13px] font-bold tracking-tight shadow-lg shadow-blue-500/20 active:scale-95 disabled:opacity-50"
+                    >
+                        {processing ? (
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Save size={16} />
+                        )}
+                        {processing ? "Saving..." : "Save changes"}
+                    </button>
                 </div>
             </div>
         </AdministratorLayout>

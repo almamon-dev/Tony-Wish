@@ -1,346 +1,268 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
     ArrowLeft,
-    Download,
     Save,
     Trash2,
     Plus,
     AlertTriangle,
     Upload,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function REC03() {
-    const alerts = {
-        expired: 0,
-        expiringSoon: 1,
-        valid: 44,
+export default function REC03({ initialColumns = [], initialEmployees = [], jobTitles = [] }) {
+    const [employees, setEmployees] = useState(initialEmployees);
+    const [deletedRowIds, setDeletedRowIds] = useState([]);
+
+    const { data, setData, post, processing } = useForm({
+        employees: initialEmployees,
+        deletedRowIds: []
+    });
+
+    useEffect(() => {
+        setEmployees(initialEmployees);
+        setData("employees", initialEmployees);
+    }, [initialEmployees]);
+
+    const handleInputChange = (id, field, value) => {
+        const updated = employees.map(emp => 
+            emp.id === id ? { ...emp, [field]: value } : emp
+        );
+        setEmployees(updated);
+        setData("employees", updated);
     };
 
-    const employees = [
-        {
-            id: 1,
-            name: "Peter Merton",
-            position: "Managing Director",
-            competence: "High",
-            training: {
-                forkTruck: "N/A",
-                grindingWheels: "N/A",
-                manualHandling: "13-Feb-27",
-                iosh: "31-Dec-99",
-                firstAid: "N/A",
-                workingAtHeights: "N/A",
-                confinedSpaces: "N/A",
-                platforms: "DD-MM-YY",
-            },
-        },
-        {
-            id: 2,
-            name: "Neil Watson",
-            position: "Plate Welder",
-            competence: "High",
-            training: {
-                forkTruck: "1-Sep-25",
-                grindingWheels: "1-Sep-25",
-                manualHandling: "13-Feb-27",
-                iosh: "N/A",
-                firstAid: "31-Mar-26",
-                workingAtHeights: "1-Sep-25",
-                confinedSpaces: "DD-MM-YY",
-                platforms: "N/A",
-            },
-        },
-        {
-            id: 3,
-            name: "John Brown",
-            position: "Welder",
-            competence: "Average",
-            training: {
-                forkTruck: "13-Feb-27",
-                grindingWheels: "13-Feb-27",
-                manualHandling: "13-Feb-27",
-                iosh: "N/A",
-                firstAid: "31-Mar-26",
-                workingAtHeights: "1-Sep-25",
-                confinedSpaces: "31-Mar-26",
-                platforms: "DD-MM-YY",
-            },
-        },
-        {
-            id: 4,
-            name: "Lee Johnson",
-            position: "Welder",
-            competence: "High",
-            training: {
-                forkTruck: "13-Feb-27",
-                grindingWheels: "13-Feb-27",
-                manualHandling: "13-Feb-27",
-                iosh: "N/A",
-                firstAid: "1-Apr-26",
-                workingAtHeights: "1-Sep-25",
-                confinedSpaces: "31-Mar-26",
-                platforms: "N/A",
-            },
-        },
-        {
-            id: 5,
-            name: "Jack Wilson",
-            position: "Labour",
+    const handleTrainingChange = (empId, colId, value) => {
+        const updated = employees.map(emp => {
+            if (emp.id === empId) {
+                return {
+                    ...emp,
+                    training: { ...emp.training, [colId]: value }
+                };
+            }
+            return emp;
+        });
+        setEmployees(updated);
+        setData("employees", updated);
+    };
+
+    const addEmployee = () => {
+        const newEmp = {
+            id: 'new_' + Date.now(),
+            name: "",
+            position: "",
             competence: "Basic",
-            training: {
-                forkTruck: "N/A",
-                grindingWheels: "N/A",
-                manualHandling: "02-Dec-09",
-                iosh: "N/A",
-                firstAid: "N/A",
-                workingAtHeights: "N/A",
-                confinedSpaces: "N/A",
-                platforms: "N/A",
+            training: {}
+        };
+        const updated = [...employees, newEmp];
+        setEmployees(updated);
+        setData("employees", updated);
+    };
+
+    const deleteEmployee = (id) => {
+        if (typeof id === 'number') {
+            const newDeleted = [...deletedRowIds, id];
+            setDeletedRowIds(newDeleted);
+            setData("deletedRowIds", newDeleted);
+        }
+        const updated = employees.filter(emp => emp.id !== id);
+        setEmployees(updated);
+        setData("employees", updated);
+    };
+
+    const handleSave = () => {
+        post(route("administrator.rec-forms.rec-03.store"), {
+            onSuccess: () => {
+                toast.success("Training register saved successfully!");
             },
-        },
-    ];
+            onError: () => {
+                toast.error("Failed to save changes.");
+            }
+        });
+    };
 
     const getTrainingClass = (date) => {
-        if (date === "N/A" || date === "DD-MM-YY") {
-            return "text-slate-400 font-medium";
+        if (!date || date === "N/A" || date === "DD-MM-YY") {
+            return "bg-[#f8fafb] text-[#94a3b8] font-semibold";
         }
-        // Simple logic for demonstration - in real app would parse dates
-        if (date.includes("99") || date.includes("09")) {
-            return "bg-red-100 text-red-600 font-bold rounded px-2 py-1 inline-block";
+        
+        const today = new Date();
+        const expiryDate = new Date(date);
+        
+        if (isNaN(expiryDate.getTime())) {
+            return "bg-[#f8fafb] text-[#64748b] font-semibold";
         }
-        if (date.includes("25")) {
-            return "bg-red-100 text-red-600 font-bold rounded px-2 py-1 inline-block"; // Assuming 2025 is soon/expired relative to current context or strict mock match
+
+        const diffTime = expiryDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return "bg-[#fee2e2] text-[#ef4444] font-bold";
         }
-        return "bg-emerald-50 text-emerald-600 font-bold rounded px-2 py-1 inline-block";
+        if (diffDays < 30) {
+            return "bg-[#fef3c7] text-[#d97706] font-bold";
+        }
+        return "bg-[#eefcf4] text-[#1aa15f] font-bold";
     };
 
     const getCompetenceClass = (level) => {
         switch (level) {
             case "High":
-                return "bg-emerald-50 text-emerald-600 border-emerald-100";
+                return "bg-[#eefcf4] text-[#1aa15f]";
             case "Average":
-                return "bg-amber-50 text-amber-600 border-amber-100";
+                return "bg-[#fff8eb] text-[#b45309]";
             case "Basic":
-                return "bg-blue-50 text-blue-600 border-blue-100";
+                return "bg-[#f0f9ff] text-[#0369a1]";
             default:
-                return "bg-slate-50 text-slate-600 border-slate-100";
+                return "bg-slate-50 text-slate-600";
         }
     };
+
+    const getAlerts = () => {
+        let expired = 0, soon = 0, valid = 0;
+        employees.forEach(emp => {
+            Object.values(emp.training).forEach(val => {
+                if (!val || val === 'N/A') return;
+                const cls = getTrainingClass(val);
+                if (cls.includes('bg-[#fee2e2]')) expired++;
+                else if (cls.includes('bg-[#fef3c7]')) soon++;
+                else if (cls.includes('bg-[#eefcf4]')) valid++;
+            });
+        });
+        return { expired, soon, valid };
+    };
+
+    const stats = getAlerts();
 
     return (
         <AdministratorLayout>
             <Head title="REC-03 - Training & Competence Register" />
 
-            <div className="space-y-4">
-                {/* Header */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <Link
-                            href={route("administrator.rec-forms.index")}
-                            className="inline-flex items-center gap-2 text-slate-500 hover:text-[#2185d5] transition-colors mb-2 text-sm font-medium"
-                        >
-                            <ArrowLeft size={16} />
-                            Back to REC Forms
-                        </Link>
-                        <h1 className="text-2xl font-bold text-slate-800">
-                            REC-03 Training & Competence Register
-                        </h1>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#2185d5] text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-blue-500/20">
-                            <Save size={18} />
-                            Save Changes
-                        </button>
+            <div className="space-y-4 pb-10">
+                {/* Header Section */}
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm p-4">
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-[14px] font-bold text-slate-800 tracking-tight">
+                                REC-03 Training & Competence Register
+                            </h1>
+                            <Link
+                                href={route("administrator.rec-forms.index")}
+                                className="text-slate-400 hover:text-blue-500 transition-colors"
+                            >
+                                <ArrowLeft size={18} />
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
-                {/* Alerts Section */}
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-col md:flex-row items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                {/* Alerts Dashboard */}
+                <div className="bg-[#fff9ef] border border-amber-100/50 rounded-sm p-5 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-amber-100/50 flex items-center justify-center text-amber-600 shrink-0 border border-amber-200/30">
                         <AlertTriangle size={20} />
                     </div>
-                    <div>
-                        <h3 className="text-slate-800 font-bold text-sm mb-1">
-                            Training Expiry Alerts
+                    <div className="space-y-1">
+                        <h3 className="text-[14px] font-bold text-slate-700 tracking-tight leading-none">
+                            Training expiry alerts
                         </h3>
-                        <div className="flex items-center gap-2">
-                            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                {alerts.expired} Expired
+                        <div className="flex items-center gap-2 mt-2">
+                            <span className="bg-[#ef4444] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                {stats.expired} Expired
                             </span>
-                            <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                {alerts.expiringSoon} Expiry soon
+                            <span className="bg-[#f59e0b] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                {stats.soon} Expiry soon
                             </span>
-                            <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                {alerts.valid} Valid
+                            <span className="bg-[#10b981] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                                {stats.valid} Valid
                             </span>
                         </div>
                     </div>
                 </div>
 
-                {/* Main Content */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-4">
-                    <div className="overflow-x-auto">
-                        <table className="w-full whitespace-nowrap">
+                {/* Table Section */}
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden p-6">
+                    <div className="overflow-x-auto scrollbar-hide">
+                        <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider sticky left-0 bg-slate-50 z-10">
-                                        Name
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider sticky left-[100px] bg-slate-50 z-10">
-                                        Position
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Overall Competence
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Fork Truck
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Grinding Wheels
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Manual Handling
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        IOSH Training
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        First Aid
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Working at Heights
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Confined Spaces
-                                    </th>
-                                    <th className="px-2 py-2 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Platforms
-                                    </th>
-                                    <th className="px-2 py-2 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
+                                <tr className="bg-slate-50/80 border-b border-slate-100/50 text-slate-600">
+                                    <th className="px-4 py-4 text-[13px] font-semibold min-w-[140px]">Staff Name</th>
+                                    <th className="px-4 py-4 text-[13px] font-semibold min-w-[140px]">Position</th>
+                                    <th className="px-4 py-4 text-[13px] font-semibold min-w-[140px]">Overall Competence</th>
+                                    {initialColumns.map((col) => (
+                                        <th key={col.id} className="px-4 py-4 text-[13px] font-semibold min-w-[120px] text-center">{col.title}</th>
+                                    ))}
+                                    <th className="px-4 py-4 text-[13px] font-semibold text-right pr-6">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-50/50">
                                 {employees.map((emp) => (
-                                    <tr
-                                        key={emp.id}
-                                        className="hover:bg-slate-50/50 transition-colors"
-                                    >
-                                        <td className="px-2 py-1 sticky left-0 bg-white group-hover:bg-slate-50">
-                                            <span className="text-[12px] font-medium text-slate-700">
-                                                {emp.name}
-                                            </span>
+                                    <tr key={emp.id} className="group">
+                                        <td className="px-2 py-3">
+                                            <input 
+                                                type="text"
+                                                value={emp.name}
+                                                onChange={(e) => handleInputChange(emp.id, "name", e.target.value)}
+                                                className="w-full bg-[#f8fafb] border-0 rounded-md text-[13px] font-medium text-slate-700 px-3 py-1.5 focus:ring-1 focus:ring-blue-100"
+                                                placeholder="Name"
+                                            />
                                         </td>
-                                        <td className="px-2 py-1 sticky left-[100px] bg-white group-hover:bg-slate-50">
-                                            <span className="text-[12px] font-medium text-slate-500">
-                                                {emp.position}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1">
-                                            <div
-                                                className={`text-[11px] font-bold px-2 py-1 rounded-lg border flex items-center justify-between w-24 ${getCompetenceClass(emp.competence)}`}
-                                            >
-                                                {emp.competence}
-                                                <svg
-                                                    width="8"
-                                                    height="5"
-                                                    viewBox="0 0 10 6"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="opacity-50"
+                                        <td className="px-2 py-3">
+                                            <div className="relative">
+                                                <select
+                                                    value={emp.position}
+                                                    onChange={(e) => handleInputChange(emp.id, "position", e.target.value)}
+                                                    className="w-full bg-[#f8fafb] border-0 rounded-md text-[12px] font-medium text-slate-600 px-3 py-1.5 appearance-none cursor-pointer focus:ring-1 focus:ring-blue-100"
                                                 >
-                                                    <path
-                                                        d="M1 1L5 5L9 1"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    />
-                                                </svg>
+                                                    <option value="">Select Position</option>
+                                                    {jobTitles.map((title, i) => (
+                                                        <option key={i} value={title}>{title}</option>
+                                                    ))}
+                                                </select>
+                                                {/* <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400" size={12} /> */}
                                             </div>
                                         </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training.forkTruck,
-                                                )}
-                                            >
-                                                {emp.training.forkTruck}
-                                            </span>
+                                        <td className="px-2 py-3">
+                                            <div className="relative">
+                                                <select
+                                                    value={emp.competence}
+                                                    onChange={(e) => handleInputChange(emp.id, "competence", e.target.value)}
+                                                    className={`w-full border-0 rounded-md text-[12px] font-bold px-3 py-1.5 appearance-none cursor-pointer focus:ring-1 focus:ring-blue-100 transition-colors ${getCompetenceClass(emp.competence)}`}
+                                                >
+                                                    <option value="High">High</option>
+                                                    <option value="Average">Average</option>
+                                                    <option value="Basic">Basic</option>
+                                                </select>
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-60">
+                                                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training.grindingWheels,
-                                                )}
-                                            >
-                                                {emp.training.grindingWheels}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training.manualHandling,
-                                                )}
-                                            >
-                                                {emp.training.manualHandling}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training.iosh,
-                                                )}
-                                            >
-                                                {emp.training.iosh}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training.firstAid,
-                                                )}
-                                            >
-                                                {emp.training.firstAid}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training
-                                                        .workingAtHeights,
-                                                )}
-                                            >
-                                                {emp.training.workingAtHeights}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training.confinedSpaces,
-                                                )}
-                                            >
-                                                {emp.training.confinedSpaces}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1 text-[11px]">
-                                            <span
-                                                className={getTrainingClass(
-                                                    emp.training.platforms,
-                                                )}
-                                            >
-                                                {emp.training.platforms}
-                                            </span>
-                                        </td>
-                                        <td className="px-2 py-1">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button className="text-red-400 hover:text-red-500 transition-colors">
-                                                    <Trash2 size={14} />
+                                        {initialColumns.map((col) => (
+                                            <td key={col.id} className="px-2 py-3 text-center">
+                                                <input 
+                                                    type="text"
+                                                    value={emp.training[col.id] || "N/A"}
+                                                    onChange={(e) => handleTrainingChange(emp.id, col.id, e.target.value)}
+                                                    className={`w-full border-0 rounded-md text-[11px] px-3 py-1.5 text-center focus:ring-1 focus:ring-blue-100 transition-all ${getTrainingClass(emp.training[col.id])}`}
+                                                    placeholder="DD-MM-YY"
+                                                    onFocus={(e) => e.target.type = 'date'}
+                                                    onBlur={(e) => { if(!e.target.value) e.target.type = 'text'; }}
+                                                />
+                                            </td>
+                                        ))}
+                                        <td className="px-2 py-3 text-right pr-6">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button 
+                                                    onClick={() => deleteEmployee(emp.id)}
+                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-all"
+                                                >
+                                                    <Trash2 size={16} />
                                                 </button>
-                                                <button className="text-slate-400 hover:text-blue-500 transition-colors">
-                                                    <Upload size={14} />
+                                                <button className="p-2 text-slate-400 hover:bg-slate-50 rounded-md transition-all">
+                                                    <Upload size={16} />
                                                 </button>
                                             </div>
                                         </td>
@@ -350,15 +272,35 @@ export default function REC03() {
                         </table>
                     </div>
 
-                    {/* Add New Button */}
-                    <div className="mt-4 border-t border-slate-100 pt-4">
-                        <button className="w-full py-3 text-slate-500 font-bold border border-dashed border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all flex items-center justify-center gap-2 text-[14px]">
-                            <Plus size={16} />
+                    <div className="flex justify-center mt-6">
+                        <button 
+                            onClick={addEmployee}
+                            className="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 font-bold text-[13px] px-10 py-3 rounded-md flex items-center justify-center gap-2 transition-all shadow-sm"
+                        >
+                            <Plus size={16} strokeWidth={2.5} className="text-slate-400" />
                             Add New Training
                         </button>
                     </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="flex justify-end pt-4">
+                    <button 
+                        onClick={handleSave}
+                        disabled={processing}
+                        className="flex items-center gap-2 px-10 py-3 bg-[#2c8af8] text-white rounded-sm hover:bg-blue-600 transition-all text-[13px] font-bold tracking-tight shadow-lg shadow-blue-500/20 active:scale-95 disabled:opacity-50"
+                    >
+                        {processing ? (
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Save size={16} />
+                        )}
+                        {processing ? "Saving..." : "Save changes"}
+                    </button>
                 </div>
             </div>
         </AdministratorLayout>
     );
 }
+
+ 

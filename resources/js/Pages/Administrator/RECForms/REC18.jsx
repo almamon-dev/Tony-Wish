@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
     ArrowLeft,
     Download,
@@ -8,85 +8,131 @@ import {
     Plus,
     Save,
     Upload,
-    Eye,
-    AlertTriangle,
-    Calendar,
     Printer,
-    Share2,
-    MoreHorizontal,
     Check,
-    X,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function REC18() {
-    const agendaItems = [
-        {
-            id: 1,
-            desc: "Review of Policies & Objectives",
-            link: "QM",
-            unique: "Yes",
-            evidence: "System audit notes & policy updates",
-            owner: "MD / All",
-            status: "Open",
+export default function REC18({ initialReview }) {
+    const { data, setData, post, processing } = useForm({
+        review: {
+            id: null,
+            lastReviewDate: "",
+            renewalPeriod: "Yearly",
+            link: "Meeting",
+            nextReviewDate: "",
+            verifiedBy: "",
+            withDate: "",
+            verifiedStatus: "Draft",
         },
-        {
-            id: 2,
-            desc: "Compliance with Legal Requirements",
-            link: "REC-16",
-            unique: "Yes",
-            evidence: "Compliance register update",
-            owner: "MD / All",
-            status: "Open",
-        },
-        {
-            id: 3,
-            desc: "Performance of External Providers",
-            link: "REC-09",
-            unique: "Yes",
-            evidence: "Supplier review forms",
-            owner: "MD / All",
-            status: "Open",
-        },
-    ];
+        agendas: [],
+        objectives: [],
+        risks: [],
+        deletedAgendaIds: [],
+        deletedObjectiveIds: [],
+        deletedRiskIds: [],
+    });
 
-    const objectives = [
-        {
-            id: 1,
-            obj: "Reduce Customer Complaints",
-            ref: "OBJ-01",
-            review: "Yes",
-            evidence: "Complaint log analysis",
-            status: "Open",
-        },
-        {
-            id: 2,
-            obj: "Reduce Non-Conforming Products",
-            ref: "OBJ-02",
-            review: "Yes",
-            evidence: "NCR Report analysis",
-            status: "Open",
-        },
-    ];
+    useEffect(() => {
+        if (initialReview) {
+            setData({
+                review: {
+                    id: initialReview.id,
+                    lastReviewDate: initialReview.last_review_date ? initialReview.last_review_date.split('T')[0] : "",
+                    renewalPeriod: initialReview.renewal_period || "Yearly",
+                    link: initialReview.link || "Meeting",
+                    nextReviewDate: initialReview.next_review_date ? initialReview.next_review_date.split('T')[0] : "",
+                    verifiedBy: initialReview.verified_by || "",
+                    withDate: initialReview.with_date ? initialReview.with_date.split('T')[0] : "",
+                    verifiedStatus: initialReview.verified_status || "Draft",
+                },
+                agendas: initialReview.agendas ? initialReview.agendas.map(item => ({
+                    id: item.id,
+                    desc: item.desc || '',
+                    link: item.link || '',
+                    unique: item.unique || '',
+                    evidence: item.evidence || '',
+                    owner: item.owner || '',
+                    status: item.status || 'Open',
+                })) : [],
+                objectives: initialReview.objectives ? initialReview.objectives.map(item => ({
+                    id: item.id,
+                    obj: item.obj || '',
+                    ref: item.ref || '',
+                    review: item.review || '',
+                    evidence: item.evidence || '',
+                    status: item.status || 'Open',
+                })) : [],
+                risks: initialReview.risks ? initialReview.risks.map(item => ({
+                    id: item.id,
+                    desc: item.desc || '',
+                    link: item.link || '',
+                    unique: item.unique || '',
+                    riskOpp: item.risk_opp || 'Risk',
+                    evidence: item.evidence || '',
+                    owner: item.owner || '',
+                    status: item.status || 'Open',
+                })) : [],
+                deletedAgendaIds: [],
+                deletedObjectiveIds: [],
+                deletedRiskIds: [],
+            });
+        }
+    }, [initialReview]);
 
-    const risks = [
-        {
-            id: 1,
-            desc: "Failure of Critical Supply Chain",
-            link: "RISK-01",
-            unique: "Yes",
-            riskOpp: "Risk",
-            evidence: "Supplier audit schedule",
-            owner: "MD / All",
-            status: "Open",
-        },
-    ];
+    const handleSave = () => {
+        post(route("administrator.rec-forms.rec-18.store"), {
+            onSuccess: () => {
+                toast.success("Management Review saved successfully!");
+                setData({
+                    ...data,
+                    deletedAgendaIds: [],
+                    deletedObjectiveIds: [],
+                    deletedRiskIds: [],
+                });
+            },
+            onError: (errors) => {
+                console.error("Save Errors:", errors);
+                toast.error("Failed to save data.");
+            },
+        });
+    };
+
+    // Generic list handlers
+    const addListItem = (listName, defaultItem) => {
+        setData(listName, [
+            ...data[listName],
+            { ...defaultItem, id: `new_${Date.now()}` }
+        ]);
+    };
+
+    const updateListItem = (listName, index, field, value) => {
+        const newList = [...data[listName]];
+        newList[index][field] = value;
+        setData(listName, newList);
+    };
+
+    const removeListItem = (listName, deletedIdsName, index) => {
+        const itemToRemove = data[listName][index];
+        const newList = [...data[listName]];
+        newList.splice(index, 1);
+
+        if (typeof itemToRemove.id === "number") {
+            setData(prev => ({
+                ...prev,
+                [listName]: newList,
+                [deletedIdsName]: [...prev[deletedIdsName], itemToRemove.id],
+            }));
+        } else {
+            setData(listName, newList);
+        }
+    };
 
     return (
         <AdministratorLayout>
             <Head title="REC-18 - Management Review & Risk Objectives Record" />
 
-            <div className="space-y-6">
-                {/* Header */}
+            <div className="space-y-6 max-w-[1400px] mx-auto">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                         <Link
@@ -99,49 +145,45 @@ export default function REC18() {
                     </div>
                 </div>
 
-                {/* Form Container */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
-                    {/* Header Actions */}
+                <div className="bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden p-6 w-full">
                     <div className="flex justify-between items-center mb-6 pb-6 border-b border-slate-100">
                         <h1 className="text-xl font-bold text-slate-800">
                             REC-18 - Management Review & Risk Objectives Record
                         </h1>
                         <div className="flex gap-2">
-                            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-xs font-bold shadow-sm hover:bg-slate-50">
+                            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-sm text-xs font-bold shadow-sm hover:bg-slate-50">
                                 <Printer size={16} />
                                 Print
-                            </button>
-                            <button className="flex items-center gap-2 px-3 py-1.5 bg-[#2185d5] text-white rounded-lg text-xs font-bold shadow-sm hover:bg-blue-600">
-                                <Plus size={16} />
-                                Add New
                             </button>
                         </div>
                     </div>
 
-                    {/* Renewal Period Settings - Similar to REC19 */}
-                    <div className="mb-8 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                    <div className="mb-8 bg-slate-50/50 p-4 rounded-sm border border-slate-100">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                             <div>
                                 <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                                     Last Review Date
                                 </label>
                                 <input
-                                    type="text"
-                                    value="01/05/2023"
-                                    readOnly
-                                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700"
+                                    type="date"
+                                    value={data.review.lastReviewDate}
+                                    onChange={(e) => setData("review", { ...data.review, lastReviewDate: e.target.value })}
+                                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-sm text-sm font-medium text-slate-700 focus:border-blue-500 outline-none"
                                 />
                             </div>
                             <div>
                                 <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
                                     Renewal Period
                                 </label>
-                                <input
-                                    type="text"
-                                    value="Yearly"
-                                    readOnly
-                                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700"
-                                />
+                                <select
+                                    value={data.review.renewalPeriod}
+                                    onChange={(e) => setData("review", { ...data.review, renewalPeriod: e.target.value })}
+                                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-sm text-sm font-medium text-slate-700 focus:border-blue-500 outline-none"
+                                >
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                    <option value="Yearly">Yearly</option>
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
@@ -149,9 +191,9 @@ export default function REC18() {
                                 </label>
                                 <input
                                     type="text"
-                                    value="Meeting"
-                                    readOnly
-                                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700"
+                                    value={data.review.link}
+                                    onChange={(e) => setData("review", { ...data.review, link: e.target.value })}
+                                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-sm text-sm font-medium text-slate-700 focus:border-blue-500 outline-none"
                                 />
                             </div>
                             <div>
@@ -159,18 +201,17 @@ export default function REC18() {
                                     Next Review Date
                                 </label>
                                 <input
-                                    type="text"
-                                    value="15/05/2024"
-                                    readOnly
-                                    className="w-full h-9 px-3 bg-[#2185d5] text-white font-bold border border-blue-400 rounded-lg text-sm text-center"
+                                    type="date"
+                                    value={data.review.nextReviewDate}
+                                    onChange={(e) => setData("review", { ...data.review, nextReviewDate: e.target.value })}
+                                    className="w-full h-9 px-3 bg-[#2185d5]/10 text-[#2185d5] font-bold border border-[#2185d5]/30 rounded-sm text-sm focus:border-blue-500 outline-none"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    {/* Associated Documents */}
                     <div className="mb-8">
-                        <button className="w-full border-2 border-dashed border-slate-200 rounded-xl p-4 flex flex-col items-center gap-2 text-slate-400 hover:border-slate-300 hover:bg-slate-50 transition-all">
+                        <button className="w-full border-2 border-dashed border-slate-200 rounded-sm p-4 flex flex-col items-center gap-2 text-slate-400 hover:border-slate-300 hover:bg-slate-50 transition-all">
                             <Upload size={24} />
                             <span className="text-sm font-medium">
                                 Upload Associated Documents
@@ -178,221 +219,235 @@ export default function REC18() {
                         </button>
                     </div>
 
-                    {/* Table 1: Management Review */}
-                    <div className="mb-8 overflow-hidden rounded-xl border border-slate-200">
+                    <div className="mb-8 overflow-hidden rounded-sm border border-slate-200">
                         <div className="bg-[#2185d5] text-white px-4 py-2 font-bold text-sm uppercase flex items-center gap-2">
                             MANAGEMENT REVIEW - AGENDA ITEMS
                         </div>
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-12 text-center">
-                                        No
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
-                                        Description
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-20">
-                                        Link
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-24">
-                                        Unique?
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
-                                        Evidence / Meeting Minutes
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
-                                        Owner
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-24 text-center">
-                                        Status
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {agendaItems.map((item) => (
-                                    <tr
-                                        key={item.id}
-                                        className="hover:bg-slate-50"
-                                    >
-                                        <td className="p-3 text-xs text-center font-medium text-slate-500">
-                                            {item.id}
-                                        </td>
-                                        <td className="p-3 text-xs font-medium text-slate-800">
-                                            {item.desc}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.link}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.unique}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.evidence}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.owner}
-                                        </td>
-                                        <td className="p-3 text-center">
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase">
-                                                {item.status}
-                                            </span>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left min-w-[1000px]">
+                                <thead className="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
+                                            Description
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
+                                            Link
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
+                                            Unique?
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
+                                            Evidence / Meeting Minutes
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-48">
+                                            Owner
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32 text-center">
+                                            Status
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-16 text-center">
+                                            Action
+                                        </th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {data.agendas.map((item, index) => (
+                                        <tr key={item.id} className="hover:bg-slate-50">
+                                            <td className="p-2">
+                                                <input type="text" value={item.desc} onChange={(e) => updateListItem('agendas', index, 'desc', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.link} onChange={(e) => updateListItem('agendas', index, 'link', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <select value={item.unique} onChange={(e) => updateListItem('agendas', index, 'unique', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none">
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.evidence} onChange={(e) => updateListItem('agendas', index, 'evidence', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.owner} onChange={(e) => updateListItem('agendas', index, 'owner', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2 text-center">
+                                                <select value={item.status} onChange={(e) => updateListItem('agendas', index, 'status', e.target.value)} className="w-full bg-slate-50 px-2 py-2 rounded-sm text-[11px] font-bold uppercase border-transparent focus:border-blue-500 outline-none text-center">
+                                                    <option value="Open">Open</option>
+                                                    <option value="Closed">Closed</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-2 text-center">
+                                                <button onClick={() => removeListItem('agendas', 'deletedAgendaIds', index)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-sm transition-colors">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                         <div className="p-2 bg-slate-50 border-t border-slate-200">
-                            <button className="text-[11px] font-bold text-blue-500 flex items-center gap-1 hover:underline px-2">
+                            <button onClick={() => addListItem('agendas', { desc: '', link: '', unique: 'Yes', evidence: '', owner: 'MD / All', status: 'Open' })} className="text-[11px] font-bold text-[#2185d5] flex items-center gap-1 hover:underline px-2">
                                 <Plus size={12} /> Add Agenda Item
                             </button>
                         </div>
                     </div>
 
-                    {/* Table 2: Objectives */}
-                    <div className="mb-8 overflow-hidden rounded-xl border border-slate-200">
+                    <div className="mb-8 overflow-hidden rounded-sm border border-slate-200">
                         <div className="bg-emerald-500 text-white px-4 py-2 font-bold text-sm uppercase flex items-center gap-2">
                             OBJECTIVES
                         </div>
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-12 text-center">
-                                        No
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
-                                        Objectives
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-20">
-                                        Ref
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-24">
-                                        Review?
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
-                                        Action / Evidence
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-24 text-center">
-                                        Status
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {objectives.map((item) => (
-                                    <tr
-                                        key={item.id}
-                                        className="hover:bg-slate-50"
-                                    >
-                                        <td className="p-3 text-xs text-center font-medium text-slate-500">
-                                            {item.id}
-                                        </td>
-                                        <td className="p-3 text-xs font-medium text-slate-800">
-                                            {item.obj}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.ref}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.review}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.evidence}
-                                        </td>
-                                        <td className="p-3 text-center">
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase">
-                                                {item.status}
-                                            </span>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left min-w-[1000px]">
+                                <thead className="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
+                                            Objectives
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
+                                            Ref
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
+                                            Review?
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
+                                            Action / Evidence
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32 text-center">
+                                            Status
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-16 text-center">
+                                            Action
+                                        </th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {data.objectives.map((item, index) => (
+                                        <tr key={item.id} className="hover:bg-slate-50">
+                                            <td className="p-2">
+                                                <input type="text" value={item.obj} onChange={(e) => updateListItem('objectives', index, 'obj', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.ref} onChange={(e) => updateListItem('objectives', index, 'ref', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <select value={item.review} onChange={(e) => updateListItem('objectives', index, 'review', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none">
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.evidence} onChange={(e) => updateListItem('objectives', index, 'evidence', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2 text-center">
+                                                <select value={item.status} onChange={(e) => updateListItem('objectives', index, 'status', e.target.value)} className="w-full bg-slate-50 px-2 py-2 rounded-sm text-[11px] font-bold uppercase border-transparent focus:border-blue-500 outline-none text-center">
+                                                    <option value="Open">Open</option>
+                                                    <option value="Closed">Closed</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-2 text-center">
+                                                <button onClick={() => removeListItem('objectives', 'deletedObjectiveIds', index)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-sm transition-colors">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                         <div className="p-2 bg-slate-50 border-t border-slate-200">
-                            <button className="text-[11px] font-bold text-emerald-500 flex items-center gap-1 hover:underline px-2">
+                            <button onClick={() => addListItem('objectives', { obj: '', ref: '', review: 'Yes', evidence: '', status: 'Open' })} className="text-[11px] font-bold text-emerald-500 flex items-center gap-1 hover:underline px-2">
                                 <Plus size={12} /> Add Objective
                             </button>
                         </div>
                     </div>
 
-                    {/* Table 3: Risks */}
-                    <div className="mb-8 overflow-hidden rounded-xl border border-slate-200">
+                    <div className="mb-8 overflow-hidden rounded-sm border border-slate-200">
                         <div className="bg-red-500 text-white px-4 py-2 font-bold text-sm uppercase flex items-center gap-2">
                             RISKS
                         </div>
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-12 text-center">
-                                        No
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
-                                        Description
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-20">
-                                        Link
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-24">
-                                        Unique?
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
-                                        Risk / Opportunity
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
-                                        Evidence / Meeting Minutes
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
-                                        Owner
-                                    </th>
-                                    <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-24 text-center">
-                                        Status
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {risks.map((item) => (
-                                    <tr
-                                        key={item.id}
-                                        className="hover:bg-slate-50"
-                                    >
-                                        <td className="p-3 text-xs text-center font-medium text-slate-500">
-                                            {item.id}
-                                        </td>
-                                        <td className="p-3 text-xs font-medium text-slate-800">
-                                            {item.desc}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.link}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.unique}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.riskOpp}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.evidence}
-                                        </td>
-                                        <td className="p-3 text-xs text-slate-600">
-                                            {item.owner}
-                                        </td>
-                                        <td className="p-3 text-center">
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase">
-                                                {item.status}
-                                            </span>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left min-w-[1000px]">
+                                <thead className="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
+                                            Description
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
+                                            Link
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
+                                            Unique?
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32">
+                                            Risk / Opportunity
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase">
+                                            Evidence / Meeting Minutes
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-48">
+                                            Owner
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-32 text-center">
+                                            Status
+                                        </th>
+                                        <th className="p-3 text-[11px] font-bold text-slate-500 uppercase w-16 text-center">
+                                            Action
+                                        </th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {data.risks.map((item, index) => (
+                                        <tr key={item.id} className="hover:bg-slate-50">
+                                            <td className="p-2">
+                                                <input type="text" value={item.desc} onChange={(e) => updateListItem('risks', index, 'desc', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.link} onChange={(e) => updateListItem('risks', index, 'link', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <select value={item.unique} onChange={(e) => updateListItem('risks', index, 'unique', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none">
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-2">
+                                                <select value={item.riskOpp} onChange={(e) => updateListItem('risks', index, 'riskOpp', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none">
+                                                    <option value="Risk">Risk</option>
+                                                    <option value="Opportunity">Opportunity</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.evidence} onChange={(e) => updateListItem('risks', index, 'evidence', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2">
+                                                <input type="text" value={item.owner} onChange={(e) => updateListItem('risks', index, 'owner', e.target.value)} className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] border-transparent focus:border-blue-500 outline-none" />
+                                            </td>
+                                            <td className="p-2 text-center">
+                                                <select value={item.status} onChange={(e) => updateListItem('risks', index, 'status', e.target.value)} className="w-full bg-slate-50 px-2 py-2 rounded-sm text-[11px] font-bold uppercase border-transparent focus:border-blue-500 outline-none text-center">
+                                                    <option value="Open">Open</option>
+                                                    <option value="Closed">Closed</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-2 text-center">
+                                                <button onClick={() => removeListItem('risks', 'deletedRiskIds', index)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-sm transition-colors">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                         <div className="p-2 bg-slate-50 border-t border-slate-200">
-                            <button className="text-[11px] font-bold text-red-500 flex items-center gap-1 hover:underline px-2">
+                            <button onClick={() => addListItem('risks', { desc: '', link: '', unique: 'Yes', riskOpp: 'Risk', evidence: '', owner: 'MD / All', status: 'Open' })} className="text-[11px] font-bold text-red-500 flex items-center gap-1 hover:underline px-2">
                                 <Plus size={12} /> Add Risk
                             </button>
                         </div>
                     </div>
 
-                    {/* Warning Banner */}
-                    <div className="mb-8 bg-amber-50 p-4 rounded-xl border border-amber-100 text-xs text-amber-800">
+                    <div className="mb-8 bg-amber-50 p-4 rounded-sm border border-amber-100 text-xs text-amber-800">
                         <span className="font-bold">
                             Date fit Requirements:
                         </span>{" "}
@@ -402,7 +457,6 @@ export default function REC18() {
                         compliance status to...
                     </div>
 
-                    {/* Signatures */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-200 pt-8">
                         <div>
                             <h3 className="text-sm font-bold text-slate-800 mb-4">
@@ -415,7 +469,9 @@ export default function REC18() {
                                     </label>
                                     <input
                                         type="text"
-                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                                        value={data.review.verifiedBy}
+                                        onChange={(e) => setData("review", { ...data.review, verifiedBy: e.target.value })}
+                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-sm text-sm focus:border-blue-500 outline-none"
                                     />
                                 </div>
                                 <div className="flex-1">
@@ -424,7 +480,9 @@ export default function REC18() {
                                     </label>
                                     <input
                                         type="date"
-                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                                        value={data.review.withDate}
+                                        onChange={(e) => setData("review", { ...data.review, withDate: e.target.value })}
+                                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-sm text-sm focus:border-blue-500 outline-none"
                                     />
                                 </div>
                             </div>
@@ -432,36 +490,31 @@ export default function REC18() {
                         <div className="flex items-end justify-end gap-2">
                             <div className="flex-1">
                                 <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Name
+                                    Status
                                 </label>
-                                <input
-                                    type="text"
-                                    className="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800 font-medium"
-                                    value="Tony Doe"
-                                    readOnly
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                                    Signed
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800 font-medium"
-                                    value="Signed"
-                                    readOnly
-                                />
+                                <select
+                                    value={data.review.verifiedStatus}
+                                    onChange={(e) => setData("review", { ...data.review, verifiedStatus: e.target.value })}
+                                    className="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-sm text-sm text-emerald-800 font-medium focus:border-emerald-500 outline-none"
+                                >
+                                    <option value="Draft">Draft</option>
+                                    <option value="Signed">Signed</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                     <div className="mt-8 flex justify-end gap-3">
-                        <button className="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-all flex items-center gap-2">
-                            <Save size={16} />
-                            Save Draft
-                        </button>
-                        <button className="px-5 py-2.5 bg-[#2185d5] text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all flex items-center gap-2">
-                            <Check size={16} />
-                            Submit
+                        <button 
+                            onClick={handleSave}
+                            disabled={processing}
+                            className="px-5 py-2.5 bg-[#2185d5] text-white rounded-sm text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {processing ? (
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <Save size={16} />
+                            )}
+                            Save Changes
                         </button>
                     </div>
                 </div>

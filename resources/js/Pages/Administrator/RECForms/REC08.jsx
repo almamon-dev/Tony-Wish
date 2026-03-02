@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
     ArrowLeft,
     Download,
@@ -13,58 +13,122 @@ import {
     Printer,
     FileText,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function REC08() {
-    const productionJobs = [
-        {
-            process: "Laser",
-            name: "",
-            signature: "",
-            date: "",
-        },
-        {
-            process: "Punch",
-            name: "",
-            signature: "",
-            date: "",
-        },
-        {
-            process: "Guillotine",
-            name: "",
-            signature: "",
-            date: "",
-        },
-        {
-            process: "Fabrication",
-            name: "",
-            signature: "",
-            date: "",
-        },
-        {
-            process: "Welding",
-            name: "",
-            signature: "",
-            date: "",
-        },
-        {
-            process: "Weld Size Bandsaw",
-            name: "",
-            signature: "",
-            date: "",
-        },
-        {
-            process: "Inspection",
-            name: "",
-            signature: "",
-            date: "",
-        },
-        {
-            process: "Paint",
-            name: "",
-            signature: "",
-            date: "",
-        },
+export default function REC08({ initialReview = null }) {
+    const defaultJobs = [
+        { process: "Laser", name: "", signature: "", date: "" },
+        { process: "Punch", name: "", signature: "", date: "" },
+        { process: "Guillotine", name: "", signature: "", date: "" },
+        { process: "Fabrication", name: "", signature: "", date: "" },
+        { process: "Welding", name: "", signature: "", date: "" },
+        { process: "Weld Size Bandsaw", name: "", signature: "", date: "" },
+        { process: "Inspection", name: "", signature: "", date: "" },
+        { process: "Paint", name: "", signature: "", date: "" },
     ];
+
+    const getInitialJobs = () => {
+        if (initialReview && initialReview.jobs && initialReview.jobs.length > 0) {
+            return defaultJobs.map(dj => {
+                const existing = initialReview.jobs.find(j => j.process === dj.process);
+                if (existing) {
+                    return {
+                        ...existing,
+                        date: existing.date ? existing.date.split('T')[0] : ''
+                    };
+                }
+                return dj;
+            });
+        }
+        return defaultJobs;
+    };
+
+    const { data, setData, post, processing } = useForm({
+        customer: initialReview?.customer || "",
+        drawings_no: initialReview?.drawings_no || "",
+        price: initialReview?.price || "",
+        en1090: initialReview?.en1090 || "",
+        material_grades: initialReview?.material_grades || "",
+        bolts: initialReview?.bolts || "",
+        sub_contract: initialReview?.sub_contract || "",
+        galvanizing: initialReview?.galvanizing || "",
+        paint: initialReview?.paint || "",
+        job_no: initialReview?.job_no || "",
+        order_date: initialReview?.order_date ? initialReview.order_date.split('T')[0] : "",
+        est_completion: initialReview?.est_completion ? initialReview.est_completion.split('T')[0] : "",
+        weld_types: initialReview?.weld_types || "",
+        weld_inspection: initialReview?.weld_inspection || "",
+        module_itp: initialReview?.module_itp || "",
+        ncr_reqd: initialReview?.ncr_reqd || "",
+        special_reqd: initialReview?.special_reqd || "",
+        audit_monitoring_mpi: initialReview?.audit_monitoring_mpi || "",
+        audit_monitoring_dpi: initialReview?.audit_monitoring_dpi || "",
+        audit_monitoring_mag: initialReview?.audit_monitoring_mag || "",
+        audit_monitoring_hardality: initialReview?.audit_monitoring_hardality || "",
+        workshop_shipping_v1: initialReview?.workshop_shipping_v1 || "",
+        workshop_shipping_v2: initialReview?.workshop_shipping_v2 || "",
+        workshop_shipping_date: initialReview?.workshop_shipping_date ? initialReview.workshop_shipping_date.split('T')[0] : "",
+        comments: initialReview?.comments || "",
+        office_sign_off: initialReview?.office_sign_off || "",
+        jobs: getInitialJobs(),
+    });
+
+    useEffect(() => {
+        if (initialReview) {
+            setData(prev => ({
+                ...prev,
+                customer: initialReview.customer || "",
+                drawings_no: initialReview.drawings_no || "",
+                price: initialReview.price || "",
+                en1090: initialReview.en1090 || "",
+                material_grades: initialReview.material_grades || "",
+                bolts: initialReview.bolts || "",
+                sub_contract: initialReview.sub_contract || "",
+                galvanizing: initialReview.galvanizing || "",
+                paint: initialReview.paint || "",
+                job_no: initialReview.job_no || "",
+                order_date: initialReview.order_date ? initialReview.order_date.split('T')[0] : "",
+                est_completion: initialReview.est_completion ? initialReview.est_completion.split('T')[0] : "",
+                weld_types: initialReview.weld_types || "",
+                weld_inspection: initialReview.weld_inspection || "",
+                module_itp: initialReview.module_itp || "",
+                ncr_reqd: initialReview.ncr_reqd || "",
+                special_reqd: initialReview.special_reqd || "",
+                audit_monitoring_mpi: initialReview.audit_monitoring_mpi || "",
+                audit_monitoring_dpi: initialReview.audit_monitoring_dpi || "",
+                audit_monitoring_mag: initialReview.audit_monitoring_mag || "",
+                audit_monitoring_hardality: initialReview.audit_monitoring_hardality || "",
+                workshop_shipping_v1: initialReview.workshop_shipping_v1 || "",
+                workshop_shipping_v2: initialReview.workshop_shipping_v2 || "",
+                workshop_shipping_date: initialReview.workshop_shipping_date ? initialReview.workshop_shipping_date.split('T')[0] : "",
+                comments: initialReview.comments || "",
+                office_sign_off: initialReview.office_sign_off || "",
+                jobs: getInitialJobs(),
+            }));
+        }
+    }, [initialReview]);
+
+    const handleInputChange = (e) => {
+        setData(e.target.name, e.target.value);
+    };
+
+    const handleJobChange = (index, field, value) => {
+        const newJobs = [...data.jobs];
+        newJobs[index][field] = value;
+        setData('jobs', newJobs);
+    };
+
+    const handleSave = () => {
+        post(route('administrator.rec-forms.rec-08.store'), {
+            onSuccess: () => {
+                toast.success("Project Review saved successfully!");
+            },
+            onError: (errors) => {
+                console.error("Save Errors:", errors);
+                toast.error("Failed to save data. Please check the form.");
+            }
+        });
+    };
 
     return (
         <AdministratorLayout>
@@ -86,20 +150,28 @@ export default function REC08() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all text-sm font-bold shadow-sm">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-sm hover:bg-slate-50 transition-all text-sm font-bold shadow-sm">
                             <Printer size={18} />
                             Print
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#2185d5] text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-blue-500/20">
-                            <Save size={18} />
+                        <button 
+                            onClick={handleSave}
+                            disabled={processing}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#2185d5] text-white rounded-sm hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                        >
+                            {processing ? (
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <Save size={18} />
+                            )}
                             Save Changes
                         </button>
                     </div>
                 </div>
 
                 {/* Project Review Section */}
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
-                    <h2 className="text-lg font-bold text-slate-700 mb-6 text-center bg-slate-50 py-3 rounded-xl border border-slate-100">
+                <div className="bg-white rounded-sm border border-slate-200 shadow-sm p-8">
+                    <h2 className="text-lg font-bold text-slate-700 mb-6 text-center bg-slate-50 py-3 rounded-sm border border-slate-100">
                         Project Review & Job Card
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
@@ -112,7 +184,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="customer"
+                                        value={data.customer}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -123,7 +198,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="drawings_no"
+                                        value={data.drawings_no}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -134,7 +212,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="price"
+                                        value={data.price}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -145,7 +226,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="en1090"
+                                        value={data.en1090}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -156,7 +240,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="material_grades"
+                                        value={data.material_grades}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -167,7 +254,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="bolts"
+                                        value={data.bolts}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -178,7 +268,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="sub_contract"
+                                        value={data.sub_contract}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -189,7 +282,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="galvanizing"
+                                        value={data.galvanizing}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -200,7 +296,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="paint"
+                                        value={data.paint}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -215,7 +314,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="job_no"
+                                        value={data.job_no}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -226,7 +328,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="date"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-500"
+                                        name="order_date"
+                                        value={data.order_date}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-500"
                                     />
                                 </div>
                             </div>
@@ -237,7 +342,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="date"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-500"
+                                        name="est_completion"
+                                        value={data.est_completion}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-500"
                                     />
                                 </div>
                             </div>
@@ -248,7 +356,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="weld_types"
+                                        value={data.weld_types}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -259,7 +370,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="weld_inspection"
+                                        value={data.weld_inspection}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -270,7 +384,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="module_itp"
+                                        value={data.module_itp}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -281,7 +398,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="ncr_reqd"
+                                        value={data.ncr_reqd}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -292,7 +412,10 @@ export default function REC08() {
                                 <div className="col-span-8">
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                        name="special_reqd"
+                                        value={data.special_reqd}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -301,8 +424,8 @@ export default function REC08() {
                 </div>
 
                 {/* Production Job Card Section */}
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
-                    <h2 className="text-lg font-bold text-slate-700 mb-6 text-center bg-blue-50/50 py-3 rounded-xl border border-blue-100 text-[#2185d5]">
+                <div className="bg-white rounded-sm border border-slate-200 shadow-sm p-8">
+                    <h2 className="text-lg font-bold text-slate-700 mb-6 text-center bg-blue-50/50 py-3 rounded-sm border border-blue-100 text-[#2185d5]">
                         Production Job Card
                     </h2>
 
@@ -325,7 +448,7 @@ export default function REC08() {
                                 </tr>
                             </thead>
                             <tbody className="space-y-3">
-                                {productionJobs.map((job, index) => (
+                                {data.jobs.map((job, index) => (
                                     <tr key={index}>
                                         <td className="py-2 px-4">
                                             <span className="text-[13px] font-bold text-slate-700">
@@ -335,19 +458,25 @@ export default function REC08() {
                                         <td className="py-2 px-4">
                                             <input
                                                 type="text"
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                                value={job.name || ''}
+                                                onChange={(e) => handleJobChange(index, 'name', e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                             />
                                         </td>
                                         <td className="py-2 px-4">
                                             <input
                                                 type="text"
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                                                value={job.signature || ''}
+                                                onChange={(e) => handleJobChange(index, 'signature', e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
                                             />
                                         </td>
                                         <td className="py-2 px-4">
                                             <input
                                                 type="date"
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-400"
+                                                value={job.date || ''}
+                                                onChange={(e) => handleJobChange(index, 'date', e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-400"
                                             />
                                         </td>
                                     </tr>
@@ -357,7 +486,7 @@ export default function REC08() {
                     </div>
 
                     {/* Audit Monitoring */}
-                    <div className="mt-8 flex flex-col md:flex-row items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="mt-8 flex flex-col md:flex-row items-center gap-4 p-4 bg-slate-50 rounded-sm border border-slate-100">
                         <span className="text-[13px] font-bold text-slate-700 w-32">
                             Audit Monitoring
                         </span>
@@ -367,7 +496,10 @@ export default function REC08() {
                             </span>
                             <input
                                 type="text"
-                                className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
+                                name="audit_monitoring_mpi"
+                                value={data.audit_monitoring_mpi}
+                                onChange={handleInputChange}
+                                className="bg-white border border-slate-200 rounded-sm px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
                             />
                         </div>
                         <div className="flex items-center gap-2">
@@ -376,7 +508,10 @@ export default function REC08() {
                             </span>
                             <input
                                 type="text"
-                                className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
+                                name="audit_monitoring_dpi"
+                                value={data.audit_monitoring_dpi}
+                                onChange={handleInputChange}
+                                className="bg-white border border-slate-200 rounded-sm px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
                             />
                         </div>
                         <div className="flex items-center gap-2">
@@ -385,7 +520,10 @@ export default function REC08() {
                             </span>
                             <input
                                 type="text"
-                                className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
+                                name="audit_monitoring_mag"
+                                value={data.audit_monitoring_mag}
+                                onChange={handleInputChange}
+                                className="bg-white border border-slate-200 rounded-sm px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
                             />
                         </div>
                         <div className="flex items-center gap-2">
@@ -394,7 +532,10 @@ export default function REC08() {
                             </span>
                             <input
                                 type="text"
-                                className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
+                                name="audit_monitoring_hardality"
+                                value={data.audit_monitoring_hardality}
+                                onChange={handleInputChange}
+                                className="bg-white border border-slate-200 rounded-sm px-3 py-1.5 text-[13px] w-24 outline-none focus:border-blue-500"
                             />
                         </div>
                     </div>
@@ -406,41 +547,55 @@ export default function REC08() {
                         </span>
                         <input
                             type="text"
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] flex-1 outline-none focus:border-blue-500"
+                            name="workshop_shipping_v1"
+                            value={data.workshop_shipping_v1}
+                            onChange={handleInputChange}
+                            className="bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] flex-1 outline-none focus:border-blue-500"
                         />
                         <input
                             type="text"
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] flex-1 outline-none focus:border-blue-500"
+                            name="workshop_shipping_v2"
+                            value={data.workshop_shipping_v2}
+                            onChange={handleInputChange}
+                            className="bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] flex-1 outline-none focus:border-blue-500"
                         />
                         <input
                             type="date"
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[13px] w-40 outline-none focus:border-blue-500 text-slate-400"
+                            name="workshop_shipping_date"
+                            value={data.workshop_shipping_date}
+                            onChange={handleInputChange}
+                            className="bg-slate-50 border border-slate-200 rounded-sm px-3 py-2 text-[13px] w-40 outline-none focus:border-blue-500 text-slate-400"
                         />
                     </div>
                 </div>
 
                 {/* Footer Section */}
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-6">
+                <div className="bg-white rounded-sm border border-slate-200 shadow-sm p-8 space-y-6">
                     <div>
                         <h3 className="text-[14px] font-bold text-slate-700 mb-2">
                             Comments:
                         </h3>
                         <textarea
-                            className="w-full h-32 bg-slate-50 border border-slate-200 rounded-xl p-4 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none resize-none placeholder:text-slate-400"
+                            name="comments"
+                            value={data.comments}
+                            onChange={handleInputChange}
+                            className="w-full h-32 bg-slate-50 border border-slate-200 rounded-sm p-4 text-[13px] focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none resize-none placeholder:text-slate-400"
                             placeholder="Enter comments here..."
                         ></textarea>
                     </div>
 
-                    <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-sm border border-slate-100">
                         <span className="text-[13px] font-bold text-slate-700">
                             Office Sign-off
                         </span>
                         <input
                             type="text"
+                            name="office_sign_off"
+                            value={data.office_sign_off}
+                            onChange={handleInputChange}
                             placeholder="Signature"
                             className="flex-1 bg-transparent border-b border-slate-300 px-3 py-2 text-[13px] outline-none focus:border-blue-500 placeholder:text-slate-300"
                         />
-                        <div className="w-12 h-10 border border-slate-200 rounded bg-white"></div>
                     </div>
                 </div>
             </div>

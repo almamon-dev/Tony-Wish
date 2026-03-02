@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import {
     Plus,
     FileText,
@@ -12,13 +12,12 @@ import {
 } from "lucide-react";
 import CreateChecklistModal from "./Partials/CreateChecklistModal";
 
-export default function PreAuditChecklists() {
+export default function PreAuditChecklists({ checklists = [], auditors = [] }) {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
     const stats = [
         {
             label: "Total Checklist",
-            value: "18",
+            value: checklists.length.toString(),
             icon: <FileText size={20} />,
             color: "text-blue-500",
             bg: "bg-blue-50",
@@ -26,7 +25,7 @@ export default function PreAuditChecklists() {
         },
         {
             label: "Completed",
-            value: "12",
+            value: checklists.filter(c => c.status === "Completed").length.toString(),
             icon: <CheckCircle2 size={20} />,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
@@ -34,7 +33,7 @@ export default function PreAuditChecklists() {
         },
         {
             label: "In Progress",
-            value: "6",
+            value: checklists.filter(c => c.status !== "Completed").length.toString(),
             icon: <Clock size={20} />,
             color: "text-amber-500",
             bg: "bg-amber-50",
@@ -42,37 +41,20 @@ export default function PreAuditChecklists() {
         },
     ];
 
-    const checklists = [
-        {
-            name: "Pre-Audit Checklist Q4",
-            procedure: "ISO 9001",
-            createdBy: "Mike Davis",
-            status: "In Progress",
-            completion: 65,
-        },
-        // ... (other items can remain, or be dynamically rendered if needed, but for now we keep static for the list)
-        {
-            name: "Environmental Review",
-            procedure: "ISO 9001",
-            createdBy: "Mike Davis",
-            status: "In Progress",
-            completion: 65,
-        },
-        {
-            name: "Pre-Audit Checklist Q4",
-            procedure: "ISO 9001",
-            createdBy: "Mike Davis",
-            status: "Completed",
-            completion: 100,
-        },
-        {
-            name: "Pre-Audit Checklist Q4",
-            procedure: "ISO 9001",
-            createdBy: "Mike Davis",
-            status: "In Progress",
-            completion: 65,
-        },
-    ];
+    const calculateCompletion = (checklist) => {
+        let totalItems = 0;
+        let completedItems = 0;
+        
+        checklist.areas?.forEach(area => {
+            area.items?.forEach(item => {
+                totalItems++;
+                if (item.is_completed) completedItems++;
+            });
+        });
+
+        if (totalItems === 0) return 0;
+        return Math.round((completedItems / totalItems) * 100);
+    };
 
     return (
         <AdministratorLayout>
@@ -91,7 +73,7 @@ export default function PreAuditChecklists() {
                     </div>
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 bg-[#2c8af8] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-black text-[14px] transition-all shadow-lg shadow-blue-500/20 active:scale-95 whitespace-nowrap"
+                        className="inline-flex items-center justify-center gap-2 bg-[#2c8af8] hover:bg-blue-600 text-white px-6 py-2.5 rounded-sm font-black text-[14px] transition-all shadow-lg shadow-blue-500/20 active:scale-95 whitespace-nowrap"
                     >
                         <Plus size={18} />
                         Create Checklist
@@ -103,7 +85,7 @@ export default function PreAuditChecklists() {
                     {stats.map((stat, i) => (
                         <div
                             key={i}
-                            className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex items-center justify-between"
+                            className="bg-white p-6 rounded-sm border border-slate-100 shadow-sm flex items-center justify-between"
                         >
                             <div>
                                 <h3 className="text-[13px] font-bold text-slate-400 uppercase tracking-wider mb-2">
@@ -114,7 +96,7 @@ export default function PreAuditChecklists() {
                                 </p>
                             </div>
                             <div
-                                className={`w-12 h-12 rounded-2xl ${stat.iconBg} ${stat.color} flex items-center justify-center`}
+                                className={`w-12 h-12 rounded-sm ${stat.iconBg} ${stat.color} flex items-center justify-center`}
                             >
                                 {stat.icon}
                             </div>
@@ -123,16 +105,16 @@ export default function PreAuditChecklists() {
                 </div>
 
                 {/* Main Table Card */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden p-8">
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden p-8">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50/50 rounded-xl overflow-hidden">
+                                <tr className="bg-slate-50/50 rounded-sm overflow-hidden">
                                     <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest rounded-l-xl">
-                                        Procedure Name
+                                        Checklist Name
                                     </th>
                                     <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
-                                        Procedure
+                                        ISO Standard
                                     </th>
                                     <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
                                         Created By
@@ -149,29 +131,29 @@ export default function PreAuditChecklists() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {checklists.map((item, i) => (
+                                {checklists.map((audit, i) => (
                                     <tr
                                         key={i}
                                         className="hover:bg-slate-50/30 transition-colors group"
                                     >
                                         <td className="px-6 py-5 font-bold text-slate-700 text-[14px]">
-                                            {item.name}
+                                            {audit.name}
                                         </td>
                                         <td className="px-6 py-5 font-bold text-slate-500 text-[14px]">
-                                            {item.procedure}
+                                            {audit.iso_standard}
                                         </td>
                                         <td className="px-6 py-5 font-bold text-slate-500 text-[14px]">
-                                            {item.createdBy}
+                                            {audit.creator ? `${audit.creator.first_name} ${audit.creator.last_name}` : 'N/A'}
                                         </td>
                                         <td className="px-6 py-5 text-center">
                                             <span
                                                 className={`px-4 py-1.5 rounded-full text-[12px] font-black border ${
-                                                    item.status === "Completed"
+                                                    audit.status === "Completed"
                                                         ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                                         : "bg-amber-50 text-amber-600 border-amber-100"
                                                 }`}
                                             >
-                                                {item.status}
+                                                {audit.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5">
@@ -179,27 +161,33 @@ export default function PreAuditChecklists() {
                                                 <div className="flex-1 h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
                                                     <div
                                                         className={`h-full rounded-full transition-all duration-500 ${
-                                                            item.completion ===
+                                                            calculateCompletion(audit) ===
                                                             100
                                                                 ? "bg-emerald-500"
                                                                 : "bg-emerald-400"
                                                         }`}
                                                         style={{
-                                                            width: `${item.completion}%`,
+                                                            width: `${calculateCompletion(audit)}%`,
                                                         }}
                                                     />
                                                 </div>
                                                 <span className="text-[13px] font-black text-slate-400 whitespace-nowrap">
-                                                    {item.completion}%
+                                                    {calculateCompletion(audit)}%
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center justify-center gap-2">
-                                                <button className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-100 text-slate-400 hover:text-blue-500 hover:border-blue-200 transition-all bg-white hover:shadow-md">
-                                                    <Edit2 size={16} />
+                                                <button 
+                                                    onClick={() => router.get(route('administrator.pre-audit-checklists.edit', audit.id))}
+                                                    className="w-9 h-9 flex items-center justify-center rounded-sm border border-slate-100 text-slate-400 hover:text-blue-500 hover:border-blue-200 transition-all bg-white hover:shadow-md"
+                                                >
+                                                     <Edit2 size={16} />
                                                 </button>
-                                                <button className="h-9 px-4 flex items-center justify-center gap-2 rounded-xl border border-slate-100 text-slate-400 hover:text-blue-500 hover:border-blue-200 transition-all bg-white hover:shadow-md text-[13px] font-black uppercase">
+                                                <button 
+                                                    onClick={() => router.get(route('administrator.pre-audit-checklists.show', audit.id))}
+                                                    className="h-9 px-4 flex items-center justify-center gap-2 rounded-sm border border-slate-100 text-slate-400 hover:text-blue-500 hover:border-blue-200 transition-all bg-white hover:shadow-md text-[13px] font-black uppercase"
+                                                >
                                                     <Eye size={16} />
                                                     view
                                                 </button>
@@ -216,6 +204,7 @@ export default function PreAuditChecklists() {
             <CreateChecklistModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
+                auditors={auditors}
             />
         </AdministratorLayout>
     );

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Administrator\RECFormController;
 
 Route::get('/', function () {
     return Inertia::render('Landing/Index', [
@@ -131,9 +132,11 @@ Route::middleware('auth')->group(function () {
         })->name('dashboard');
         Route::get('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'index'])->name('procedures.index');
         Route::post('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'store'])->name('procedures.store');
-        Route::get('/pre-audit-checklists', function () {
-            return Inertia::render('Administrator/PreAuditChecklists/Index');
-        })->name('pre-audit-checklists.index');
+        Route::get('/pre-audit-checklists', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'index'])->name('pre-audit-checklists.index');
+        Route::post('/pre-audit-checklists', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'store'])->name('pre-audit-checklists.store');
+        Route::get('/pre-audit-checklists/{id}', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'show'])->name('pre-audit-checklists.show');
+        Route::get('/pre-audit-checklists/{id}/edit', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'edit'])->name('pre-audit-checklists.edit');
+        Route::put('/pre-audit-checklists/{id}', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'update'])->name('pre-audit-checklists.update');
         Route::get('/certificates', function () {
             return Inertia::render('Administrator/Certificates/Index');
         })->name('certificates.index');
@@ -141,54 +144,84 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('Administrator/RECForms/Index');
         })->name('rec-forms.index');
 
-        Route::get('/rec-forms/rec-01', function () {
-            return Inertia::render('Administrator/RECForms/REC01');
-        })->name('rec-forms.rec-01');
-        Route::get('/rec-forms/rec-02', function () {
-            return Inertia::render('Administrator/RECForms/REC02');
-        })->name('rec-forms.rec-02');
-        Route::get('/rec-forms/rec-03', function () {
-            return Inertia::render('Administrator/RECForms/REC03');
-        })->name('rec-forms.rec-03');
-        Route::get('/rec-forms/rec-04', function () {
-            return Inertia::render('Administrator/RECForms/REC04');
-        })->name('rec-forms.rec-04');
-        Route::get('/rec-forms/rec-05', function () {
-            return Inertia::render('Administrator/RECForms/REC05');
-        })->name('rec-forms.rec-05');
-        Route::get('/rec-forms/rec-06', function () {
-            return Inertia::render('Administrator/RECForms/REC06');
-        })->name('rec-forms.rec-06');
-        Route::get('/rec-forms/rec-07', function () {
-            return Inertia::render('Administrator/RECForms/REC07');
-        })->name('rec-forms.rec-07');
-        Route::get('/rec-forms/rec-08', function () {
-            return Inertia::render('Administrator/RECForms/REC08');
-        })->name('rec-forms.rec-08');
-        Route::get('/rec-forms/rec-09', function () {
-            return Inertia::render('Administrator/RECForms/REC09');
-        })->name('rec-forms.rec-09');
-        Route::get('/rec-forms/rec-10', function () {
-            return Inertia::render('Administrator/RECForms/REC10');
-        })->name('rec-forms.rec-10');
-        Route::get('/rec-forms/rec-11', function () {
-            return Inertia::render('Administrator/RECForms/REC11');
-        })->name('rec-forms.rec-11');
-        Route::get('/rec-forms/rec-12', function () {
-            return Inertia::render('Administrator/RECForms/REC12');
-        })->name('rec-forms.rec-12');
-        Route::get('/rec-forms/rec-13', function () {
-            return Inertia::render('Administrator/RECForms/REC13');
-        })->name('rec-forms.rec-13');
-        Route::get('/rec-forms/rec-16', function () {
-            return Inertia::render('Administrator/RECForms/REC16');
-        })->name('rec-forms.rec-16');
-        Route::get('/rec-forms/rec-18', function () {
-            return Inertia::render('Administrator/RECForms/REC18');
-        })->name('rec-forms.rec-18');
-        Route::get('/rec-forms/rec-19', function () {
-            return Inertia::render('Administrator/RECForms/REC19');
-        })->name('rec-forms.rec-19');
+        // REC Forms
+        Route::get('/rec-forms/rec-01', [RECFormController::class, 'rec01'])->name('rec-forms.rec-01');
+        Route::post('/rec-forms/rec-01', [RECFormController::class, 'rec01Store'])->name('rec-forms.rec-01.store');
+        Route::get('/rec-forms/rec-02', [RECFormController::class, 'rec02'])->name('rec-forms.rec-02');
+        Route::post('/rec-forms/rec-02', [RECFormController::class, 'rec02Store'])->name('rec-forms.rec-02.store');
+        Route::get('/rec-forms/rec-03', [RECFormController::class, 'rec03'])->name('rec-forms.rec-03');
+        Route::post('/rec-forms/rec-03', [RECFormController::class, 'rec03Store'])->name('rec-forms.rec-03.store');
+        Route::get('/rec-forms/rec-04', [RECFormController::class, 'rec04'])->name('rec-forms.rec-04');
+        Route::post('/rec-forms/rec-04', [RECFormController::class, 'rec04Store'])->name('rec-forms.rec-04.store');
+        Route::get('/rec-forms/rec-05', [RECFormController::class, 'rec05'])->name('rec-forms.rec-05');
+        Route::post('/rec-forms/rec-05', [RECFormController::class, 'rec05Store'])->name('rec-forms.rec-05.store');
+        Route::get('/rec-forms/rec-06', [RECFormController::class, 'rec06'])->name('rec-forms.rec-06');
+        Route::post('/rec-forms/rec-06', [RECFormController::class, 'rec06Store'])->name('rec-forms.rec-06.store');
+        Route::get('/rec-forms/rec-07', [RECFormController::class, 'rec07'])->name('rec-forms.rec-07');
+        Route::post('/rec-forms/rec-07', [RECFormController::class, 'rec07Store'])->name('rec-forms.rec-07.store');
+        Route::get('/rec-forms/rec-08', [RECFormController::class, 'rec08'])->name('rec-forms.rec-08');
+        Route::post('/rec-forms/rec-08', [RECFormController::class, 'rec08Store'])->name('rec-forms.rec-08.store');
+        Route::get('/rec-forms/rec-09', [RECFormController::class, 'rec09'])->name('rec-forms.rec-09');
+        Route::post('/rec-forms/rec-09', [RECFormController::class, 'rec09Store'])->name('rec-forms.rec-09.store');
+        Route::get('/rec-forms/rec-10', [RECFormController::class, 'rec10'])->name('rec-forms.rec-10');
+        Route::post('/rec-forms/rec-10', [RECFormController::class, 'rec10Store'])->name('rec-forms.rec-10.store');
+        Route::get('/rec-forms/rec-11', [RECFormController::class, 'rec11'])->name('rec-forms.rec-11');
+        Route::post('/rec-forms/rec-11', [RECFormController::class, 'rec11Store'])->name('rec-forms.rec-11.store');
+        Route::get('/rec-forms/rec-12', [RECFormController::class, 'rec12'])->name('rec-forms.rec-12');
+        Route::post('/rec-forms/rec-12', [RECFormController::class, 'rec12Store'])->name('rec-forms.rec-12.store');
+        Route::get('/rec-forms/rec-13', [RECFormController::class, 'rec13'])->name('rec-forms.rec-13');
+        Route::post('/rec-forms/rec-13', [RECFormController::class, 'rec13Store'])->name('rec-forms.rec-13.store');
+        Route::get('/rec-forms/rec-14', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-14');
+        Route::get('/rec-forms/rec-15', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-15');
+        Route::get('/rec-forms/rec-16', [RECFormController::class, 'rec16'])->name('rec-forms.rec-16');
+        Route::post('/rec-forms/rec-16', [RECFormController::class, 'rec16Store'])->name('rec-forms.rec-16.store');
+        Route::get('/rec-forms/rec-17', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-17');
+        Route::get('/rec-forms/rec-18', [RECFormController::class, 'rec18'])->name('rec-forms.rec-18');
+        Route::post('/rec-forms/rec-18', [RECFormController::class, 'rec18Store'])->name('rec-forms.rec-18.store');
+        Route::get('/rec-forms/rec-19', [RECFormController::class, 'rec19'])->name('rec-forms.rec-19');
+        Route::post('/rec-forms/rec-19', [RECFormController::class, 'rec19Store'])->name('rec-forms.rec-19.store');
+        Route::get('/rec-forms/rec-20', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-20');
+        Route::get('/rec-forms/rec-21', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-21');
+        Route::get('/rec-forms/rec-22', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-22');
+        Route::get('/rec-forms/rec-23', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-23');
+        Route::get('/rec-forms/rec-24', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-24');
+        Route::get('/rec-forms/rec-25', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-25');
+        Route::get('/rec-forms/rec-26', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-26');
+        Route::get('/rec-forms/rec-27', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-27');
+        Route::get('/rec-forms/rec-28', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-28');
+        Route::get('/rec-forms/rec-29', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-29');
+        Route::get('/rec-forms/rec-30', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-30');
+        Route::get('/rec-forms/rec-31', function () {
+            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
+        })->name('rec-forms.rec-31');
         Route::get('/upload-center', function () {
             return Inertia::render('Administrator/UploadCenter/Index');
         })->name('upload-center.index');

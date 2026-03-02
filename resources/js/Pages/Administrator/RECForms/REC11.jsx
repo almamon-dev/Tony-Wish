@@ -1,59 +1,102 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
     ArrowLeft,
     Download,
     Trash2,
     Plus,
-    ChevronLeft,
-    ChevronRight,
     Calendar,
     Save,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function REC11() {
-    const deliveryNotes = [
-        {
-            id: 1,
-            jobNumber: "C14560",
-            supplier: "A H Allen",
-            customer: "ABC Construction Ltd",
-            description: "Steel Beam - IPE 200 x 50m",
-            qty: 50,
-            deliveryDate: "01/15/2025",
-            receivedBy: "John Smith",
-            notes: "All items in good condition",
-        },
-        {
-            id: 2,
-            jobNumber: "C14569",
-            supplier: "A H Allen",
-            customer: "ABC Construction Ltd",
-            description: "Steel Beam - IPE 200 x 50m",
-            qty: 50,
-            deliveryDate: "01/15/2025",
-            receivedBy: "John Smith",
-            notes: "All items in good condition",
-        },
-        {
-            id: 3,
-            jobNumber: "C14567",
-            supplier: "A H Allen",
-            customer: "ABC Construction Ltd",
-            description: "Steel Beam - IPE 200 x 50m",
-            qty: 50,
-            deliveryDate: "01/15/2025",
-            receivedBy: "John Smith",
-            notes: "All items in good condition",
-        },
-    ];
+export default function REC11({ initialNotes = [] }) {
+    const { data, setData, post, processing } = useForm({
+        notes: [],
+        deletedIds: [],
+    });
+
+    useEffect(() => {
+        const formattedNotes = initialNotes.map(note => ({
+            ...note,
+            deliveryDate: note.delivery_date ? note.delivery_date.split('T')[0] : '',
+            jobNumber: note.job_number || '',
+            receivedBy: note.received_by || ''
+        }));
+        
+        setData("notes", formattedNotes.length > 0 ? formattedNotes : [
+            {
+                id: `new_${Date.now()}`,
+                jobNumber: "",
+                supplier: "",
+                customer: "",
+                description: "",
+                qty: "",
+                deliveryDate: "",
+                receivedBy: "",
+                notes: "",
+            }
+        ]);
+    }, [initialNotes]);
+
+    const addNoteRow = () => {
+        setData("notes", [
+            ...data.notes,
+            {
+                id: `new_${Date.now()}`,
+                jobNumber: "",
+                supplier: "",
+                customer: "",
+                description: "",
+                qty: "",
+                deliveryDate: "",
+                receivedBy: "",
+                notes: "",
+            },
+        ]);
+    };
+
+    const updateNote = (index, field, value) => {
+        const newNotes = [...data.notes];
+        newNotes[index][field] = value;
+        setData("notes", newNotes);
+    };
+
+    const removeNoteRow = (index) => {
+        const noteToRemove = data.notes[index];
+        const newNotes = [...data.notes];
+        newNotes.splice(index, 1);
+
+        if (typeof noteToRemove.id === "number") {
+            setData((prevData) => ({
+                ...prevData,
+                notes: newNotes,
+                deletedIds: [...prevData.deletedIds, noteToRemove.id],
+            }));
+        } else {
+            setData("notes", newNotes);
+        }
+    };
+
+    const handleSave = () => {
+        post(route("administrator.rec-forms.rec-11.store"), {
+            onSuccess: () => {
+                toast.success("Delivery Notes saved successfully!");
+                setData("deletedIds", []);
+            },
+            onError: (errors) => {
+                console.error("Save Errors:", errors);
+                toast.error("Failed to save data.");
+            },
+        });
+    };
 
     return (
         <AdministratorLayout>
             <Head title="REC-11 - Delivery Note" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -69,19 +112,27 @@ export default function REC11() {
                         </h1>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all text-sm font-bold shadow-sm">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-sm hover:bg-slate-50 transition-all text-sm font-bold shadow-sm">
                             <Download size={18} />
                             Export PDF
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#2185d5] text-white rounded-xl hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-blue-500/20">
-                            <Save size={18} />
+                        <button 
+                            onClick={handleSave}
+                            disabled={processing}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#2185d5] text-white rounded-sm hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                        >
+                            {processing ? (
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <Save size={18} />
+                            )}
                             Save Changes
                         </button>
                     </div>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+                <div className="bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden p-6">
                     <div className="text-center py-4 mb-6">
                         <h2 className="text-xl font-bold text-slate-700 uppercase tracking-wide">
                             DELIVERY NOTES OUT
@@ -122,47 +173,88 @@ export default function REC11() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {deliveryNotes.map((note) => (
+                                {data.notes.map((note, index) => (
                                     <tr
                                         key={note.id}
                                         className="hover:bg-slate-50/50 transition-colors"
                                     >
-                                        <td className="px-4 py-4 text-[13px] font-medium text-slate-700">
-                                            {note.jobNumber}
+                                        <td className="px-4 py-3 text-[13px] font-medium text-slate-700">
+                                            <input
+                                                type="text"
+                                                value={note.jobNumber}
+                                                onChange={(e) => updateNote(index, 'jobNumber', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Job No"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4 text-[13px] font-medium text-slate-700">
-                                            {note.supplier}
+                                        <td className="px-4 py-3 text-[13px] font-medium text-slate-700">
+                                            <input
+                                                type="text"
+                                                value={note.supplier}
+                                                onChange={(e) => updateNote(index, 'supplier', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Supplier"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4 text-[13px] font-medium text-slate-700">
-                                            {note.customer}
+                                        <td className="px-4 py-3 text-[13px] font-medium text-slate-700">
+                                            <input
+                                                type="text"
+                                                value={note.customer}
+                                                onChange={(e) => updateNote(index, 'customer', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Customer"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4 text-[13px] font-medium text-slate-600">
-                                            {note.description}
+                                        <td className="px-4 py-3 text-[13px] font-medium text-slate-600">
+                                            <input
+                                                type="text"
+                                                value={note.description}
+                                                onChange={(e) => updateNote(index, 'description', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Description"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4 text-[13px] font-medium text-slate-700 text-center">
-                                            {note.qty}
+                                        <td className="px-4 py-3 text-[13px] font-medium text-slate-700">
+                                            <input
+                                                type="text"
+                                                value={note.qty}
+                                                onChange={(e) => updateNote(index, 'qty', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none text-center"
+                                                placeholder="Qty"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4 text-[13px] font-medium text-slate-700">
-                                            <div className="flex items-center gap-2">
-                                                <Calendar
-                                                    size={14}
-                                                    className="text-slate-400"
-                                                />
-                                                {note.deliveryDate}
-                                            </div>
+                                        <td className="px-4 py-3 text-[13px] font-medium text-slate-700">
+                                            <input
+                                                type="date"
+                                                value={note.deliveryDate}
+                                                onChange={(e) => updateNote(index, 'deliveryDate', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-500 border border-transparent focus:border-blue-500 outline-none"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4 text-[13px] font-medium text-slate-700">
-                                            {note.receivedBy}
+                                        <td className="px-4 py-3 text-[13px] font-medium text-slate-700">
+                                            <input
+                                                type="text"
+                                                value={note.receivedBy}
+                                                onChange={(e) => updateNote(index, 'receivedBy', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Name"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4 text-[13px] text-slate-500">
-                                            {note.notes}
+                                        <td className="px-4 py-3 text-[13px] text-slate-500">
+                                            <input
+                                                type="text"
+                                                value={note.notes}
+                                                onChange={(e) => updateNote(index, 'notes', e.target.value)}
+                                                className="w-full bg-slate-50 px-3 py-2 rounded-sm text-[13px] font-medium text-slate-700 border border-transparent focus:border-blue-500 outline-none"
+                                                placeholder="Notes"
+                                            />
                                         </td>
-                                        <td className="px-4 py-4">
+                                        <td className="px-4 py-3">
                                             <div className="flex items-center justify-center gap-2">
-                                                <button className="text-blue-500 hover:text-blue-700 transition-colors bg-blue-50 p-1.5 rounded-lg">
-                                                    <Download size={16} />
-                                                </button>
-                                                <button className="text-red-500 hover:text-red-700 transition-colors bg-red-50 p-1.5 rounded-lg">
+                                                <button 
+                                                    onClick={() => removeNoteRow(index)}
+                                                    className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-sm transition-colors"
+                                                >
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>
@@ -173,24 +265,12 @@ export default function REC11() {
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    {/* <div className="mt-6 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-2">
-                            <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                                <ChevronLeft size={20} />
-                            </button>
-                            <div className="h-1.5 flex-1 bg-slate-100 rounded-full w-48 overflow-hidden">
-                                <div className="h-full bg-slate-300 w-1/3 rounded-full"></div>
-                            </div>
-                            <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                                <ChevronRight size={20} />
-                            </button>
-                        </div>
-                    </div> */}
-
                     {/* Add Button */}
                     <div className="mt-8">
-                        <button className="w-full py-3 border border-slate-200 rounded-xl text-slate-600 font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors text-sm shadow-sm bg-white">
+                        <button 
+                            onClick={addNoteRow}
+                            className="w-full py-3 border border-slate-200 rounded-sm text-slate-600 font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors text-sm shadow-sm bg-white"
+                        >
                             <Plus size={18} />
                             Add New Delivery Note
                         </button>

@@ -14,11 +14,6 @@ class ProcedureController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // Scope procedures to the company the administrator belongs to
-        // If it's a business owner, they own the company.
-        // If it's an administrator, they have a business_owner_id.
-        
         $ownerId = $user->user_type === 'business_owner' ? $user->id : $user->business_owner_id;
         
         $procedures = Procedure::with('assignedUser')

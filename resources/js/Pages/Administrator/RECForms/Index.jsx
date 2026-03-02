@@ -427,13 +427,15 @@ export default function RECFormsIndex() {
 
             <div className="space-y-8 pb-10">
                 {/* Header */}
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-[28px] font-bold text-slate-800 tracking-tight leading-none">
-                        REC Forms Management
-                    </h1>
-                    <p className="text-[14px] text-slate-500 font-medium mt-1">
-                        Manage all REC forms and assign responsibility
-                    </p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-[28px] font-black text-slate-800 tracking-tight leading-none">
+                            REC Forms Management
+                        </h1>
+                        <p className="text-[14px] text-slate-500 font-medium mt-3">
+                            Manage and fill out REC forms and assign responsibility
+                        </p>
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -441,43 +443,38 @@ export default function RECFormsIndex() {
                     {stats.map((stat, i) => (
                         <div
                             key={i}
-                            className="bg-white p-6 rounded-[20px] border border-slate-100 shadow-sm flex flex-col justify-between relative overflow-hidden"
+                            className="bg-white p-6 rounded-sm border border-slate-100 shadow-sm flex items-center justify-between"
                         >
-                            <div className="flex justify-between items-start mb-4">
-                                <h3 className="text-[14px] font-medium text-slate-400">
+                            <div>
+                                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">
                                     {stat.label}
                                 </h3>
-                                <div
-                                    className={`w-10 h-10 rounded-xl ${stat.iconBg} ${stat.color} flex items-center justify-center`}
-                                >
-                                    {stat.icon}
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-[32px] font-bold text-slate-700 leading-none mb-4">
+                                <p className="text-[32px] font-black text-slate-700 leading-none">
                                     {stat.value}
                                 </p>
-                                <p className="text-[12px] font-medium text-slate-400">
-                                    {stat.sublabel}
-                                </p>
+                            </div>
+                            <div
+                                className={`w-12 h-12 rounded-sm ${stat.iconBg} ${stat.color} flex items-center justify-center`}
+                            >
+                                {stat.icon}
                             </div>
                         </div>
                     ))}
                 </div>
 
                 {/* Info Alert */}
-                <div className="bg-[#f0f7ff] border border-[#d0e7ff] rounded-[8px] p-5 flex gap-4 items-center">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-[#d0e7ff] flex items-center justify-center text-[#2c8af8] shrink-0">
+                <div className="bg-blue-50/50 border border-blue-100 rounded-sm p-5 flex gap-4 items-center">
+                    <div className="w-10 h-10 rounded-sm bg-white border border-blue-100 flex items-center justify-center text-[#2c8af8] shrink-0">
                         <ShieldCheck size={20} />
                     </div>
                     <div>
-                        <h4 className="text-[15px] font-bold text-[#2c8af8]">
+                        <h4 className="text-[14px] font-black text-[#2c8af8] uppercase tracking-wider">
                             Administrator Access - All REC Forms
                         </h4>
-                        <p className="text-[14px] text-slate-400 font-medium">
-                            As an Administrator, you have access to all 30 REC
+                        <p className="text-[13px] text-slate-500 font-medium mt-1">
+                            As an Administrator, you have access to all 31 REC
                             forms. You can fill forms directly or assign them to
-                            Business Owner or Users. Forms are color-coded by
+                            Business Owner or Users. Forms are indexed by
                             responsible role.
                         </p>
                     </div>
@@ -485,32 +482,27 @@ export default function RECFormsIndex() {
 
                 {/* Roles Guide */}
                 <div className="space-y-4">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-purple-500">
-                            <ShieldCheck size={18} />
-                            <h3 className="text-[16px] font-bold text-slate-800">
-                                Role Responsibility Guide
-                            </h3>
-                        </div>
-                        <p className="text-[14px] text-slate-400 font-medium ml-7">
-                            Who fills which REC forms
-                        </p>
+                    <div className="flex items-center gap-2 text-[#2185d5]">
+                        <ShieldCheck size={18} />
+                        <h3 className="text-[14px] font-black text-slate-800 uppercase tracking-widest">
+                            Role Responsibility Guide
+                        </h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {rolesGuide.map((guide, i) => (
                             <div
                                 key={i}
-                                className={`p-6 rounded-[8px] border ${guide.borderColor} ${guide.bg} space-y-3`}
+                                className={`p-5 rounded-sm border ${guide.borderColor} ${guide.bg} space-y-2`}
                             >
                                 <div
-                                    className={`flex items-center gap-3 ${guide.color}`}
+                                    className={`flex items-center gap-2 ${guide.color}`}
                                 >
                                     {guide.icon}
-                                    <span className="text-[16px] font-bold">
+                                    <span className="text-[14px] font-black uppercase tracking-wider">
                                         {guide.role}
                                     </span>
                                 </div>
-                                <p className="text-[14px] text-slate-400 font-medium leading-relaxed">
+                                <p className="text-[12px] text-slate-500 font-bold leading-relaxed">
                                     {guide.description}
                                 </p>
                             </div>
@@ -518,363 +510,80 @@ export default function RECFormsIndex() {
                     </div>
                 </div>
 
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-[12px] border border-slate-100 shadow-sm space-y-3">
-                        <label className="text-[15px] font-bold text-slate-700">
-                            Search RECs
-                        </label>
-                        <div className="relative group">
-                            <input
-                                type="text"
-                                placeholder="Search by REC Number, Title...."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full h-10 px-4 bg-slate-50/50 border border-slate-100 rounded-lg text-[13px] focus:outline-none focus:border-blue-500 transition-all font-medium placeholder:text-slate-400"
-                            />
-                        </div>
+                {/* Forms Table */}
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden p-8">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50">
+                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest rounded-l-sm">
+                                        REC ID
+                                    </th>
+                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
+                                        Form Title
+                                    </th>
+                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
+                                        Category
+                                    </th>
+                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
+                                        Responsibility
+                                    </th>
+                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest text-right rounded-r-sm">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {recForms.map((form, i) => (
+                                    <tr
+                                        key={i}
+                                        className="hover:bg-slate-50/30 transition-colors group"
+                                    >
+                                        <td className="px-6 py-5">
+                                            <div className="w-16 h-10 bg-slate-50 border border-slate-100 rounded-sm flex items-center justify-center text-[12px] font-black text-slate-400 group-hover:text-[#2185d5] group-hover:bg-blue-50 transition-all uppercase">
+                                                {form.id}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <h3 className="text-[14px] font-bold text-slate-700 leading-tight">
+                                                {form.title}
+                                            </h3>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-sm border ${
+                                                form.category === "Management"
+                                                    ? "bg-blue-50 text-blue-500 border-blue-100"
+                                                    : form.category === "Planning"
+                                                      ? "bg-purple-50 text-purple-500 border-purple-100"
+                                                      : form.category === "Security"
+                                                        ? "bg-red-50 text-red-500 border-red-100"
+                                                        : "bg-emerald-50 text-emerald-500 border-emerald-100"
+                                            }`}>
+                                                {form.category}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter flex items-center gap-1.5">
+                                                <Users size={14} className="text-slate-300" />
+                                                {form.role}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5 text-right">
+                                            <Link
+                                                href={route(
+                                                    `administrator.rec-forms.${form.id.toLowerCase()}`
+                                                )}
+                                                className="inline-flex items-center gap-2 bg-[#2c8af8] hover:bg-blue-600 text-white px-5 h-10 rounded-sm font-black text-[12px] transition-all shadow-lg shadow-blue-500/10 active:scale-95 uppercase tracking-widest"
+                                            >
+                                                Open Project
+                                                <ArrowRight size={14} />
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                    <div className="bg-white p-6 rounded-[12px] border border-slate-100 shadow-sm space-y-3">
-                        <label className="text-[15px] font-bold text-slate-700">
-                            Filter by Category
-                        </label>
-                        <div className="relative">
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) =>
-                                    setSelectedCategory(e.target.value)
-                                }
-                                className="w-full h-10 pl-4 pr-10 bg-white border border-slate-100 rounded-lg text-[13px] font-medium text-slate-700 appearance-none focus:outline-none focus:border-blue-500"
-                            >
-                                <option>All Categories</option>
-                                <option>Management</option>
-                                <option>Planning</option>
-                                <option>Security</option>
-                            </select>
-                            <ChevronDown
-                                size={16}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                            />
-                        </div>
-                    </div>
-                    <div className="bg-white p-6 rounded-[12px] border border-slate-100 shadow-sm space-y-3">
-                        <label className="text-[15px] font-bold text-slate-700">
-                            Filter by Responsible Role
-                        </label>
-                        <div className="relative">
-                            <select
-                                value={selectedRole}
-                                onChange={(e) =>
-                                    setSelectedRole(e.target.value)
-                                }
-                                className="w-full h-10 pl-4 pr-10 bg-white border border-slate-100 rounded-lg text-[13px] font-medium text-slate-700 appearance-none focus:outline-none focus:border-blue-500"
-                            >
-                                <option>All Roles</option>
-                                <option>Account Holder</option>
-                                <option>Administrator</option>
-                                <option>User</option>
-                            </select>
-                            <ChevronDown
-                                size={16}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Forms Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {recForms.map((form, i) => (
-                        <div
-                            key={i}
-                            className="bg-white rounded-[16px] border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-all group"
-                        >
-                            {/* Card Header */}
-                            <div className="p-5 bg-[#f8fafc] border-b border-slate-50 relative">
-                                <span
-                                    className={`absolute top-5 right-5 px-3 py-1 rounded-lg text-[11px] font-medium border ${
-                                        form.category === "Management"
-                                            ? "bg-blue-50 text-blue-500 border-blue-200"
-                                            : form.category === "Planning"
-                                              ? "bg-purple-50 text-purple-500 border-purple-200"
-                                              : form.category === "Security"
-                                                ? "bg-red-50 text-red-500 border-red-200"
-                                                : "bg-emerald-50 text-emerald-500 border-emerald-200"
-                                    }`}
-                                >
-                                    {form.category}
-                                </span>
-                                <div className="space-y-1">
-                                    <h3 className="text-[17px] font-bold text-slate-700">
-                                        {form.id}
-                                    </h3>
-                                    <p className="text-[14px] font-medium text-slate-400">
-                                        {form.title}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Card Body */}
-                            <div className="p-5 flex-1 flex flex-col gap-6">
-                                <p className="text-[14px] text-slate-500 font-medium leading-relaxed line-clamp-2">
-                                    {form.description}
-                                </p>
-
-                                <div className="flex items-center justify-between mt-auto">
-                                    <div className="flex items-center gap-2 text-blue-500">
-                                        <FileText size={18} />
-                                        <span className="text-[14px] font-medium text-slate-400">
-                                            {form.fields} fields
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl border border-blue-400 bg-white text-blue-600">
-                                        <UserCircle2 size={16} />
-                                        <span className="text-[14px] font-medium">
-                                            {form.role}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {form.id === "REC-01" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-01",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-02" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-02",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-03" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-03",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-04" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-04",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-05" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-05",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-06" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-06",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-07" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-07",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-08" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-08",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-09" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-09",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-10" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-10",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-11" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-11",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-12" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-12",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-13" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-13",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-16" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-16",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-18" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-18",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : form.id === "REC-19" ? (
-                                    <Link
-                                        href={route(
-                                            "administrator.rec-forms.rec-19",
-                                        )}
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </Link>
-                                ) : (
-                                    <button
-                                        className={`w-full py-3.5 rounded-xl text-[16px] font-black transition-all flex items-center justify-center gap-3 ${
-                                            form.action === "Fill Form"
-                                                ? "bg-[#2185d5] text-white hover:bg-blue-600 shadow-sm active:scale-[0.98]"
-                                                : "bg-white text-[#2185d5] border border-blue-200 hover:bg-slate-50"
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        {form.action}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
                 </div>
             </div>
         </AdministratorLayout>

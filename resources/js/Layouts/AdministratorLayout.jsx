@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Header from "../Components/Navigation/Administrator/Header";
 import Sidebar from "../Components/Navigation/Administrator/Sidebar";
+import { Toaster } from "react-hot-toast";
 
 export default function AdministratorLayout({ children }) {
     const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -11,6 +12,26 @@ export default function AdministratorLayout({ children }) {
 
     return (
         <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
+            <Toaster 
+                position="top-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: '#1e293b',
+                        color: '#fff',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        borderRadius: '0.25rem',
+                        padding: '12px 24px',
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: '#10b981',
+                            secondary: '#fff',
+                        },
+                    },
+                }}
+            />
             {isMobileOpen && (
                 <div
                     className="fixed inset-0 bg-slate-900/20 z-[155] lg:hidden backdrop-blur-sm"
