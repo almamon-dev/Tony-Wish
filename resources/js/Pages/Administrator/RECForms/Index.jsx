@@ -388,12 +388,12 @@ export default function RECFormsIndex() {
         },
         {
             id: "REC-29",
-            title: "Incident Investigation",
-            subtitle: "Accident & Near-miss reporting",
+            title: "Safety Equipment Checklist",
+            subtitle: "Routine inspection records",
             description:
-                "OH&S incident investigation and root-cause analysis - ISO 45001.",
+                "Safety equipment inspection tracking and maintenance records - ISO 45001.",
             category: "Health & Safety",
-            fields: 12,
+            fields: 9,
             role: "User",
             action: "View/Assign Form",
         },

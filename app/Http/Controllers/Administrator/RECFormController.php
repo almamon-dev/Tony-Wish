@@ -14,6 +14,14 @@ use App\Models\RecWeldProcedure;
 use App\Models\RecWelder;
 use App\Models\RecWelderQualification;
 use App\Models\JobTitle;
+use App\Models\RecSafetyChecklist;
+use App\Models\RecSafetyChecklistItem;
+use App\Models\RecEmergencyDrill;
+use App\Models\RecEmergencyDrillItem;
+use App\Models\RecMonitoring;
+use App\Models\RecMonitoringItem;
+use App\Models\RecOccupHealthSurv;
+use App\Models\RecOccupHealthSurvItem;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -892,5 +900,272 @@ class RECFormController extends Controller
         }
 
         return back()->with('success', 'Aspects, Hazards, and Impacts Register saved successfully!');
+    }
+
+    public function rec29()
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return Inertia::render('Administrator/RECForms/REC29');
+
+        $checklist = RecSafetyChecklist::with('items')
+            ->where('business_owner_id', $ownerId)
+            ->first();
+
+        return Inertia::render('Administrator/RECForms/REC29', [
+            'initialChecklist' => $checklist
+        ]);
+    }
+
+    public function rec29Store(Request $request)
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return back()->with('error', 'Unauthorized');
+
+        $checklistData = $request->validate([
+            'checklist' => 'required|array',
+            'items' => 'array',
+        ]);
+
+        $mainData = $checklistData['checklist'];
+        
+        $lastReviewDate = !empty($mainData['lastReviewDate']) && strtotime($mainData['lastReviewDate']) ? $mainData['lastReviewDate'] : null;
+        $withDate = !empty($mainData['withDate']) && strtotime($mainData['withDate']) ? $mainData['withDate'] : null;
+
+        $checklist = RecSafetyChecklist::updateOrCreate(
+            ['id' => isset($mainData['id']) && is_numeric($mainData['id']) ? $mainData['id'] : null, 'business_owner_id' => $ownerId],
+            [
+                'last_review_date' => $lastReviewDate,
+                'default_renewal_period' => $mainData['defaultRenewalPeriod'] ?? 6,
+                'unit' => $mainData['unit'] ?? 'Months',
+                'verified_by' => $mainData['verifiedBy'] ?? '',
+                'with_date' => $withDate,
+                'status' => $mainData['status'] ?? 'Draft',
+            ]
+        );
+
+        // Sync items
+        $checklist->items()->delete();
+        if (!empty($checklistData['items'])) {
+            $itemsToInsert = [];
+            foreach ($checklistData['items'] as $item) {
+                if (!empty($item['equipmentType'])) {
+                    $itemsToInsert[] = [
+                        'equipment_type' => $item['equipmentType'] ?? '',
+                        'location' => $item['location'] ?? '',
+                        'checked_by' => $item['checkedBy'] ?? '',
+                        'condition' => $item['condition'] ?? '',
+                        'action_required' => $item['actionRequired'] ?? '',
+                        'notes' => $item['notes'] ?? '',
+                        'date_checked' => (!empty($item['dateChecked']) && strtotime($item['dateChecked'])) ? $item['dateChecked'] : null,
+                        'next_review_due' => (!empty($item['nextReviewDue']) && strtotime($item['nextReviewDue'])) ? $item['nextReviewDue'] : null,
+                    ];
+                }
+            }
+            if (count($itemsToInsert) > 0) {
+                $checklist->items()->createMany($itemsToInsert);
+            }
+        }
+        return back()->with('success', 'Safety Equipment Checklist saved successfully!');
+    }
+
+    public function rec26()
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return Inertia::render('Administrator/RECForms/REC26');
+
+        $drill = RecEmergencyDrill::with('items')
+            ->where('business_owner_id', $ownerId)
+            ->first();
+
+        return Inertia::render('Administrator/RECForms/REC26', [
+            'initialDrill' => $drill
+        ]);
+    }
+
+    public function rec26Store(Request $request)
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return back()->with('error', 'Unauthorized');
+
+        $requestData = $request->validate([
+            'drill' => 'required|array',
+            'items' => 'array',
+        ]);
+
+        $mainData = $requestData['drill'];
+        
+        $lastReviewDate = !empty($mainData['lastReviewDate']) && strtotime($mainData['lastReviewDate']) ? $mainData['lastReviewDate'] : null;
+        $withDate = !empty($mainData['withDate']) && strtotime($mainData['withDate']) ? $mainData['withDate'] : null;
+
+        $drill = RecEmergencyDrill::updateOrCreate(
+            ['id' => isset($mainData['id']) && is_numeric($mainData['id']) ? $mainData['id'] : null, 'business_owner_id' => $ownerId],
+            [
+                'last_review_date' => $lastReviewDate,
+                'default_renewal_period' => $mainData['defaultRenewalPeriod'] ?? 6,
+                'unit' => $mainData['unit'] ?? 'Months',
+                'verified_by' => $mainData['verifiedBy'] ?? '',
+                'with_date' => $withDate,
+                'status' => $mainData['status'] ?? 'Draft',
+            ]
+        );
+
+        $drill->items()->delete();
+        if (!empty($requestData['items'])) {
+            $itemsToInsert = [];
+            foreach ($requestData['items'] as $item) {
+                if (!empty($item['drillType'])) {
+                    $itemsToInsert[] = [
+                        'drill_type' => $item['drillType'] ?? '',
+                        'participants' => $item['participants'] ?? 0,
+                        'outcome' => $item['outcome'] ?? '',
+                        'issues_found' => $item['issuesFound'] ?? '',
+                        'follow_up_action' => $item['followUpAction'] ?? '',
+                        'notes' => $item['notes'] ?? '',
+                        'date' => (!empty($item['date']) && strtotime($item['date'])) ? $item['date'] : null,
+                        'next_drill_due' => (!empty($item['nextDrillDue']) && strtotime($item['nextDrillDue'])) ? $item['nextDrillDue'] : null,
+                    ];
+                }
+            }
+            if (count($itemsToInsert) > 0) {
+                $drill->items()->createMany($itemsToInsert);
+            }
+        }
+
+        return back()->with('success', 'Emergency Drill record saved successfully!');
+    }
+
+    public function rec27()
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return Inertia::render('Administrator/RECForms/REC27');
+
+        $monitoring = RecMonitoring::with('items')
+            ->where('business_owner_id', $ownerId)
+            ->first();
+
+        return Inertia::render('Administrator/RECForms/REC27', [
+            'initialMonitoring' => $monitoring
+        ]);
+    }
+
+    public function rec27Store(Request $request)
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return back()->with('error', 'Unauthorized');
+
+        $requestData = $request->validate([
+            'monitoring' => 'required|array',
+            'items' => 'array',
+        ]);
+
+        $mainData = $requestData['monitoring'];
+        
+        $lastReviewDate = !empty($mainData['lastReviewDate']) && strtotime($mainData['lastReviewDate']) ? $mainData['lastReviewDate'] : null;
+        $withDate = !empty($mainData['withDate']) && strtotime($mainData['withDate']) ? $mainData['withDate'] : null;
+
+        $monitoring = RecMonitoring::updateOrCreate(
+            ['id' => isset($mainData['id']) && is_numeric($mainData['id']) ? $mainData['id'] : null, 'business_owner_id' => $ownerId],
+            [
+                'last_review_date' => $lastReviewDate,
+                'default_renewal_period' => $mainData['defaultRenewalPeriod'] ?? 6,
+                'unit' => $mainData['unit'] ?? 'Months',
+                'verified_by' => $mainData['verifiedBy'] ?? '',
+                'with_date' => $withDate,
+                'status' => $mainData['status'] ?? 'Draft',
+            ]
+        );
+
+        $monitoring->items()->delete();
+        if (!empty($requestData['items'])) {
+            $itemsToInsert = [];
+            foreach ($requestData['items'] as $item) {
+                if (!empty($item['parameter'])) {
+                    $itemsToInsert[] = [
+                        'parameter' => $item['parameter'] ?? '',
+                        'unit' => $item['unit'] ?? '',
+                        'method' => $item['method'] ?? '',
+                        'result' => $item['result'] ?? '',
+                        'limit' => $item['limit'] ?? '',
+                        'action_required' => $item['actionRequired'] ?? '',
+                        'notes' => $item['notes'] ?? '',
+                        'frequency' => $item['frequency'] ?? '',
+                        'next_review_due' => (!empty($item['nextReviewDue']) && strtotime($item['nextReviewDue'])) ? $item['nextReviewDue'] : null,
+                    ];
+                }
+            }
+            if (count($itemsToInsert) > 0) {
+                $monitoring->items()->createMany($itemsToInsert);
+            }
+        }
+
+        return back()->with('success', 'Monitoring record saved successfully!');
+    }
+
+    public function rec28()
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return Inertia::render('Administrator/RECForms/REC28');
+
+        $surv = RecOccupHealthSurv::with('items')
+            ->where('business_owner_id', $ownerId)
+            ->first();
+
+        return Inertia::render('Administrator/RECForms/REC28', [
+            'initialSurv' => $surv
+        ]);
+    }
+
+    public function rec28Store(Request $request)
+    {
+        $ownerId = $this->getOwnerId();
+        if (!$ownerId) return back()->with('error', 'Unauthorized');
+
+        $requestData = $request->validate([
+            'surv' => 'required|array',
+            'items' => 'array',
+        ]);
+
+        $mainData = $requestData['surv'];
+        
+        $lastReviewDate = !empty($mainData['lastReviewDate']) && strtotime($mainData['lastReviewDate']) ? $mainData['lastReviewDate'] : null;
+        $withDate = !empty($mainData['withDate']) && strtotime($mainData['withDate']) ? $mainData['withDate'] : null;
+
+        $surv = RecOccupHealthSurv::updateOrCreate(
+            ['id' => isset($mainData['id']) && is_numeric($mainData['id']) ? $mainData['id'] : null, 'business_owner_id' => $ownerId],
+            [
+                'last_review_date' => $lastReviewDate,
+                'default_renewal_period' => $mainData['defaultRenewalPeriod'] ?? 1,
+                'unit' => $mainData['unit'] ?? 'Years',
+                'verified_by' => $mainData['verifiedBy'] ?? '',
+                'with_date' => $withDate,
+                'status' => $mainData['status'] ?? 'Draft',
+            ]
+        );
+
+        $surv->items()->delete();
+        if (!empty($requestData['items'])) {
+            $itemsToInsert = [];
+            foreach ($requestData['items'] as $item) {
+                if (!empty($item['employeeName'])) {
+                    $itemsToInsert[] = [
+                        'employee_name' => $item['employeeName'] ?? '',
+                        'staff_no' => $item['staffNo'] ?? '',
+                        'job_role' => $item['jobRole'] ?? '',
+                        'exposure_type' => $item['exposureType'] ?? '',
+                        'assessor' => $item['assessor'] ?? '',
+                        'findings' => $item['findings'] ?? '',
+                        'follow_up_required' => $item['followUpRequired'] ?? '',
+                        'notes' => $item['notes'] ?? '',
+                        'date_of_assessment' => (!empty($item['dateOfAssessment']) && strtotime($item['dateOfAssessment'])) ? $item['dateOfAssessment'] : null,
+                        'next_due' => (!empty($item['nextDue']) && strtotime($item['nextDue'])) ? $item['nextDue'] : null,
+                    ];
+                }
+            }
+            if (count($itemsToInsert) > 0) {
+                $surv->items()->createMany($itemsToInsert);
+            }
+        }
+
+        return back()->with('success', 'Occupational Health Surveillance Log saved successfully!');
     }
 }

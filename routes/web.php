@@ -204,18 +204,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/rec-forms/rec-25', function () {
             return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
         })->name('rec-forms.rec-25');
-        Route::get('/rec-forms/rec-26', function () {
-            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
-        })->name('rec-forms.rec-26');
-        Route::get('/rec-forms/rec-27', function () {
-            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
-        })->name('rec-forms.rec-27');
-        Route::get('/rec-forms/rec-28', function () {
-            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
-        })->name('rec-forms.rec-28');
-        Route::get('/rec-forms/rec-29', function () {
-            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
-        })->name('rec-forms.rec-29');
+        Route::get('/rec-forms/rec-26', [RECFormController::class, 'rec26'])->name('rec-forms.rec-26');
+        Route::post('/rec-forms/rec-26', [RECFormController::class, 'rec26Store'])->name('rec-forms.rec-26.store');
+        Route::get('/rec-forms/rec-27', [RECFormController::class, 'rec27'])->name('rec-forms.rec-27');
+        Route::post('/rec-forms/rec-27', [RECFormController::class, 'rec27Store'])->name('rec-forms.rec-27.store');
+        Route::get('/rec-forms/rec-28', [RECFormController::class, 'rec28'])->name('rec-forms.rec-28');
+        Route::post('/rec-forms/rec-28', [RECFormController::class, 'rec28Store'])->name('rec-forms.rec-28.store');
+        Route::get('/rec-forms/rec-29', [RECFormController::class, 'rec29'])->name('rec-forms.rec-29');
+        Route::post('/rec-forms/rec-29', [RECFormController::class, 'rec29Store'])->name('rec-forms.rec-29.store');
         Route::get('/rec-forms/rec-30', function () {
             return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
         })->name('rec-forms.rec-30');
