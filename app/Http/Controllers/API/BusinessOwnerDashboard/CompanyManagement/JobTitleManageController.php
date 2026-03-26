@@ -27,7 +27,7 @@ class JobTitleManageController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique|max:255',
+            'name' => 'required|string|unique:job_title_manages,name|max:255',
             'description' => 'required|string',
         ]);
 
