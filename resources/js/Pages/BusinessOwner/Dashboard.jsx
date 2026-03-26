@@ -107,7 +107,7 @@ export default function Dashboard({ auth }) {
 
     return (
         <BusinessOwnerLayout>
-            <Head title="Business Owner Dashboard" />
+            <Head title="Account Holder Dashboard" />
 
             <div className="space-y-8 pb-10">
                 {/* Header */}

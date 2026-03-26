@@ -60,8 +60,9 @@ const Header = ({ onMenuClick }) => {
                             </p>
                             <p className="text-[11px] text-blue-500 font-bold mt-0.5 capitalize">
                                 {auth?.user?.user_type === "admin" ||
-                                auth?.user?.user_type === "administrator"
-                                    ? "Company Owner"
+                                auth?.user?.user_type === "administrator" ||
+                                auth?.user?.user_type === "business_owner"
+                                    ? "Account Holder"
                                     : auth?.user?.user_type || "User"}
                             </p>
                         </div>

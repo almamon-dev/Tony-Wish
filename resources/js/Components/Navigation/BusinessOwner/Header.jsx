@@ -59,7 +59,7 @@ const Header = ({ onMenuClick }) => {
                                 {auth?.user?.first_name} {auth?.user?.last_name}
                             </p>
                             <p className="text-[11px] text-emerald-500 font-bold mt-0.5 capitalize">
-                                Company Owner
+                                Account Holder
                             </p>
                         </div>
                         <img

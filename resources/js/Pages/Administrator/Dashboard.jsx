@@ -134,7 +134,7 @@ export default function Dashboard({ auth }) {
                 {/* Header */}
                 <div className="flex flex-col gap-1.5">
                     <h1 className="text-[28px] font-black text-slate-800 tracking-tight leading-none">
-                        Company Owner Dashboard
+                        Account Holder Dashboard
                     </h1>
                     <p className="text-[14px] text-slate-500 font-medium">
                         Welcome back! Here's an overview of your company's

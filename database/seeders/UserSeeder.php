@@ -15,50 +15,50 @@ class UserSeeder extends Seeder
     {
         // 1. Create System Admin
         User::updateOrCreate(
-            ['email' => 'admin@gmail.com'],
-            [
-                'first_name' => 'System',
-                'last_name' => 'Admin',
-                'password' => Hash::make('password'),
-                'user_type' => 'admin',
-                'email_verified_at' => now(),
-            ]
+        ['email' => 'admin@gmail.com'],
+        [
+            'first_name' => 'System',
+            'last_name' => 'Admin',
+            'password' => Hash::make('password'),
+            'user_type' => 'admin',
+            'email_verified_at' => now(),
+        ]
         );
 
         // 2. Create Company Administrator
         User::updateOrCreate(
-            ['email' => 'administrator@gmail.com'],
-            [
-                'first_name' => 'Company',
-                'last_name' => 'Administrator',
-                'password' => Hash::make('password'),
-                'user_type' => 'administrator',
-                'email_verified_at' => now(),
-            ]
+        ['email' => 'administrator@gmail.com'],
+        [
+            'first_name' => 'Company',
+            'last_name' => 'Administrator',
+            'password' => Hash::make('password'),
+            'user_type' => 'administrator',
+            'email_verified_at' => now(),
+        ]
         );
 
-        // 2. Create Business Owner
+        // 2. Create Account Holder
         User::updateOrCreate(
-            ['email' => 'owner@gmail.com'],
-            [
-                'first_name' => 'Business',
-                'last_name' => 'Owner',
-                'password' => Hash::make('password'),
-                'user_type' => 'business_owner',
-                'email_verified_at' => now(),
-            ]
+        ['email' => 'owner@gmail.com'],
+        [
+            'first_name' => 'Account',
+            'last_name' => 'Holder',
+            'password' => Hash::make('password'),
+            'user_type' => 'business_owner',
+            'email_verified_at' => now(),
+        ]
         );
 
         // 3. Create Standard User
         User::updateOrCreate(
-            ['email' => 'user@gmail.com'],
-            [
-                'first_name' => 'Standard',
-                'last_name' => 'User',
-                'password' => Hash::make('password'),
-                'user_type' => 'userdashboard',
-                'email_verified_at' => now(),
-            ]
+        ['email' => 'user@gmail.com'],
+        [
+            'first_name' => 'Standard',
+            'last_name' => 'User',
+            'password' => Hash::make('password'),
+            'user_type' => 'userdashboard',
+            'email_verified_at' => now(),
+        ]
         );
     }
 }

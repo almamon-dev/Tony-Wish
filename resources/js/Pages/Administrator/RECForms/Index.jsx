@@ -474,7 +474,7 @@ export default function RECFormsIndex() {
                         <p className="text-[13px] text-slate-500 font-medium mt-1">
                             As an Administrator, you have access to all 31 REC
                             forms. You can fill forms directly or assign them to
-                            Business Owner or Users. Forms are indexed by
+                            Account Holder or Users. Forms are indexed by
                             responsible role.
                         </p>
                     </div>

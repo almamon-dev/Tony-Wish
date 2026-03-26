@@ -26,7 +26,7 @@ export default function Edit({ user }) {
     const userTypes = [
         { value: "admin", label: "Admin" },
         { value: "administrator", label: "Administrator" },
-        { value: "business_owner", label: "Business Owner" },
+        { value: "business_owner", label: "Account Holder" },
         { value: "userdashboard", label: "Standard User" },
     ];
 
