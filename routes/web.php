@@ -174,9 +174,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/rec-forms/rec-14', function () {
             return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
         })->name('rec-forms.rec-14');
-        Route::get('/rec-forms/rec-15', function () {
-            return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
-        })->name('rec-forms.rec-15');
+        Route::get('/rec-forms/rec-15', [RECFormController::class, 'rec15'])->name('rec-forms.rec-15');
+        Route::post('/rec-forms/rec-15', [RECFormController::class, 'rec15Store'])->name('rec-forms.rec-15.store');
+        Route::get('/rec-forms/rec-22', [RECFormController::class, 'rec22'])->name('rec-forms.rec-22');
+        Route::post('/rec-forms/rec-22', [RECFormController::class, 'rec22Store'])->name('rec-forms.rec-22.store');
+        Route::get('/rec-forms/rec-23', [RECFormController::class, 'rec23'])->name('rec-forms.rec-23');
+        Route::post('/rec-forms/rec-23', [RECFormController::class, 'rec23Store'])->name('rec-forms.rec-23.store');
+        Route::get('/rec-forms/rec-24', [RECFormController::class, 'rec24'])->name('rec-forms.rec-24');
+        Route::post('/rec-forms/rec-24', [RECFormController::class, 'rec24Store'])->name('rec-forms.rec-24.store');
         Route::get('/rec-forms/rec-16', [RECFormController::class, 'rec16'])->name('rec-forms.rec-16');
         Route::post('/rec-forms/rec-16', [RECFormController::class, 'rec16Store'])->name('rec-forms.rec-16.store');
         Route::get('/rec-forms/rec-17', function () {
