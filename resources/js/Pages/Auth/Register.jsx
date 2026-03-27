@@ -72,7 +72,7 @@ export default function Register() {
                             size={16}
                         />
                         <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                            As a Business Owner, you control the dashboard,
+                            As an Account Holder, you control the dashboard,
                             subscriptions, processes, team roles, reports,
                             settings, support, and Sign up management.
                         </p>

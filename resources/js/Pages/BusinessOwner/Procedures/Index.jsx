@@ -49,14 +49,14 @@ export default function ProceduresIndex({ procedures = [] }) {
                     {stats.map((stat, i) => (
                         <div
                             key={i}
-                            className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm transition-all hover:shadow-md"
+                            className="bg-white p-6 rounded-sm border border-slate-100 shadow-sm transition-all hover:shadow-md"
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <h3 className="text-[15px] font-bold text-slate-600">
                                     {stat.label}
                                 </h3>
                                 <div
-                                    className={`w-10 h-10 rounded-[10px] ${stat.bg} ${stat.color} flex items-center justify-center`}
+                                    className={`w-10 h-10 rounded-sm ${stat.bg} ${stat.color} flex items-center justify-center`}
                                 >
                                     {stat.icon}
                                 </div>
@@ -79,7 +79,7 @@ export default function ProceduresIndex({ procedures = [] }) {
                 </div>
 
                 {/* Table Section */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden">
                     <div className="px-8 py-5 border-b border-slate-50">
                         <h2 className="font-bold text-slate-800 text-[18px]">
                             All Procedures
@@ -107,48 +107,74 @@ export default function ProceduresIndex({ procedures = [] }) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {procedures.map((proc, i) => (
-                                    <tr
-                                        key={i}
-                                        className="hover:bg-slate-50/30 transition-colors"
-                                    >
-                                        <td className="px-8 py-5 font-medium text-slate-600 text-[14px]">
-                                            {proc.name}
-                                        </td>
-                                        <td className="px-8 py-5 font-medium text-slate-600 text-[14px]">
-                                            {proc.assigned}
-                                        </td>
-                                        <td className="px-8 py-5 text-center">
-                                            <span
-                                                className={`px-4 py-1.5 rounded-full text-[12px] font-bold border ${
-                                                    proc.status === "Completed"
-                                                        ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                                        : "bg-slate-50 text-slate-600 border-slate-100"
-                                                }`}
-                                            >
-                                                {proc.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-5 min-w-[200px]">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                    <div
-                                                        className={`h-full rounded-full ${proc.status === "Completed" ? "bg-emerald-500" : "bg-slate-500"}`}
-                                                        style={{
-                                                            width: `${proc.progress}%`,
-                                                        }}
-                                                    ></div>
+                                {procedures.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan="5"
+                                            className="px-8 py-12 text-center"
+                                        >
+                                            <div className="flex flex-col items-center justify-center gap-3">
+                                                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300">
+                                                    <ClipboardList size={28} />
                                                 </div>
-                                                <span className="text-[12px] font-bold text-slate-400">
-                                                    {proc.progress}%
-                                                </span>
+                                                <div>
+                                                    <h4 className="text-[16px] font-bold text-slate-700">
+                                                        No procedures found
+                                                    </h4>
+                                                    <p className="text-[13px] text-slate-400 font-medium whitespace-nowrap">
+                                                        There are no procedures
+                                                        assigned to your company
+                                                        yet.
+                                                    </p>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 font-medium text-slate-600 text-[14px]">
-                                            {proc.date}
-                                        </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    procedures.map((proc, i) => (
+                                        <tr
+                                            key={i}
+                                            className="hover:bg-slate-50/30 transition-colors"
+                                        >
+                                            <td className="px-8 py-5 font-medium text-slate-600 text-[14px]">
+                                                {proc.name}
+                                            </td>
+                                            <td className="px-8 py-5 font-medium text-slate-600 text-[14px]">
+                                                {proc.assigned}
+                                            </td>
+                                            <td className="px-8 py-5 text-center">
+                                                <span
+                                                    className={`px-4 py-1.5 rounded-full text-[12px] font-bold border ${
+                                                        proc.status ===
+                                                        "Completed"
+                                                            ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                                            : "bg-slate-50 text-slate-600 border-slate-100"
+                                                    }`}
+                                                >
+                                                    {proc.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-5 min-w-[200px]">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div
+                                                            className={`h-full rounded-full ${proc.status === "Completed" ? "bg-emerald-500" : "bg-slate-500"}`}
+                                                            style={{
+                                                                width: `${proc.progress}%`,
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="text-[12px] font-bold text-slate-400">
+                                                        {proc.progress}%
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-5 font-medium text-slate-600 text-[14px]">
+                                                {proc.date}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

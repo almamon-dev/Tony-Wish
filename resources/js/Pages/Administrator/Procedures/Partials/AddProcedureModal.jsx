@@ -22,8 +22,6 @@ export default function AddProcedureModal({
 
     const [milestones, setMilestones] = useState([
         { id: 1, label: "Initial Assessment", date: "" },
-        { id: 2, label: "Documentation Phase", date: "" },
-        { id: 3, label: "Review & Approval", date: "" },
     ]);
     const [files, setFiles] = useState([]);
 
@@ -47,7 +45,7 @@ export default function AddProcedureModal({
                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
                 onClick={onClose}
             />
-            <div className="relative bg-white rounded-[15px] shadow-xl w-full max-w-5xl h-[85vh] overflow-hidden flex flex-col">
+            <div className="relative bg-white rounded-sm shadow-xl w-full max-w-5xl h-[85vh] overflow-hidden flex flex-col">
                 {/* Modal Header */}
                 <div className="p-8 pb-4">
                     <div className="flex items-center justify-between mb-2">
@@ -56,7 +54,7 @@ export default function AddProcedureModal({
                         </h2>
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all"
+                            className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-slate-50 text-slate-400 transition-all"
                         >
                             <X size={20} />
                         </button>
@@ -73,7 +71,7 @@ export default function AddProcedureModal({
                         <button
                             key={tab.name}
                             onClick={() => setCurrentStep(tab.name)}
-                            className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-[13px] font-bold transition-all border ${
+                            className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-sm text-[13px] font-bold transition-all border ${
                                 currentStep === tab.name
                                     ? "bg-[#2185d5] text-white border-transparent"
                                     : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50"
@@ -97,7 +95,7 @@ export default function AddProcedureModal({
                                 <input
                                     type="text"
                                     placeholder="e.g Quality Management System implementation"
-                                    className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                                    className="w-full h-12 bg-slate-50 border-none rounded-sm px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all"
                                 />
                             </div>
 
@@ -108,7 +106,7 @@ export default function AddProcedureModal({
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative">
-                                        <select className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
+                                        <select className="w-full h-12 bg-slate-50 border-none rounded-sm px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
                                             <option>Select ISO standard</option>
                                             <option>ISO 9001</option>
                                             <option>ISO 14001</option>
@@ -121,7 +119,7 @@ export default function AddProcedureModal({
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative">
-                                        <select className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
+                                        <select className="w-full h-12 bg-slate-50 border-none rounded-sm px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
                                             <option>Select category</option>
                                             <option>Planning</option>
                                             <option>Support</option>
@@ -136,7 +134,7 @@ export default function AddProcedureModal({
                                         Priority Level
                                     </label>
                                     <div className="relative">
-                                        <select className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
+                                        <select className="w-full h-12 bg-slate-50 border-none rounded-sm px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
                                             <option>Medium Priority</option>
                                             <option>High Priority</option>
                                             <option>Low Priority</option>
@@ -153,7 +151,7 @@ export default function AddProcedureModal({
                                         <input
                                             type="text"
                                             placeholder="mm/dd/yyyy"
-                                            className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                                            className="w-full h-12 bg-slate-50 border-none rounded-sm px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all"
                                         />
                                         <Calendar
                                             size={16}
@@ -170,7 +168,7 @@ export default function AddProcedureModal({
                                 <textarea
                                     placeholder="Provide a detailed description of this procedure.."
                                     rows={3}
-                                    className="w-full bg-slate-50 border-none rounded-xl p-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
+                                    className="w-full bg-slate-50 border-none rounded-sm p-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
                                 />
                             </div>
 
@@ -181,7 +179,7 @@ export default function AddProcedureModal({
                                 <textarea
                                     placeholder="What are the main objectives of this procedure?"
                                     rows={3}
-                                    className="w-full bg-slate-50 border-none rounded-xl p-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
+                                    className="w-full bg-slate-50 border-none rounded-sm p-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
                                 />
                             </div>
 
@@ -192,7 +190,7 @@ export default function AddProcedureModal({
                                 <textarea
                                     placeholder="Define the scope and boundaries of this procedure...."
                                     rows={3}
-                                    className="w-full bg-slate-50 border-none rounded-xl p-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
+                                    className="w-full bg-slate-50 border-none rounded-sm p-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
                                 />
                             </div>
 
@@ -280,9 +278,9 @@ export default function AddProcedureModal({
                                 <input
                                     type="text"
                                     placeholder="Add new checklist item..."
-                                    className="flex-1 h-12 bg-slate-50 border-none rounded-xl px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                                    className="flex-1 h-12 bg-slate-50 border-none rounded-sm px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all"
                                 />
-                                <button className="bg-[#2185d5] text-white px-5 rounded-xl font-bold text-[14px] flex items-center gap-2">
+                                <button className="bg-[#2185d5] text-white px-5 rounded-sm font-bold text-[14px] flex items-center gap-2">
                                     <Plus size={18} />
                                     Add
                                 </button>
@@ -295,7 +293,7 @@ export default function AddProcedureModal({
                                 ].map((item, i) => (
                                     <div
                                         key={i}
-                                        className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl group"
+                                        className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-sm group"
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="w-5 h-5 rounded-md border border-slate-200 flex items-center justify-center">
@@ -323,13 +321,13 @@ export default function AddProcedureModal({
                                 </label>
                                 <div className="flex gap-2">
                                     <div className="relative flex-1">
-                                        <select className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 pr-10 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
+                                        <select className="w-full h-12 bg-slate-50 border-none rounded-sm px-4 pr-10 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all">
                                             <option>Select team member</option>
                                             <option>Tom Wilson</option>
                                             <option>Sarah Johnson</option>
                                         </select>
                                     </div>
-                                    <button className="bg-slate-800 text-white px-6 rounded-xl font-bold text-[13px] flex items-center gap-2">
+                                    <button className="bg-slate-800 text-white px-6 rounded-sm font-bold text-[13px] flex items-center gap-2">
                                         <Plus size={16} />
                                         Add
                                     </button>
@@ -384,7 +382,7 @@ export default function AddProcedureModal({
                                 <h4 className="text-[16px] font-bold text-slate-700 mb-2">
                                     Drag and drop file here, or click to browse
                                 </h4>
-                                <button className="flex items-center gap-2 bg-white border border-slate-200 px-6 py-2.5 rounded-xl font-bold text-[14px] shadow-sm hover:bg-slate-50 transition-all mb-4">
+                                <button className="flex items-center gap-2 bg-white border border-slate-200 px-6 py-2.5 rounded-sm font-bold text-[14px] shadow-sm hover:bg-slate-50 transition-all mb-4">
                                     <Plus size={18} className="text-blue-500" />
                                     Upload Files
                                 </button>
@@ -402,7 +400,7 @@ export default function AddProcedureModal({
                                     {files.map((file, index) => (
                                         <div
                                             key={index}
-                                            className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl"
+                                            className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-sm"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
@@ -445,11 +443,11 @@ export default function AddProcedureModal({
                 <div className="p-8 border-t border-slate-50 flex items-center justify-end gap-3 bg-white">
                     <button
                         onClick={onClose}
-                        className="px-6 py-3 rounded-xl font-bold text-[14px] text-slate-500 hover:bg-slate-50 transition-all"
+                        className="px-6 py-3 rounded-sm font-bold text-[14px] text-slate-500 hover:bg-slate-50 transition-all"
                     >
                         Cancel
                     </button>
-                    <button className="bg-[#2185d5] text-white px-8 py-3 rounded-xl font-bold text-[14px] flex items-center gap-2 shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all">
+                    <button className="bg-[#2185d5] text-white px-8 py-3 rounded-sm font-bold text-[14px] flex items-center gap-2 shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all">
                         <CheckCircle2 size={18} />
                         Create Procedure
                     </button>

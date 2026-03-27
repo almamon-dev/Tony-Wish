@@ -167,14 +167,14 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                             onClick={() => setCurrentStep(tab.name)}
                             className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-sm text-[13px] font-bold transition-all border ${
                                 currentStep === tab.name
-                                    ? "bg-[#2185d5] text-white border-transparent"
-                                    : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50"
+                                    ? "bg-[#2185d5] text-white border-transparent shadow-lg shadow-blue-500/10"
+                                    : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50 uppercase text-[12px] tracking-tight"
                             }`}
                         >
                             {tab.icon}
                             {tab.name}
                             {tab.name === "Checklist Items" && (
-                                <span className="ml-1 bg-white/20 px-1.5 py-0.5 rounded text-[10px]">
+                                <span className={`ml-1 px-1.5 py-0.5 rounded text-[10px] ${currentStep === tab.name ? 'bg-white/20' : 'bg-slate-100 text-slate-400'}`}>
                                     {data.audit_areas.reduce((acc, area) => acc + area.items.length, 0)}
                                 </span>
                             )}
@@ -196,7 +196,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                     value={data.name}
                                     onChange={e => setData("name", e.target.value)}
                                     placeholder="e.g ISO 9001 Pre-Audit checklist Q4 2025"
-                                    className={`w-full h-10 bg-slate-50 border ${errors.name ? 'border-red-500' : 'border-slate-200'} rounded-sm px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all`}
+                                    className={`w-full h-11 bg-slate-50 border ${errors.name ? 'border-red-500' : 'border-slate-100'} rounded-sm px-4 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400`}
                                 />
                                 {errors.name && <p className="text-red-500 text-xs mt-0.5">{errors.name}</p>}
                             </div>
@@ -211,7 +211,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         <select 
                                             value={data.iso_standard}
                                             onChange={e => setData("iso_standard", e.target.value)}
-                                            className={`w-full h-10 bg-slate-50 border ${errors.iso_standard ? 'border-red-500' : 'border-slate-200'} rounded-sm px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all text-slate-500`}
+                                            className={`w-full h-11 bg-slate-50 border ${errors.iso_standard ? 'border-red-500' : 'border-slate-100'} rounded-sm px-4 text-[14px] appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-500`}
                                         >
                                             <option value="">Select ISO standard</option>
                                             <option>ISO 9001</option>
@@ -219,6 +219,9 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                             <option>ISO 45001</option>
                                             <option>ISO 27001</option>
                                         </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <ChevronDown size={14} />
+                                        </div>
                                     </div>
                                     {errors.iso_standard && <p className="text-red-500 text-xs mt-0.5">{errors.iso_standard}</p>}
                                 </div>
@@ -231,7 +234,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         <select 
                                             value={data.audit_type}
                                             onChange={e => setData("audit_type", e.target.value)}
-                                            className={`w-full h-10 bg-slate-50 border ${errors.audit_type ? 'border-red-500' : 'border-slate-200'} rounded-sm px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all text-slate-500`}
+                                            className={`w-full h-11 bg-slate-50 border ${errors.audit_type ? 'border-red-500' : 'border-slate-100'} rounded-sm px-4 text-[14px] appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-500`}
                                         >
                                             <option value="">Select audit type</option>
                                             <option>Internal Audit</option>
@@ -240,6 +243,9 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                             <option>Certification Audit</option>
                                             <option>Pre-Assessment</option>
                                         </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <ChevronDown size={14} />
+                                        </div>
                                     </div>
                                     {errors.audit_type && <p className="text-red-500 text-xs mt-0.5">{errors.audit_type}</p>}
                                 </div>
@@ -254,7 +260,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         <select 
                                             value={data.department}
                                             onChange={e => setData("department", e.target.value)}
-                                            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-sm px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all text-slate-500"
+                                            className="w-full h-11 bg-slate-50 border border-slate-100 rounded-sm px-4 text-[14px] appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-500"
                                         >
                                             <option value="">Select department</option>
                                             <option>All Departments</option>
@@ -264,6 +270,9 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                             <option>Information Technology</option>
                                             <option>Finance</option>
                                         </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <ChevronDown size={14} />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="space-y-1">
@@ -274,7 +283,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         <select 
                                             value={data.priority}
                                             onChange={e => setData("priority", e.target.value)}
-                                            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-sm px-4 text-[14px] appearance-none focus:ring-2 focus:ring-blue-500/10 transition-all"
+                                            className="w-full h-11 bg-slate-50 border border-slate-100 rounded-sm px-10 text-[14px] appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                                         >
                                             <option>Low Priority</option>
                                             <option>Medium Priority</option>
@@ -287,6 +296,9 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                             data.priority === 'Medium Priority' ? 'bg-amber-400' : 
                                             'bg-blue-400'
                                         }`} />
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <ChevronDown size={14} />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -301,36 +313,37 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         type="date"
                                         value={data.scheduled_date}
                                         onChange={e => setData("scheduled_date", e.target.value)}
-                                        className={`w-full h-10 bg-slate-50 border ${errors.scheduled_date ? 'border-red-500' : 'border-slate-200'} rounded-sm px-4 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all`}
+                                        className={`w-full h-11 bg-slate-50 border ${errors.scheduled_date ? 'border-red-500' : 'border-slate-100'} rounded-sm px-4 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all`}
                                     />
                                 </div>
                                 {errors.scheduled_date && <p className="text-red-500 text-xs mt-0.5">{errors.scheduled_date}</p>}
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="text-[13px] font-bold text-slate-700">
-                                    Description
-                                </label>
-                                <textarea
-                                    value={data.description}
-                                    onChange={e => setData("description", e.target.value)}
-                                    placeholder="Provide details about this audit checklist"
-                                    rows={2}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-sm p-3 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="text-[13px] font-bold text-slate-700">
-                                    Audit Objectives
-                                </label>
-                                <textarea
-                                    value={data.objectives}
-                                    onChange={e => setData("objectives", e.target.value)}
-                                    placeholder="What are the main objectives of this audit?"
-                                    rows={2}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-sm p-3 text-[14px] focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[13px] font-bold text-slate-700">
+                                        Description
+                                    </label>
+                                    <textarea
+                                        value={data.description}
+                                        onChange={e => setData("description", e.target.value)}
+                                        placeholder="Provide details..."
+                                        rows={2}
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-sm p-4 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 resize-none"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[13px] font-bold text-slate-700">
+                                        Audit Objectives
+                                    </label>
+                                    <textarea
+                                        value={data.objectives}
+                                        onChange={e => setData("objectives", e.target.value)}
+                                        placeholder="What are the goals?"
+                                        rows={2}
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-sm p-4 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 resize-none"
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}
@@ -347,11 +360,11 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         value={newAreaName}
                                         onChange={e => setNewAreaName(e.target.value)}
                                         placeholder="Add new audit area (e.g., Risk Management)"
-                                        className="flex-1 h-10 bg-slate-50 border border-slate-200 rounded-lg px-4 text-[13px] focus:ring-2 focus:ring-blue-500/10 transition-all"
+                                        className="flex-1 h-11 bg-slate-50 border border-slate-100 rounded-sm px-4 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400"
                                     />
                                     <button
                                         onClick={addAuditArea}
-                                        className="bg-[#2185d5] text-white px-4 rounded-lg font-bold text-[12px] flex items-center gap-2"
+                                        className="bg-[#2185d5] hover:bg-blue-600 text-white px-6 rounded-sm font-bold text-[13px] flex items-center gap-2 transition-all shadow-lg shadow-blue-500/10 active:scale-95 whitespace-nowrap"
                                     >
                                         <Plus size={16} />
                                         Add Area
@@ -364,14 +377,13 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                 {data.audit_areas.map((area, areaIndex) => (
                                     <div
                                         key={areaIndex}
-                                        className="bg-white border border-slate-100 rounded-sm overflow-hidden"
+                                        className="bg-white border border-slate-100 rounded-sm overflow-hidden shadow-sm"
                                     >
                                         <div className="flex items-center justify-between p-4 bg-slate-50/50 border-b border-slate-50">
-                                            <div className="flex items-center gap-2">
-                                                <FileText
-                                                    size={16}
-                                                    className="text-slate-400"
-                                                />
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-sm bg-blue-50 flex items-center justify-center text-blue-500">
+                                                    <FileText size={16} />
+                                                </div>
                                                 <input 
                                                     type="text"
                                                     value={area.name}
@@ -380,42 +392,44 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                                         updated[areaIndex].name = e.target.value;
                                                         setData("audit_areas", updated);
                                                     }}
-                                                    className="bg-transparent border-none text-[14px] font-bold text-slate-700 p-0 focus:ring-0"
+                                                    className="bg-transparent border-none text-[14px] font-bold text-slate-700 p-0 focus:ring-0 w-64"
                                                 />
-                                                <span className="bg-white px-2 py-0.5 rounded border border-slate-200 text-[11px] font-bold text-slate-500">
+                                                <span className="bg-white px-2.5 py-1 rounded-sm border border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-tight">
                                                     {area.items.length} Items
                                                 </span>
                                             </div>
                                             <button
                                                 onClick={() => removeAuditArea(areaIndex)}
-                                                className="text-slate-400 hover:text-red-500 transition-colors"
+                                                className="w-8 h-8 flex items-center justify-center rounded-sm text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                             >
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
-                                        <div className="p-4 space-y-3">
+                                        <div className="p-6 space-y-4">
                                             {area.items.map((item, itemIndex) => (
                                                 <div
                                                     key={itemIndex}
-                                                    className="flex items-center gap-3 group bg-white hover:bg-slate-50/50 p-2 rounded-lg transition-all"
+                                                    className="flex items-center gap-4 group bg-slate-50/50 hover:bg-slate-50 p-4 rounded-sm transition-all border border-transparent hover:border-slate-100"
                                                 >
-                                                    <div className="w-5 h-5 rounded border border-slate-200 bg-slate-50 shrink-0" />
+                                                    <div className="w-5 h-5 rounded border border-slate-200 bg-white shrink-0 flex items-center justify-center text-slate-300">
+                                                        <Check size={12} />
+                                                    </div>
                                                     <div className="flex-1">
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-[13px] text-slate-700 font-medium">
+                                                            <span className="text-[14px] text-slate-600 font-semibold">
                                                                 {item.text}
                                                             </span>
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="flex items-center gap-1">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex items-center gap-1.5">
                                                                     {item.tags.map((tag) => (
                                                                         <span
                                                                             key={tag}
-                                                                            className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                                                                            className={`text-[10px] font-bold px-3 py-1 rounded-sm uppercase tracking-tight ${
                                                                                 tag === "Critical"
-                                                                                    ? "bg-[#e11d48] text-white" 
+                                                                                    ? "bg-red-50 text-red-600 border border-red-100" 
                                                                                     : tag === "Major"
-                                                                                      ? "bg-slate-900 text-white" 
-                                                                                      : "bg-white text-slate-600 border border-slate-200"
+                                                                                      ? "bg-slate-800 text-white px-4" 
+                                                                                      : "bg-white text-slate-400 border border-slate-100"
                                                                             }`}
                                                                         >
                                                                             {tag}
@@ -424,9 +438,9 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                                                 </div>
                                                                 <button
                                                                     onClick={() => removeItemFromArea(areaIndex, itemIndex)}
-                                                                    className="text-slate-400 hover:text-red-500 transition-all p-1"
+                                                                    className="w-7 h-7 flex items-center justify-center rounded-sm text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                                                 >
-                                                                    <X size={16} />
+                                                                    <X size={14} />
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -435,31 +449,31 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                             ))}
 
                                             {activeAddingArea === areaIndex ? (
-                                                <div className="mt-4 p-4 bg-blue-50/30 border border-blue-100 rounded-xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                <div className="mt-4 p-6 bg-blue-50/30 border border-blue-100 rounded-sm space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
                                                     <input 
                                                         type="text"
                                                         value={newItemData.text}
                                                         onChange={e => setNewItemData({...newItemData, text: e.target.value})}
-                                                        placeholder="Enter check item..."
-                                                        className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-[14px] focus:ring-2 focus:ring-blue-500/10 outline-none transition-all"
+                                                        placeholder="What needs to be checked?"
+                                                        className="w-full bg-white border border-slate-100 rounded-sm px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-300"
                                                         autoFocus
                                                     />
                                                     <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-4">
+                                                        <div className="flex items-center gap-6">
                                                             <div className="relative">
                                                                 <select 
                                                                     value={newItemData.priority}
                                                                     onChange={e => setNewItemData({...newItemData, priority: e.target.value})}
-                                                                    className="h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-8 text-[13px] font-medium appearance-none focus:ring-2 focus:ring-blue-500/10 outline-none"
+                                                                    className="h-10 bg-white border border-slate-200 rounded-sm pl-4 pr-10 text-[13px] font-bold appearance-none focus:ring-2 focus:ring-blue-500/10 outline-none cursor-pointer"
                                                                 >
                                                                     <option value="None">No Priority</option>
                                                                     <option value="Critical">Critical</option>
                                                                     <option value="Major">Major</option>
                                                                 </select>
-                                                                <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                                             </div>
                                                             <label className="flex items-center gap-2 cursor-pointer group">
-                                                                <div className={`w-5 h-5 rounded border transition-all flex items-center justify-center ${newItemData.isRequired ? 'bg-slate-900 border-slate-900' : 'bg-white border-slate-300 group-hover:border-slate-400'}`}>
+                                                                <div className={`w-5 h-5 rounded-sm border transition-all flex items-center justify-center ${newItemData.isRequired ? 'bg-slate-800 border-slate-800' : 'bg-white border-slate-300 group-hover:border-slate-400'}`}>
                                                                     <input 
                                                                         type="checkbox"
                                                                         className="hidden"
@@ -468,19 +482,19 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                                                     />
                                                                     {newItemData.isRequired && <Check size={14} className="text-white" />}
                                                                 </div>
-                                                                <span className="text-[13px] font-bold text-slate-700">Required</span>
+                                                                <span className="text-[13px] font-bold text-slate-700">Mark as Mandatory</span>
                                                             </label>
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             <button 
                                                                 onClick={() => setActiveAddingArea(null)}
-                                                                className="text-[13px] font-bold text-slate-600 hover:text-slate-900 transition-colors"
+                                                                className="px-4 py-2 text-[13px] font-bold text-slate-500 hover:text-slate-800 transition-colors uppercase tracking-tight"
                                                             >
                                                                 Cancel
                                                             </button>
                                                             <button 
                                                                 onClick={() => confirmAddItem(areaIndex)}
-                                                                className="bg-slate-900 text-white px-5 py-2 rounded-lg font-bold text-[13px] hover:bg-slate-800 transition-all shadow-sm"
+                                                                className="bg-slate-800 text-white px-6 py-2.5 rounded-sm font-bold text-[13px] hover:bg-slate-700 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
                                                             >
                                                                 Add Item
                                                             </button>
@@ -490,10 +504,10 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                             ) : (
                                                 <button
                                                     onClick={() => addItemToArea(areaIndex)}
-                                                    className="mt-2 flex items-center gap-2 text-[#2185d5] font-bold text-[13px] hover:underline px-2 py-1"
+                                                    className="mt-2 flex items-center gap-2 text-[#2185d5] font-bold text-[14px] hover:underline px-2 py-1 uppercase tracking-tight"
                                                 >
                                                     <Plus size={16} />
-                                                    Add Item
+                                                    Add new item
                                                 </button>
                                             )}
                                         </div>
@@ -515,7 +529,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         <select 
                                             value={selectedAuditor}
                                             onChange={e => setSelectedAuditor(e.target.value)}
-                                            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-sm px-4 text-[13px] appearance-none focus:ring-2 focus:ring-[#2185d5]/20 transition-all text-slate-600 font-medium"
+                                            className="w-full h-11 bg-slate-50 border border-slate-100 rounded-sm px-4 text-[13px] appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-600 font-bold"
                                         >
                                             <option value="">Select Auditor</option>
                                             {auditors.map(auditor => (
@@ -530,7 +544,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                         <select 
                                             value={auditorRole}
                                             onChange={e => setAuditorRole(e.target.value)}
-                                            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-sm px-4 text-[13px] appearance-none focus:ring-2 focus:ring-[#2185d5]/20 transition-all text-slate-600 font-medium"
+                                            className="w-full h-11 bg-slate-50 border border-slate-100 rounded-sm px-4 text-[13px] appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-600 font-bold"
                                         >
                                             <option>Auditor</option>
                                             <option>Lead Auditor</option>
@@ -541,7 +555,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                     <button
                                         onClick={addTeamMember}
                                         type="button"
-                                        className="bg-[#2185d5] text-white px-5 rounded-sm font-bold text-[13px] flex items-center gap-2 hover:bg-blue-600 transition-all shadow-md shadow-blue-500/10 active:scale-95"
+                                        className="bg-[#2185d5] text-white px-6 rounded-sm font-bold text-[13px] flex items-center gap-2 hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/10 active:scale-95 h-11 whitespace-nowrap"
                                     >
                                         <Plus size={16} />
                                         Add Member
@@ -550,33 +564,33 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                             </div>
 
                             {data.audit_team.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-10 text-center">
-                                    <div className="w-14 h-14 rounded-full border-2 border-slate-100 flex items-center justify-center text-slate-300 mb-4">
-                                        <AlertCircle size={28} />
+                                <div className="flex flex-col items-center justify-center py-12 text-center bg-slate-50/50 rounded-sm border border-dashed border-slate-200">
+                                    <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 mb-4 shadow-sm">
+                                        <Users size={28} />
                                     </div>
-                                    <h4 className="text-[15px] font-bold text-slate-300 mb-1">
-                                        No audit team members assigned
+                                    <h4 className="text-[15px] font-bold text-slate-700 mb-1">
+                                        No team members assigned
                                     </h4>
-                                    <p className="text-[12px] text-slate-300 max-w-[200px]">
-                                        Assign at least one auditor to continue
+                                    <p className="text-[13px] text-slate-400 max-w-[240px]">
+                                        Assign auditors who will be responsible for conducting this audit
                                     </p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {data.audit_team.map((member) => (
                                         <div
                                             key={member.user_id}
-                                            className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-sm hover:border-[#2185d5]/30 transition-all group"
+                                            className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-sm hover:border-blue-200 transition-all group shadow-sm"
                                         >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-sm bg-blue-50 flex items-center justify-center text-[#2185d5] font-bold text-[14px] border border-blue-100">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-sm bg-[#2185d5] flex items-center justify-center text-white font-bold text-[14px]">
                                                     {member.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-[13px] font-bold text-slate-800 leading-none">
+                                                    <p className="text-[14px] font-bold text-slate-700 leading-none">
                                                         {member.name}
                                                     </p>
-                                                    <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">
+                                                    <p className="text-[11px] font-bold text-slate-400 mt-1.5 uppercase tracking-widest">
                                                         {member.role}
                                                     </p>
                                                 </div>
@@ -584,7 +598,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                                             <button
                                                 onClick={() => removeTeamMember(member.user_id)}
                                                 type="button"
-                                                className="w-7 h-7 flex items-center justify-center rounded-sm text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
+                                                className="w-8 h-8 flex items-center justify-center rounded-sm text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                             >
                                                 <X size={16} />
                                             </button>
@@ -597,7 +611,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-6 border-t border-slate-50 flex items-center justify-between bg-white pt-4">
+                <div className="p-6 border-t border-slate-100 flex items-center justify-between bg-white pt-4">
                     <div className="flex items-center gap-2 text-[#2185d5] text-[13px] font-bold">
                         <CheckCircle2 size={16} />
                         Total: {data.audit_areas.length} audit areas with{" "}
@@ -610,14 +624,14 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                     <div className="flex items-center gap-3 ml-auto">
                         <button
                             onClick={onClose}
-                            className="px-6 py-2.5 rounded-sm font-bold text-[13px] text-slate-500 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 transition-all"
+                            className="px-6 py-2.5 rounded-sm font-bold text-[13px] text-slate-500 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 transition-all uppercase tracking-tight"
                         >
                             Cancel
                         </button>
                         <button 
                             onClick={handleSubmit}
                             disabled={processing}
-                            className="bg-[#2185d5] text-white px-6 py-2.5 rounded-sm font-bold text-[13px] flex items-center gap-2 shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all disabled:opacity-50"
+                            className="bg-[#2185d5] text-white px-8 py-2.5 rounded-sm font-bold text-[13px] flex items-center gap-2 shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all disabled:opacity-50 uppercase tracking-tight"
                         >
                             {processing ? "Creating..." : <><CheckCircle2 size={18} /> Create Checklist</>}
                         </button>
