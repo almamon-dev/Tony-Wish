@@ -17,9 +17,9 @@ const Sidebar = ({ isCollapsed }) => {
     const menuItems = [
         {
             label: "Dashboard",
-            path: "/dashboard",
+            path: "/user/dashboard",
             icon: <LayoutDashboard size={20} />,
-            active: currentPath === "/dashboard",
+            active: currentPath === "/user/dashboard" || currentPath === "/dashboard",
         },
         {
             label: "Procedures",

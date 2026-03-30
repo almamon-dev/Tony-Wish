@@ -55,7 +55,7 @@ class SettingsController extends Controller
 
             $upload = \App\Helpers\Helper::uploadFile('avatars', $request->file('photo'));
             if ($upload) {
-                $userData['avatar'] = $upload['original'];
+                $userData['avatar'] = $upload;
             }
         }
 

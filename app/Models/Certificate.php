@@ -11,14 +11,25 @@ class Certificate extends Model
 
     protected $fillable = [
         'certificate_id',
+        'user_id',
         'procedure_id',
+
+        'iso_standard',
+        'certificate_type',
+        'compliance_level',
+        'audit_score',
+        'achievements',
+        'internal_notes',
         'issued_to',
+        'email',
+        'employee_id',
         'issued_date',
         'expiry_date',
         'status',
         'company_id',
         'created_by',
     ];
+
 
     public function procedure()
     {

@@ -49,6 +49,14 @@ export default function CompanyManagement({ administrators = [], company }) {
         { value: "view_only", label: "View Only - Read access" },
     ];
 
+    const { delete: destroy } = useForm();
+
+    const handleRemove = (id) => {
+        if (confirm("Are you sure you want to remove this administrator?")) {
+            destroy(route("business-owner.administrators.destroy", id));
+        }
+    };
+
     return (
         <BusinessOwnerLayout>
             <Head title="Company Management" />
@@ -56,7 +64,7 @@ export default function CompanyManagement({ administrators = [], company }) {
             <div className="space-y-8 pb-10">
                 {/* Flash Messages */}
                 {(flash?.success || flash?.error) && (
-                    <div className={`${flash?.success ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'} border px-6 py-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300`}>
+                    <div className={`${flash?.success ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'} border px-6 py-4 rounded-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300`}>
                         {flash?.success ? <CheckCircle2 size={20} className="text-green-600" /> : <X size={20} className="text-red-600" />}
                         <p className="font-medium text-sm">{flash?.success || flash?.error}</p>
                     </div>
@@ -73,7 +81,7 @@ export default function CompanyManagement({ administrators = [], company }) {
                 </div>
 
                 {/* Administrators Section */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden">
                     <div className="px-8 py-5 border-b border-slate-50 flex items-center justify-between">
                         <div>
                             <h2 className="font-bold text-slate-800 text-[18px]">
@@ -85,7 +93,7 @@ export default function CompanyManagement({ administrators = [], company }) {
                         </div>
                         <button
                             onClick={() => setIsAddModalOpen(true)}
-                            className="bg-[#2c8af8] hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[14px] font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
+                            className="bg-[#2c8af8] hover:bg-blue-600 text-white px-5 py-2.5 rounded-sm text-[14px] font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
                         >
                             <Plus size={18} />
                             Add Administrator
@@ -161,7 +169,10 @@ export default function CompanyManagement({ administrators = [], company }) {
                                                     <button className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 text-slate-400 hover:text-blue-500 hover:border-blue-200 rounded-lg transition-all shadow-sm">
                                                         <Pencil size={16} />
                                                     </button>
-                                                    <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-[13px] font-medium rounded-lg hover:bg-slate-50 transition-all">
+                                                    <button 
+                                                        onClick={() => handleRemove(admin.id)}
+                                                        className="px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-[13px] font-medium rounded-lg hover:bg-slate-50 transition-all"
+                                                    >
                                                         Remove
                                                     </button>
                                                 </div>
@@ -238,7 +249,7 @@ export default function CompanyManagement({ administrators = [], company }) {
                                                     value={adminForm.data.first_name}
                                                     onChange={(e) => adminForm.setData('first_name', e.target.value)}
                                                     placeholder="John"
-                                                    className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.first_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
+                                                    className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.first_name ? 'border-red-300' : 'border-slate-100'} rounded-sm focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                                 />
                                                 {adminForm.errors.first_name && (
                                                     <p className="text-red-500 text-xs">{adminForm.errors.first_name}</p>
@@ -253,7 +264,7 @@ export default function CompanyManagement({ administrators = [], company }) {
                                                     value={adminForm.data.last_name}
                                                     onChange={(e) => adminForm.setData('last_name', e.target.value)}
                                                     placeholder="Doe"
-                                                    className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.last_name ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
+                                                    className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.last_name ? 'border-red-300' : 'border-slate-100'} rounded-sm focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                                 />
                                                 {adminForm.errors.last_name && (
                                                     <p className="text-red-500 text-xs">{adminForm.errors.last_name}</p>
@@ -270,7 +281,7 @@ export default function CompanyManagement({ administrators = [], company }) {
                                                 value={adminForm.data.email}
                                                 onChange={(e) => adminForm.setData('email', e.target.value)}
                                                 placeholder="john.doe@company.com"
-                                                className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.email ? 'border-red-300' : 'border-slate-100'} rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
+                                                className={`w-full h-10 px-4 bg-slate-50 border ${adminForm.errors.email ? 'border-red-300' : 'border-slate-100'} rounded-sm focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px]`}
                                             />
                                             {adminForm.errors.email && (
                                                 <p className="text-red-500 text-xs">{adminForm.errors.email}</p>
@@ -285,7 +296,7 @@ export default function CompanyManagement({ administrators = [], company }) {
                                                 <select 
                                                     value={adminForm.data.department}
                                                     onChange={(e) => adminForm.setData('department', e.target.value)}
-                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
+                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-sm focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
                                                 >
                                                     <option value="">
                                                         Select department
@@ -316,7 +327,7 @@ export default function CompanyManagement({ administrators = [], company }) {
                                                 <select 
                                                     value={adminForm.data.access_level}
                                                     onChange={(e) => adminForm.setData('access_level', e.target.value)}
-                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
+                                                    className="w-full h-10 px-4 bg-slate-50 border border-slate-100 rounded-sm focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-medium text-[13px] appearance-none cursor-pointer pr-10"
                                                 >
                                                     {accessLevels.map(
                                                         (level, i) => (

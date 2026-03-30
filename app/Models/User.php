@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_name',
         'email',
         'password',
+        'employee_id',
         'user_type',
         'business_owner_id',
         'department',
@@ -67,6 +68,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'remember_token',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (!$user->employee_id && $user->user_type === 'userdashboard') {
+                $user->employee_id = 'EMP-' . date('Y') . '-' . strtoupper(\Illuminate\Support\Str::random(6));
+            }
+        });
+    }
+
 
     /**
      * Get the attributes that should be cast.

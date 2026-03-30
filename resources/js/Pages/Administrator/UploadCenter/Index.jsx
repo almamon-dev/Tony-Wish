@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import {
     Search,
     ChevronDown,
@@ -13,13 +13,31 @@ import {
     UploadCloud,
 } from "lucide-react";
 
-export default function UploadCenterIndex() {
+export default function UploadCenterIndex({ uploads = [], stats: propStats = {} }) {
     const [searchQuery, setSearchQuery] = useState("");
 
-    const stats = [
+    const handleApprove = (id) => {
+        if (confirm("Are you sure you want to approve this document?")) {
+            router.patch(route('administrator.procedures.update', id), {
+                status: 'completed',
+                progress: 100
+            });
+        }
+    };
+
+    const handleReject = (id) => {
+        if (confirm("Are you sure you want to reject this document?")) {
+            router.patch(route('administrator.procedures.update', id), {
+                status: 'rejected',
+                progress: 0
+            });
+        }
+    };
+
+    const statsList = [
         {
             label: "Total Uploads",
-            value: "156",
+            value: propStats.total || 0,
             sublabel: "All available forms",
             icon: <UploadCloud size={20} />,
             color: "text-blue-500",
@@ -28,7 +46,7 @@ export default function UploadCenterIndex() {
         },
         {
             label: "Pending Review",
-            value: "12",
+            value: propStats.pending || 0,
             sublabel: "Forms completed",
             icon: <Clock size={20} />,
             color: "text-amber-500",
@@ -37,7 +55,7 @@ export default function UploadCenterIndex() {
         },
         {
             label: "Approved",
-            value: "132",
+            value: propStats.approved || 0,
             sublabel: "Forms approved",
             icon: <CheckCircle2 size={20} />,
             color: "text-emerald-500",
@@ -45,52 +63,13 @@ export default function UploadCenterIndex() {
             iconBg: "bg-emerald-100/50",
         },
         {
-            label: "Rejected",
-            value: "78%",
-            sublabel: "Forms pending",
+            label: "Rejected Rate",
+            value: propStats.rejected || '0%',
+            sublabel: "System health",
             icon: <AlertCircle size={20} />,
             color: "text-purple-500",
             bg: "bg-purple-50",
             iconBg: "bg-purple-100/50",
-        },
-    ];
-
-    const uploads = [
-        {
-            id: 1,
-            fileName: "Pre-Audit Checklist Q4",
-            uploadedBy: "Tom Wilson",
-            procedure: "ISO 9001",
-            uploadDate: "Oct 27, 2025",
-            size: "2.4 MB",
-            status: "Approved",
-        },
-        {
-            id: 2,
-            fileName: "Pre-Audit Checklist Q4",
-            uploadedBy: "Tom Wilson",
-            procedure: "ISO 9001",
-            uploadDate: "Oct 20, 2025",
-            size: "2.4 MB",
-            status: "Pending",
-        },
-        {
-            id: 3,
-            fileName: "Pre-Audit Checklist Q4",
-            uploadedBy: "Tom Wilson",
-            procedure: "ISO 9001",
-            uploadDate: "Oct 20, 2025",
-            size: "2.4 MB",
-            status: "Approved",
-        },
-        {
-            id: 4,
-            fileName: "Quality_report_D4_.pdf",
-            uploadedBy: "Tom Wilson",
-            procedure: "ISO 9001",
-            uploadDate: "Oct 24, 2025",
-            size: "2.4 MB",
-            status: "Approved",
         },
     ];
 
@@ -111,7 +90,7 @@ export default function UploadCenterIndex() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    {stats.map((stat, i) => (
+                    {statsList.map((stat, i) => (
                         <div
                             key={i}
                             className="bg-white p-6 rounded-[20px] border border-slate-100 shadow-sm flex flex-col justify-between relative overflow-hidden"
@@ -167,59 +146,86 @@ export default function UploadCenterIndex() {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {uploads.map((upload) => (
-                                    <tr
-                                        key={upload.id}
-                                        className="hover:bg-slate-50/50 transition-colors"
-                                    >
-                                        <td className="px-6 py-5">
-                                            <span className="text-[14px] font-medium text-slate-700">
-                                                {upload.fileName}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500">
-                                            {upload.uploadedBy}
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
-                                            {upload.procedure}
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
-                                            {upload.uploadDate}
-                                        </td>
-                                        <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
-                                            {upload.size}
-                                        </td>
-                                        <td className="px-4 py-5 text-center">
-                                            <span
-                                                className={`px-4 py-1.5 rounded-full text-[12px] font-bold border ${
-                                                    upload.status === "Approved"
-                                                        ? "bg-blue-50 text-blue-500 border-blue-100"
-                                                        : "bg-amber-50 text-amber-500 border-amber-100"
-                                                }`}
-                                            >
-                                                {upload.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white">
-                                                    <Eye
-                                                        size={16}
-                                                        className="text-slate-400"
-                                                    />
-                                                    view
-                                                </button>
-                                                {(upload.status === "Pending" ||
-                                                    upload.id === 3) && (
-                                                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-100 text-emerald-600 font-bold text-[13px] hover:bg-emerald-50 transition-all bg-white">
-                                                        Approve
-                                                    </button>
-                                                )}
-                                            </div>
+                             <tbody className="divide-y divide-slate-50">
+                                {uploads.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={7}
+                                            className="px-6 py-10 text-center text-slate-400 font-medium italic"
+                                        >
+                                            No documents uploaded by users yet.
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    uploads.map((upload) => (
+                                        <tr
+                                            key={upload.id}
+                                            className="hover:bg-slate-50/50 transition-colors"
+                                        >
+                                            <td className="px-6 py-5">
+                                                <span className="text-[14px] font-medium text-slate-700">
+                                                    {upload.fileName}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500">
+                                                {upload.uploadedBy}
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
+                                                {upload.procedure}
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
+                                                {upload.uploadDate}
+                                            </td>
+                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
+                                                {upload.size}
+                                            </td>
+                                            <td className="px-4 py-5 text-center">
+                                                <span
+                                                    className={`px-4 py-1.5 rounded-full text-[12px] font-bold border ${upload.status === "Approved"
+                                                        ? "bg-blue-50 text-blue-500 border-blue-100"
+                                                        : upload.status === "Rejected"
+                                                            ? "bg-rose-50 text-rose-500 border-rose-100"
+                                                            : "bg-amber-50 text-amber-500 border-amber-100"
+                                                        }`}
+                                                >
+                                                    {upload.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <a
+                                                        href={`/storage/${upload.file_path}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white"
+                                                    >
+                                                        <Eye
+                                                            size={16}
+                                                            className="text-slate-400"
+                                                        />
+                                                        view
+                                                    </a>
+                                                    {upload.status === "Pending" && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleApprove(upload.id)}
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-100 text-emerald-600 font-bold text-[13px] hover:bg-emerald-50 transition-all bg-white"
+                                                            >
+                                                                Approve
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleReject(upload.id)}
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-100 text-rose-600 font-bold text-[13px] hover:bg-rose-50 transition-all bg-white"
+                                                            >
+                                                                Reject
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

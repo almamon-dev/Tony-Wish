@@ -42,4 +42,14 @@ class AdministratorController extends Controller
             abort(403, $e->getMessage());
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $this->administratorService->deleteAdministrator($id);
+            return back()->with('success', 'Administrator removed successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to remove administrator: ' . $e->getMessage());
+        }
+    }
 }

@@ -141,34 +141,34 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
             />
             <div className="relative bg-white rounded-[15px] shadow-xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col">
                 {/* Modal Header */}
-                <div className="p-6 pb-2">
-                    <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-[20px] font-bold text-slate-800">
+                <div className="p-5 pb-2">
+                    <div className="flex items-center justify-between mb-1">
+                        <h2 className="text-[18px] font-bold text-slate-800">
                             Create Pre-Audit Checklist
                         </h2>
                         <button
                             onClick={onClose}
                             className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-slate-50 text-slate-400 transition-all"
                         >
-                            <X size={20} />
+                            <X size={18} />
                         </button>
                     </div>
-                    <p className="text-[13px] text-slate-500 font-medium">
+                    <p className="text-[12px] text-slate-500 font-medium leading-none">
                         Create a comprehensive checklist for pre-audit
                         assessment and compliance verification
                     </p>
                 </div>
 
                 {/* Modal Tabs */}
-                <div className="px-6 flex items-center gap-2 mb-4">
+                <div className="px-5 flex items-center gap-2 mb-3">
                     {modalTabs.map((tab) => (
                         <button
                             key={tab.name}
                             onClick={() => setCurrentStep(tab.name)}
-                            className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-sm text-[13px] font-bold transition-all border ${
+                            className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-md text-[12px] font-bold transition-all border ${
                                 currentStep === tab.name
-                                    ? "bg-[#2185d5] text-white border-transparent shadow-lg shadow-blue-500/10"
-                                    : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50 uppercase text-[12px] tracking-tight"
+                                    ? "bg-[#2185d5] text-white border-transparent shadow-sm"
+                                    : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50 uppercase tracking-tight"
                             }`}
                         >
                             {tab.icon}
@@ -183,7 +183,7 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                 </div>
 
                 {/* Modal Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-4">
+                <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-4">
                     {currentStep === "Details" && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-8 duration-300">
                             <div className="space-y-1">
@@ -611,15 +611,10 @@ export default function CreateChecklistModal({ isOpen, onClose, auditors = [] })
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-6 border-t border-slate-100 flex items-center justify-between bg-white pt-4">
-                    <div className="flex items-center gap-2 text-[#2185d5] text-[13px] font-bold">
+                <div className="p-5 border-t border-slate-100 flex items-center justify-between bg-white mt-auto">
+                    <div className="flex items-center gap-2 text-[#2185d5] text-[12px] font-bold uppercase tracking-tight">
                         <CheckCircle2 size={16} />
-                        Total: {data.audit_areas.length} audit areas with{" "}
-                        {data.audit_areas.reduce(
-                            (acc, area) => acc + area.items.length,
-                            0,
-                        )}{" "}
-                        check items
+                        {data.audit_areas.length} areas • {data.audit_areas.reduce((acc, area) => acc + area.items.length, 0)} items
                     </div>
                     <div className="flex items-center gap-3 ml-auto">
                         <button

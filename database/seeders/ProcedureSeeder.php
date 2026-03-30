@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ProcedureSeeder extends Seeder
@@ -13,10 +12,14 @@ class ProcedureSeeder extends Seeder
     public function run(): void
     {
         $owner = \App\Models\User::where('user_type', 'business_owner')->first();
-        if (!$owner) return;
-        
+        if (! $owner) {
+            return;
+        }
+
         $company = \App\Models\Company::where('user_id', $owner->id)->first();
-        if (!$company) return;
+        if (! $company) {
+            return;
+        }
 
         $admin = \App\Models\User::where('user_type', 'administrator')->first();
 
@@ -47,7 +50,7 @@ class ProcedureSeeder extends Seeder
             'status' => 'pending',
             'progress' => 0,
         ]);
-        
+
         \App\Models\Procedure::create([
             'name' => 'Security Audit Procedure',
             'iso_standard' => 'ISO 27001',

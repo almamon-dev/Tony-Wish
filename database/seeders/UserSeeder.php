@@ -15,50 +15,81 @@ class UserSeeder extends Seeder
     {
         // 1. Create System Admin
         User::updateOrCreate(
-        ['email' => 'admin@gmail.com'],
-        [
-            'first_name' => 'System',
-            'last_name' => 'Admin',
-            'password' => Hash::make('password'),
-            'user_type' => 'admin',
-            'email_verified_at' => now(),
-        ]
+            ['email' => 'admin@gmail.com'],
+            [
+                'first_name' => 'System',
+                'last_name' => 'Admin',
+                'password' => Hash::make('password'),
+                'user_type' => 'admin',
+                'email_verified_at' => now(),
+            ]
         );
 
-        // 2. Create Company Administrator
-        User::updateOrCreate(
-        ['email' => 'administrator@gmail.com'],
-        [
-            'first_name' => 'Company',
-            'last_name' => 'Administrator',
-            'password' => Hash::make('password'),
-            'user_type' => 'administrator',
-            'email_verified_at' => now(),
-        ]
+        // 2. Create Business Owner (Parent)
+        $businessOwner = User::updateOrCreate(
+            ['email' => 'owner@gmail.com'],
+            [
+                'first_name' => 'Account',
+                'last_name' => 'Holder',
+                'password' => Hash::make('5'),
+                'user_type' => 'business_owner',
+                'email_verified_at' => now(),
+            ]
         );
 
-        // 2. Create Account Holder
-        User::updateOrCreate(
-        ['email' => 'owner@gmail.com'],
-        [
-            'first_name' => 'Account',
-            'last_name' => 'Holder',
-            'password' => Hash::make('password'),
-            'user_type' => 'business_owner',
-            'email_verified_at' => now(),
-        ]
+        // Create Company for Business Owner
+        \App\Models\Company::updateOrCreate(
+            ['user_id' => $businessOwner->id],
+            [
+                'company_name' => 'Tony compliance Ltd.',
+                'registration_number' => 'REG-2026-001',
+                'industry' => 'Technology',
+            ]
         );
 
-        // 3. Create Standard User
-        User::updateOrCreate(
-        ['email' => 'user@gmail.com'],
-        [
-            'first_name' => 'Standard',
-            'last_name' => 'User',
-            'password' => Hash::make('password'),
-            'user_type' => 'userdashboard',
-            'email_verified_at' => now(),
-        ]
+
+        // 3. Create Administrator under Business Owner
+        $administrator = User::updateOrCreate(
+            ['email' => 'administrator@gmail.com'],
+            [
+                'first_name' => 'Company',
+                'last_name' => 'Administrator',
+                'password' => Hash::make('password'),
+                'user_type' => 'administrator',
+                'business_owner_id' => $businessOwner->id,
+                'created_by' => $businessOwner->id,
+                'email_verified_at' => now(),
+            ]
         );
+
+        // 4. Create 2 Users under the Administrator
+        User::updateOrCreate(
+            ['email' => 'user1@gmail.com'],
+            [
+                'first_name' => 'Standard',
+                'last_name' => 'User 1',
+                'password' => Hash::make('password'),
+                'user_type' => 'userdashboard',
+                'employee_id' => 'EMP-2026-001',
+                'business_owner_id' => $businessOwner->id,
+                'created_by' => $administrator->id,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'user2@gmail.com'],
+            [
+                'first_name' => 'Standard',
+                'last_name' => 'User 2',
+                'password' => Hash::make('password'),
+                'user_type' => 'userdashboard',
+                'employee_id' => 'EMP-2026-002',
+                'business_owner_id' => $businessOwner->id,
+                'created_by' => $administrator->id,
+                'email_verified_at' => now(),
+            ]
+        );
+
     }
 }

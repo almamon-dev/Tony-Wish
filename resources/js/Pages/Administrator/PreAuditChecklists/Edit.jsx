@@ -122,7 +122,7 @@ export default function EditChecklist({ checklist, auditors = [] }) {
         <AdministratorLayout>
             <Head title={`Edit - ${checklist.name}`} />
 
-            <div className="max-w-5xl mx-auto py-10 space-y-8 pb-32">
+            <div className="max-w-5xl mx-auto py-4 space-y-4 pb-12">
                 {/* Header Section */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -133,10 +133,10 @@ export default function EditChecklist({ checklist, auditors = [] }) {
                             <ArrowLeft size={20} />
                         </button>
                         <div>
-                            <h1 className="text-[28px] font-black text-slate-800 tracking-tight leading-none">
+                            <h1 className="text-[24px] font-bold text-slate-800 tracking-tight leading-none">
                                 Edit Pre-Audit Checklist
                             </h1>
-                            <p className="text-[14px] text-slate-500 font-medium mt-3">
+                            <p className="text-[13px] text-slate-500 font-medium mt-1">
                                 Modify checklist details, items, and assigned team
                             </p>
                         </div>
@@ -145,21 +145,21 @@ export default function EditChecklist({ checklist, auditors = [] }) {
 
                 <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[70vh]">
                     {/* Tabs */}
-                    <div className="px-8 py-6 flex items-center gap-2 border-b border-slate-50">
+                    <div className="px-6 py-3 flex items-center gap-2 border-b border-slate-50 bg-slate-50/30">
                         {modalTabs.map((tab) => (
                             <button
                                 key={tab.name}
                                 onClick={() => setCurrentStep(tab.name)}
-                                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-sm text-[13px] font-bold transition-all border ${
+                                className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-md text-[12px] font-bold transition-all border ${
                                     currentStep === tab.name
-                                        ? "bg-[#2185d5] text-white border-transparent"
-                                        : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50"
+                                        ? "bg-[#2185d5] text-white border-transparent shadow-sm"
+                                        : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50 uppercase tracking-tight"
                                 }`}
                             >
                                 {tab.icon}
                                 {tab.name}
                                 {tab.name === "Checklist Items" && (
-                                    <span className="ml-1 bg-white/20 px-1.5 py-0.5 rounded text-[10px]">
+                                    <span className={`ml-1 px-1.5 py-0.5 rounded text-[10px] ${currentStep === tab.name ? 'bg-white/20' : 'bg-slate-100 text-slate-400'}`}>
                                         {data.audit_areas.reduce((acc, area) => acc + area.items.length, 0)}
                                     </span>
                                 )}
@@ -168,7 +168,7 @@ export default function EditChecklist({ checklist, auditors = [] }) {
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 p-8">
+                    <div className="flex-1 p-6">
                         {currentStep === "Details" && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-300 max-w-3xl">
                                 <div className="space-y-1">
@@ -498,21 +498,22 @@ export default function EditChecklist({ checklist, auditors = [] }) {
                     </div>
 
                     {/* Footer / Submit */}
-                    <div className="p-8 border-t border-slate-50 bg-slate-50/50 flex items-center justify-between">
-                        <div className="text-[14px] text-slate-500 font-medium font-bold">
+                    <div className="p-6 border-t border-slate-50 bg-white flex items-center justify-between">
+                        <div className="text-[13px] text-slate-500 font-bold flex items-center gap-2">
+                             <CheckCircle2 size={16} className="text-[#2185d5]" />
                             <span className="text-[#2185d5]">{data.audit_areas.length}</span> audit areas, <span className="text-[#2185d5]">{data.audit_areas.reduce((acc, a) => acc + a.items.length, 0)}</span> check items
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                             <button 
                                 onClick={() => router.get(route('administrator.pre-audit-checklists.index'))}
-                                className="px-8 py-3 rounded-sm font-bold text-[13px] text-slate-500 hover:bg-white border border-slate-200 transition-all"
+                                className="px-6 py-2.5 rounded-sm font-bold text-[13px] text-slate-500 hover:bg-slate-50 border border-slate-200 transition-all uppercase tracking-tight"
                             >
                                 Cancel
                             </button>
                             <button 
                                 onClick={handleSubmit}
                                 disabled={processing}
-                                className="bg-[#2c8af8] text-white px-10 py-3 rounded-sm font-black text-[14px] shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center gap-2"
+                                className="bg-[#2185d5] text-white px-8 py-2.5 rounded-sm font-bold text-[13px] shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center gap-2 uppercase tracking-tight"
                             >
                                 <CheckCircle2 size={18} />
                                 {processing ? "Saving..." : "Update Checklist"}

@@ -20,11 +20,21 @@ class Procedure extends Model
         'created_by',
         'status',
         'progress',
+        'checklist',
+        'milestones',
+        'team_members',
+        'uploaded_file_path',
+        'uploaded_file_name',
+        'uploaded_at',
     ];
 
     protected $casts = [
         'due_date' => 'date',
         'progress' => 'integer',
+        'checklist' => 'array',
+        'milestones' => 'array',
+        'team_members' => 'array',
+        'uploaded_at' => 'datetime',
     ];
 
     public function assignedUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -9,11 +9,11 @@ class CompanyController extends Controller
 {
     public function index()
     {
-        /** @var \App\Models\User $user */
-        $user = \Illuminate\Support\Facades\Auth::user();
 
+        $user = \Illuminate\Support\Facades\Auth::user();
         // Get all administrators for this business owner
         $administrators = $user->administrators()
+            ->where('user_type', '=', 'administrator')
             ->select('id', 'first_name', 'last_name', 'email', 'department', 'access_level', 'email_verified_at', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get()

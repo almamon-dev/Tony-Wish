@@ -76,4 +76,23 @@ class AdministratorService
         
         return $user;
     }
+
+    /**
+     * Delete an administrator.
+     *
+     * @param int $id
+     * @return void
+     */
+    public function deleteAdministrator(int $id): void
+    {
+        $user = User::findOrFail($id);
+        
+        // Ensure the current user is a business owner and the administrator belongs to them
+        $ownerId = \Illuminate\Support\Facades\Auth::id();
+        if ($user->business_owner_id !== $ownerId) {
+            throw new \Exception('Unauthorized to delete this administrator.');
+        }
+
+        $user->delete();
+    }
 }

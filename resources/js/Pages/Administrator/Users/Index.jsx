@@ -63,10 +63,10 @@ export default function UsersIndex({ users = [] }) {
         <AdministratorLayout>
             <Head title="Users Management" />
 
-            <div className="space-y-8 pb-10 text-left">
+            <div className="space-y-6 pb-6 text-left">
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <div className="bg-emerald-50 border border-emerald-100 text-emerald-600 px-6 py-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="bg-emerald-50 border border-emerald-100 text-emerald-600 px-5 py-3 rounded-md flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
                         <CheckCircle2 size={20} />
                         <p className="font-bold text-[14px]">{flash.success}</p>
                     </div>
@@ -89,7 +89,7 @@ export default function UsersIndex({ users = [] }) {
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#2185d5] text-white px-6 py-3 rounded-xl font-bold text-[14px] shadow-sm hover:bg-blue-600 transition-all active:scale-[0.98]"
+                        className="flex items-center gap-2 bg-[#2185d5] text-white px-5 py-2.5 rounded-md font-bold text-[14px] shadow-sm hover:bg-blue-600 transition-all active:scale-[0.98]"
                     >
                         <Plus size={20} />
                         Add User
@@ -101,14 +101,14 @@ export default function UsersIndex({ users = [] }) {
                     {stats.map((stat, i) => (
                         <div
                             key={i}
-                            className="bg-white p-6 rounded-[20px] border border-slate-100 shadow-sm flex flex-col justify-between relative overflow-hidden"
+                            className="bg-white p-5 rounded-md border border-slate-100 shadow-sm flex flex-col justify-between relative overflow-hidden"
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <h3 className="text-[14px] font-medium text-slate-400">
                                     {stat.label}
                                 </h3>
                                 <div
-                                    className={`w-10 h-10 rounded-xl ${stat.iconBg} ${stat.color} flex items-center justify-center`}
+                                    className={`w-10 h-10 rounded-md ${stat.iconBg} ${stat.color} flex items-center justify-center`}
                                 >
                                     {stat.icon}
                                 </div>
@@ -126,30 +126,30 @@ export default function UsersIndex({ users = [] }) {
                 </div>
 
                 {/* Table Section */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden p-6">
+                <div className="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-[#f8fafc] border-b border-slate-50">
-                                    <th className="px-6 py-5 text-[14px] font-bold text-slate-700">
+                                    <th className="px-6 py-4 text-[13px] font-bold text-slate-700 uppercase tracking-tight">
                                         Name
                                     </th>
-                                    <th className="px-4 py-5 text-[14px] font-bold text-slate-700">
+                                    <th className="px-4 py-4 text-[13px] font-bold text-slate-700 uppercase tracking-tight">
                                         Email
                                     </th>
-                                    <th className="px-4 py-5 text-[14px] font-bold text-slate-700 text-center">
+                                    <th className="px-4 py-4 text-[13px] font-bold text-slate-700 uppercase tracking-tight text-center">
                                         Tasks
                                     </th>
-                                    <th className="px-4 py-5 text-[14px] font-bold text-slate-700 text-center">
+                                    <th className="px-4 py-4 text-[13px] font-bold text-slate-700 uppercase tracking-tight text-center">
                                         Completed
                                     </th>
-                                    <th className="px-4 py-5 text-[14px] font-bold text-slate-700 text-center">
+                                    <th className="px-4 py-4 text-[13px] font-bold text-slate-700 uppercase tracking-tight text-center">
                                         Added By
                                     </th>
-                                    <th className="px-4 py-5 text-[14px] font-bold text-slate-700 text-center">
+                                    <th className="px-4 py-4 text-[13px] font-bold text-slate-700 uppercase tracking-tight text-center">
                                         Status
                                     </th>
-                                    <th className="px-6 py-5 text-[14px] font-bold text-slate-700 text-right">
+                                    <th className="px-6 py-4 text-[13px] font-bold text-slate-700 uppercase tracking-tight text-right">
                                         Actions
                                     </th>
                                 </tr>
@@ -182,36 +182,36 @@ export default function UsersIndex({ users = [] }) {
                                             key={user.id}
                                             className="hover:bg-slate-50/50 transition-colors"
                                         >
-                                            <td className="px-6 py-5">
-                                                <span className="text-[14px] font-medium text-slate-700">
+                                            <td className="px-6 py-3.5">
+                                                <span className="text-[13.5px] font-medium text-slate-700">
                                                     {user.name}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500">
+                                            <td className="px-4 py-3.5 text-[13.5px] font-medium text-slate-500">
                                                 {user.email}
                                             </td>
-                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
+                                            <td className="px-4 py-3.5 text-[13.5px] font-medium text-slate-500 text-center">
                                                 {user.tasks || 0}
                                             </td>
-                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center">
+                                            <td className="px-4 py-3.5 text-[13.5px] font-medium text-slate-500 text-center">
                                                 {user.completed || 0}
                                             </td>
-                                            <td className="px-4 py-5 text-[14px] font-medium text-slate-500 text-center whitespace-nowrap">
+                                            <td className="px-4 py-3.5 text-[13.5px] font-medium text-slate-500 text-center whitespace-nowrap">
                                                 {user.creator ? user.creator.name : 'System'}
                                             </td>
-                                            <td className="px-4 py-5 text-center">
-                                                <span className={`px-4 py-1.5 rounded-full text-[12px] font-bold ${user.email_verified_at ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                                            <td className="px-4 py-3.5 text-center">
+                                                <span className={`px-4 py-1.5 rounded-md text-[12px] font-bold ${user.email_verified_at ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
                                                     {user.email_verified_at ? 'Active' : 'Pending'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-5">
+                                            <td className="px-6 py-3.5 text-right">
                                                 <div className="flex items-center justify-end gap-2 text-slate-400">
-                                                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white">
-                                                        <Edit2 size={16} />
+                                                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 text-slate-600 font-bold text-[12.5px] hover:bg-slate-50 transition-all bg-white shadow-sm">
+                                                        <Edit2 size={14} />
                                                         edit
                                                     </button>
-                                                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-[13px] hover:bg-slate-50 transition-all bg-white">
-                                                        <Eye size={16} />
+                                                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 text-slate-600 font-bold text-[12.5px] hover:bg-slate-50 transition-all bg-white shadow-sm">
+                                                        <Eye size={14} />
                                                         view
                                                     </button>
                                                 </div>

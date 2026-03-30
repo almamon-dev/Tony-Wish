@@ -3,11 +3,17 @@ import UserLayout from "@/Layouts/UserLayout";
 import { Head } from "@inertiajs/react";
 import { CheckCircle2, FileText, Clock, Award, TrendingUp } from "lucide-react";
 
-export default function PersonalReport() {
-    const stats = [
+export default function PersonalReport({ 
+    stats: propStats = {}, 
+    monthlyActivity: propMonthlyActivity = [], 
+    recentUploads = [], 
+    overallRating = { status: 'Excellent', totalTasks: 0 }, 
+    ratings: propRatings = [] 
+}) {
+    const statsList = [
         {
             label: "Completion Rate",
-            value: "80%",
+            value: propStats.completionRate || "0%",
             badge: "5% Increase",
             badgeColor: "text-emerald-500",
             icon: <CheckCircle2 size={18} />,
@@ -16,60 +22,24 @@ export default function PersonalReport() {
         },
         {
             label: "Task Completed",
-            value: "12",
+            value: propStats.tasksCompleted || 0,
             icon: <FileText size={18} />,
             color: "text-blue-500",
             bg: "bg-blue-50",
         },
         {
             label: "Avg Time Per Task",
-            value: "3.2 days",
+            value: propStats.avgTime || "0 days",
             icon: <Clock size={18} />,
             color: "text-amber-500",
             bg: "bg-amber-50",
         },
         {
             label: "Certificates Earned",
-            value: "3",
+            value: propStats.certificates || 0,
             icon: <Award size={18} />,
             color: "text-purple-500",
             bg: "bg-purple-50",
-        },
-    ];
-
-    const monthlyActivity = [
-        { month: "Aug", value: 40 },
-        { month: "Sep", value: 65 },
-        { month: "Oct", value: 72 },
-    ];
-
-    const ratings = [
-        { label: "Quality of Work", value: 65 },
-        { label: "Quality of Work", value: 65 },
-        { label: "Quality of Work", value: 65 },
-    ];
-
-    const recentUploads = [
-        {
-            name: "Security Assessment",
-            procedure: "ISO 9001",
-            date: "Oct 27, 2025",
-            time: "3 days",
-            rating: "Excellent",
-        },
-        {
-            name: "Quality Documentation",
-            procedure: "ISO 9001",
-            date: "Oct 27, 2025",
-            time: "3 days",
-            rating: "Good",
-        },
-        {
-            name: "Environmental Report",
-            procedure: "ISO 9001",
-            date: "Oct 27, 2025",
-            time: "3 days",
-            rating: "Excellent",
         },
     ];
 
@@ -90,7 +60,7 @@ export default function PersonalReport() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {stats.map((stat, i) => (
+                    {statsList.map((stat, i) => (
                         <div
                             key={i}
                             className="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm"
@@ -159,7 +129,7 @@ export default function PersonalReport() {
 
                             {/* Bars */}
                             <div className="absolute inset-0 flex items-end justify-around px-8">
-                                {monthlyActivity.map((item, i) => (
+                                {propMonthlyActivity.map((item, i) => (
                                     <div
                                         key={i}
                                         className="flex flex-col items-center h-full w-full max-w-[60px] relative"
@@ -188,15 +158,15 @@ export default function PersonalReport() {
                                 Overall Rating
                             </p>
                             <h2 className="text-[28px] font-bold text-slate-800">
-                                Excellent
+                                {overallRating.status}
                             </h2>
                             <p className="text-[11px] font-medium text-slate-400 mt-1 italic">
-                                Based on 72 completed tasks
+                                Based on {overallRating.totalTasks} completed tasks
                             </p>
                         </div>
 
                         <div className="space-y-6">
-                            {ratings.map((rate, i) => (
+                            {propRatings.map((rate, i) => (
                                 <div key={i} className="space-y-3">
                                     <div className="flex items-center justify-between">
                                         <span className="text-[12px] font-bold text-slate-500">
@@ -251,36 +221,45 @@ export default function PersonalReport() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {recentUploads.map((row, i) => (
-                                    <tr
-                                        key={i}
-                                        className="hover:bg-slate-50/10 transition-colors"
-                                    >
-                                        <td className="px-6 py-4 font-bold text-slate-600 text-[13px]">
-                                            {row.name}
-                                        </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
-                                            {row.procedure}
-                                        </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
-                                            {row.date}
-                                        </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
-                                            {row.time}
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span
-                                                className={`px-4 py-1 rounded-full text-[11px] font-bold border ${
-                                                    row.rating === "Excellent"
-                                                        ? "bg-white text-blue-500 border-blue-100"
-                                                        : "bg-white text-emerald-500 border-emerald-100"
-                                                }`}
-                                            >
-                                                {row.rating}
-                                            </span>
+                                {recentUploads.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-10 text-center text-slate-400 font-medium italic">
+                                            No recent activity found.
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    recentUploads.map((row, i) => (
+                                        <tr
+                                            key={i}
+                                            className="hover:bg-slate-50/10 transition-colors"
+                                        >
+                                            <td className="px-6 py-4 font-bold text-slate-600 text-[13px]">
+                                                {row.name}
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
+                                                {row.procedure}
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
+                                                {row.date}
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
+                                                {row.time}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span
+                                                    className={`px-4 py-1 rounded-full text-[11px] font-bold border ${row.rating === "Excellent"
+                                                        ? "bg-white text-blue-500 border-blue-100"
+                                                        : row.rating === "Pending"
+                                                            ? "bg-white text-amber-500 border-amber-100"
+                                                            : "bg-white text-emerald-500 border-emerald-100"
+                                                        }`}
+                                                >
+                                                    {row.rating}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

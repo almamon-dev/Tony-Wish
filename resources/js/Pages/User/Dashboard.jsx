@@ -8,15 +8,18 @@ import {
     AlertCircle,
     TrendingUp,
     Search,
+    Eye,
 } from "lucide-react";
+import ProcedureModal from "./Procedures/Partials/ProcedureModal";
 
-export default function Dashboard({ auth }) {
+export default function Dashboard({ auth, stats: dbStats, tasks: dbTasks = [] }) {
     const [activeTab, setActiveTab] = useState("All Tasks");
+    const [selectedProcedure, setSelectedProcedure] = useState(null);
 
     const stats = [
         {
             label: "Total Tasks",
-            value: "15",
+            value: dbStats?.total || "0",
             sub: "Assigned to you",
             icon: <ClipboardList size={22} />,
             color: "text-blue-500",
@@ -24,9 +27,9 @@ export default function Dashboard({ auth }) {
         },
         {
             label: "In Progress",
-            value: "3",
+            value: dbStats?.inProgress || "0",
             sub: "Active Tasks",
-            badge: "2 due this week",
+            badge: dbStats?.inProgress > 0 ? `${dbStats.inProgress} active` : "None",
             badgeColor: "bg-rose-50 text-rose-500",
             icon: <Clock size={22} />,
             color: "text-amber-500",
@@ -34,8 +37,8 @@ export default function Dashboard({ auth }) {
         },
         {
             label: "Completed",
-            value: "12",
-            sub: "80% Completion Rate",
+            value: dbStats?.completed || "0",
+            sub: "Success rate",
             badge: "Great Work",
             badgeColor: "bg-emerald-50 text-emerald-500",
             icon: <CheckCircle2 size={22} />,
@@ -44,43 +47,34 @@ export default function Dashboard({ auth }) {
         },
         {
             label: "Overdue",
-            value: "0",
-            sub: "On Track!",
+            value: dbStats?.overdue || "0",
+            sub: dbStats?.overdue > 0 ? "Needs attention" : "On Track!",
             icon: <AlertCircle size={22} />,
             color: "text-purple-500",
             bg: "bg-purple-50",
         },
     ];
 
-    const tasks = [
-        {
-            name: "ISO 9001 Quality Review",
-            status: "In Progress",
-            progress: 100,
-            date: "Nov 5, 2025",
-            priority: "High",
-        },
-        {
-            name: "ISO 9001 Quality Review",
-            status: "In Progress",
-            progress: 100,
-            date: "Nov 5, 2025",
-            priority: "Medium",
-        },
-        {
-            name: "ISO 9001 Quality Review",
-            status: "Not Started",
-            progress: 0,
-            date: "Nov 5, 2025",
-            priority: "Low",
-        },
-    ];
+    const tasks = dbTasks.map(task => ({
+        ...task,
+        name: task.name,
+        status: task.status,
+        progress: task.progress,
+        date: task.date,
+        priority: task.priority,
+    }));
 
     const tabs = [
-        { name: "All Tasks", count: 5 },
-        { name: "Active", count: 3 },
-        { name: "Completed", count: 2 },
+        { name: "All Tasks", count: dbTasks.length },
+        { name: "Active", count: dbTasks.filter(t => t.status !== 'Completed').length },
+        { name: "Completed", count: dbTasks.filter(t => t.status === 'Completed').length },
     ];
+
+    const filteredTasks = tasks.filter(task => {
+        if (activeTab === "Active") return task.status !== 'Completed';
+        if (activeTab === "Completed") return task.status === 'Completed';
+        return true;
+    });
 
     return (
         <UserLayout>
@@ -173,52 +167,54 @@ export default function Dashboard({ auth }) {
                     </div>
 
                     <div className="overflow-x-auto px-3 pb-3">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-separate border-spacing-y-2">
                             <thead>
-                                <tr className="bg-slate-50/50 rounded-lg overflow-hidden">
-                                    <th className="px-6 py-3 text-[12px] font-bold text-slate-500 first:rounded-l-lg">
+                                <tr className="text-slate-400">
+                                    <th className="px-6 py-3 text-[12px] font-bold">
                                         Task Name
                                     </th>
-                                    <th className="px-6 py-3 text-[12px] font-bold text-slate-500 text-center">
+                                    <th className="px-6 py-3 text-[12px] font-bold text-center">
                                         Status
                                     </th>
-                                    <th className="px-6 py-3 text-[12px] font-bold text-slate-500">
+                                    <th className="px-6 py-3 text-[12px] font-bold">
                                         Progress
                                     </th>
-                                    <th className="px-6 py-3 text-[12px] font-bold text-slate-500">
+                                    <th className="px-6 py-3 text-[12px] font-bold">
                                         Due Date
                                     </th>
-                                    <th className="px-6 py-3 text-[12px] font-bold text-slate-500 last:rounded-r-lg text-center">
+                                    <th className="px-6 py-3 text-[12px] font-bold text-center">
                                         Priority
+                                    </th>
+                                    <th className="px-6 py-3 text-[12px] font-bold text-center">
+                                        Actions
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {tasks.map((task, i) => (
+                            <tbody>
+                                {filteredTasks.map((task, i) => (
                                     <tr
                                         key={i}
-                                        className="hover:bg-slate-50/10 transition-colors"
+                                        className="group transition-all hover:bg-slate-50/50"
                                     >
-                                        <td className="px-6 py-4 font-bold text-slate-600 text-[13px]">
+                                        <td className="px-6 py-4 bg-white border-y border-l border-slate-50 first:rounded-l-2xl font-bold text-slate-700 text-[14px]">
                                             {task.name}
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-6 py-4 bg-white border-y border-slate-50 text-center">
                                             <span
                                                 className={`px-4 py-1 rounded-full text-[11px] font-bold border ${
-                                                    task.status ===
-                                                    "In Progress"
-                                                        ? "bg-blue-50 text-blue-500 border-blue-100"
-                                                        : "bg-white text-slate-400 border-slate-200"
+                                                    task.status === "Completed" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                                                    task.status === "In Progress" ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                                    "bg-slate-50 text-slate-400 border-slate-200"
                                                 }`}
                                             >
                                                 {task.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 min-w-[150px]">
+                                        <td className="px-6 py-4 bg-white border-y border-slate-50 min-w-[150px]">
                                             <div className="flex items-center gap-2.5">
                                                 <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                     <div
-                                                        className={`h-full rounded-full ${task.progress === 100 ? "bg-emerald-500" : "bg-slate-400"}`}
+                                                        className={`h-full rounded-full ${task.progress === 100 ? "bg-emerald-500" : "bg-[#2c8af8]"}`}
                                                         style={{
                                                             width: `${task.progress}%`,
                                                         }}
@@ -229,22 +225,29 @@ export default function Dashboard({ auth }) {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[13px] whitespace-nowrap">
+                                        <td className="px-6 py-4 bg-white border-y border-slate-50 font-bold text-slate-400 text-[13px] whitespace-nowrap">
                                             {task.date}
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-6 py-4 bg-white border-y border-slate-50 text-center">
                                             <span
                                                 className={`px-3 py-0.5 rounded text-[10px] font-bold border ${
                                                     task.priority === "High"
                                                         ? "bg-rose-50 text-rose-500 border-rose-100"
-                                                        : task.priority ===
-                                                            "Medium"
+                                                        : task.priority === "Medium"
                                                           ? "bg-amber-50 text-amber-500 border-amber-100"
                                                           : "bg-slate-50 text-slate-400 border-slate-200"
                                                 }`}
                                             >
                                                 {task.priority}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 bg-white border-y border-r border-slate-50 last:rounded-r-2xl text-center">
+                                            <button 
+                                                onClick={() => setSelectedProcedure(task)}
+                                                className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-[#2c8af8] hover:border-[#2c8af8]/30 transition-all mx-auto"
+                                            >
+                                                <Eye size={14} />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -253,6 +256,13 @@ export default function Dashboard({ auth }) {
                     </div>
                 </div>
             </div>
+
+            {selectedProcedure && (
+                <ProcedureModal 
+                    procedure={selectedProcedure} 
+                    onClose={() => setSelectedProcedure(null)} 
+                />
+            )}
         </UserLayout>
     );
 }

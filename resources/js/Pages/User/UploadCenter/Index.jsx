@@ -3,59 +3,35 @@ import UserLayout from "@/Layouts/UserLayout";
 import { Head } from "@inertiajs/react";
 import { UploadCloud, Clock, CheckCircle2, TrendingUp } from "lucide-react";
 
-export default function UploadCenter() {
+export default function UploadCenter({ uploads = [], stats: propStats = {} }) {
     const stats = [
         {
             label: "Total Uploads",
-            value: "23",
+            value: propStats.total || 0,
             icon: <UploadCloud size={18} />,
             color: "text-blue-500",
             bg: "bg-blue-50",
         },
         {
             label: "Pending Review",
-            value: "2",
+            value: propStats.pending || 0,
             icon: <Clock size={18} />,
             color: "text-amber-500",
             bg: "bg-amber-50",
         },
         {
             label: "Approved",
-            value: "20",
+            value: propStats.approved || 0,
             icon: <CheckCircle2 size={18} />,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
         },
         {
             label: "This Month",
-            value: "8",
+            value: propStats.this_month || 0,
             icon: <TrendingUp size={18} />,
             color: "text-purple-500",
             bg: "bg-purple-50",
-        },
-    ];
-
-    const uploads = [
-        {
-            name: "ISO 9001 Quality Review",
-            procedure: "ISO 9001",
-            date: "Oct 27, 2025",
-            size: "2.4 MB",
-            status: "Approved",
-        },
-        {
-            name: "ISO 9001 Quality Review",
-            procedure: "ISO 9001",
-            date: "Oct 27, 2025",
-            size: "1.2 MB",
-            status: "Approved",
-        },
-        {
-            name: "ISO 9001 Quality Review",
-            procedure: "ISO 9001",
-            date: "Oct 27, 2025",
-            size: "3.1 MB",
-            status: "Pending",
         },
     ];
 
@@ -139,41 +115,56 @@ export default function UploadCenter() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {uploads.map((doc, i) => (
-                                    <tr
-                                        key={i}
-                                        className="hover:bg-slate-50/10 transition-colors"
-                                    >
-                                        <td className="px-6 py-4 font-bold text-slate-600 text-[13px]">
-                                            {doc.name}
-                                        </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
-                                            {doc.procedure}
-                                        </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
-                                            {doc.date}
-                                        </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
-                                            {doc.size}
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span
-                                                className={`px-4 py-1 rounded-full text-[11px] font-bold border ${
-                                                    doc.status === "Approved"
-                                                        ? "bg-white text-blue-500 border-blue-100"
-                                                        : "bg-white text-amber-500 border-amber-100"
-                                                }`}
-                                            >
-                                                {doc.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <button className="px-4 py-1 bg-white border border-slate-200 text-slate-400 rounded-lg text-[11px] font-bold hover:bg-slate-50 transition-all">
-                                                View
-                                            </button>
+                                {uploads.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={6}
+                                            className="px-6 py-10 text-center text-slate-400 font-medium italic"
+                                        >
+                                            No files uploaded yet.
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    uploads.map((doc, i) => (
+                                        <tr
+                                            key={doc.id || i}
+                                            className="hover:bg-slate-50/10 transition-colors"
+                                        >
+                                            <td className="px-6 py-4 font-bold text-slate-600 text-[13px]">
+                                                {doc.name}
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
+                                                {doc.procedure}
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
+                                                {doc.date}
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-400 text-[13px]">
+                                                {doc.size || 'N/A'}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span
+                                                    className={`px-4 py-1 rounded-full text-[11px] font-bold border ${doc.status === "Approved"
+                                                        ? "bg-white text-blue-500 border-blue-100"
+                                                        : "bg-white text-amber-500 border-amber-100"
+                                                        }`}
+                                                >
+                                                    {doc.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <a
+                                                    href={`/storage/${doc.file_path}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-block px-4 py-1 bg-white border border-slate-200 text-slate-400 rounded-lg text-[11px] font-bold hover:bg-slate-50 transition-all"
+                                                >
+                                                    View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

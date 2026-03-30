@@ -11,15 +11,19 @@ import {
     RotateCcw,
 } from "lucide-react";
 
-export default function ReportsIndex() {
+export default function ReportsIndex({ 
+    stats: propStats = {}, 
+    complianceScores: propComplianceScores = [], 
+    monthlyRates: propMonthlyRates = [] 
+}) {
     const [activeTab, setActiveTab] = useState("Team Performance");
 
     const tabs = ["Team Performance", "Complain Scores", "Completion Rates"];
 
-    const stats = [
+    const statsList = [
         {
             label: "Average Completion Rate",
-            value: "78%",
+            value: propStats.avgCompletionRate || "0%",
             icon: <Award size={20} />,
             color: "text-purple-500",
             bg: "bg-purple-50",
@@ -27,7 +31,7 @@ export default function ReportsIndex() {
         },
         {
             label: "Tasks Completed",
-            value: "156",
+            value: propStats.tasksCompleted || 0,
             icon: <CheckCircle2 size={20} />,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
@@ -35,31 +39,12 @@ export default function ReportsIndex() {
         },
         {
             label: "Active Users",
-            value: "24",
+            value: propStats.activeUsers || 0,
             icon: <Users size={20} />,
             color: "text-blue-500",
             bg: "bg-blue-50",
             iconBg: "bg-blue-100/50",
         },
-    ];
-
-    const complianceScores = [
-        { standard: "ISO 9001", score: 85 },
-        { standard: "ISO 9001", score: 82 },
-        { standard: "ISO 9001", score: 75 },
-        { standard: "ISO 9001", score: 80 },
-    ];
-
-    const monthlyRates = [
-        { month: "Jan", rate: 25 },
-        { month: "Feb", rate: 55 },
-        { month: "Mar", rate: 75 },
-        { month: "Apr", rate: 68 },
-        { month: "May", rate: 48 },
-        { month: "Jun", rate: 55 },
-        { month: "Jul", rate: 75 },
-        { month: "Aug", rate: 68 },
-        { month: "Sep", rate: 95 },
     ];
 
     return (
@@ -105,7 +90,7 @@ export default function ReportsIndex() {
                                 Team Performance Overview
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                {stats.map((stat, i) => (
+                                {statsList.map((stat, i) => (
                                     <div
                                         key={i}
                                         className="bg-slate-50/50 p-5 rounded-[20px] border border-slate-100 flex items-center justify-between group hover:shadow-md transition-all"
@@ -136,38 +121,42 @@ export default function ReportsIndex() {
                             <h2 className="text-[15px] font-bold text-slate-400">
                                 Compliance scores by standard
                             </h2>
-                            <div className="space-y-8">
-                                {complianceScores.map((item, i) => (
-                                    <div key={i} className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2 text-slate-500">
-                                                <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
-                                                    <RotateCcw size={16} />
+                             <div className="space-y-8">
+                                {propComplianceScores.length === 0 ? (
+                                    <p className="text-slate-400 text-center py-10 italic">No compliance data available.</p>
+                                ) : (
+                                    propComplianceScores.map((item, i) => (
+                                        <div key={i} className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2 text-slate-500">
+                                                    <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+                                                        <RotateCcw size={16} />
+                                                    </div>
+                                                    <span className="text-[14px] font-bold text-slate-700">
+                                                        {item.standard}
+                                                    </span>
                                                 </div>
-                                                <span className="text-[14px] font-bold text-slate-700">
-                                                    {item.standard}
+                                                <span className="text-[14px] font-bold text-[#2185d5]">
+                                                    {item.score}%
                                                 </span>
                                             </div>
-                                            <span className="text-[14px] font-bold text-[#2185d5]">
-                                                {item.score}%
-                                            </span>
+                                            <div className="h-2.5 w-full bg-slate-100 rounded-full relative">
+                                                <div
+                                                    className="absolute left-0 top-0 h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out"
+                                                    style={{
+                                                        width: `${item.score}%`,
+                                                    }}
+                                                />
+                                                <div
+                                                    className="absolute h-4 w-4 bg-slate-800 rounded-full border-2 border-white top-1/2 -translate-y-1/2 shadow-lg z-10"
+                                                    style={{
+                                                        left: `calc(${item.score}% - 8px)`,
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="h-2.5 w-full bg-slate-100 rounded-full relative">
-                                            <div
-                                                className="absolute left-0 top-0 h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out"
-                                                style={{
-                                                    width: `${item.score}%`,
-                                                }}
-                                            />
-                                            <div
-                                                className="absolute h-4 w-4 bg-slate-800 rounded-full border-2 border-white top-1/2 -translate-y-1/2 shadow-lg z-10"
-                                                style={{
-                                                    left: `calc(${item.score}% - 8px)`,
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </div>
                     )}
@@ -199,7 +188,7 @@ export default function ReportsIndex() {
                                         ))}
                                     </div>
 
-                                    {monthlyRates.map((data, i) => (
+                                     {propMonthlyRates.map((data, i) => (
                                         <div
                                             key={i}
                                             className="flex-1 flex flex-col items-center gap-4 z-10"

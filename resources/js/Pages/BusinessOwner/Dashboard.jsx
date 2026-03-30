@@ -13,37 +13,45 @@ import {
     FileText,
 } from "lucide-react";
 
-export default function Dashboard({ auth }) {
-    const stats = [
+export default function Dashboard({ auth, company, stats: propStats = {}, activities = [], subscription = {}, invoices = [] }) {
+    // Provide default values for propStats to prevent crashes if undefined
+    const stats = {
+        total_users: propStats?.total_users || 0,
+        active_procedures: propStats?.active_procedures || 0,
+        billing_cycle: propStats?.billing_cycle || "Monthly",
+        company_status: propStats?.company_status || "Active",
+    };
+
+    const statsData = [
         {
             label: "Total Users",
-            value: "24",
-            sub: "Added from instances",
-            update: "12% new last month",
+            value: stats.total_users.toString(),
+            sub: "Registered members",
+            update: stats.total_users > 1 ? `${stats.total_users - 1} members added` : "No new members",
             color: "text-blue-500",
             bg: "bg-blue-50",
             icon: <Users size={20} />,
         },
         {
             label: "Active Procedures",
-            value: "42",
-            sub: "Employer dashboard",
-            update: "5 Active last month",
+            value: stats.active_procedures.toString(),
+            sub: "Company procedures",
+            update: stats.active_procedures > 0 ? "System updated" : null,
             color: "text-amber-500",
             bg: "bg-amber-50",
             icon: <ClipboardList size={20} />,
         },
         {
             label: "Billing Cycle",
-            value: "Monthly",
-            sub: "Next invoice on Nov 15, 2023",
+            value: stats.billing_cycle,
+            sub: "Next: Nov 15, 2023",
             color: "text-emerald-500",
             bg: "bg-emerald-50",
             icon: <Calendar size={20} />,
         },
         {
             label: "Company Status",
-            value: "Active",
+            value: stats.company_status,
             sub: "Subscription active",
             color: "text-purple-500",
             bg: "bg-purple-50",
@@ -51,59 +59,7 @@ export default function Dashboard({ auth }) {
         },
     ];
 
-    const activities = [
-        {
-            name: "Tony Richardson",
-            action: "Just uploaded a procedure",
-            time: "2 hours ago",
-            img: "https://ui-avatars.com/api/?name=Tony+Richardson&background=10b981&color=fff",
-        },
-        {
-            name: "Rifat Ahamed (Company Partner)",
-            action: "Been Active",
-            time: "5 hours ago",
-            img: "https://ui-avatars.com/api/?name=Rifat+Ahamed&background=3b82f6&color=fff",
-        },
-        {
-            name: "Rashedul Haque (Designation)",
-            action: "Just Created New Invoice",
-            time: "1 day ago",
-            img: "https://ui-avatars.com/api/?name=Rashedul+Haque&background=f59e0b&color=fff",
-        },
-        {
-            name: "Hashibur (System Admin)",
-            action: "Logged in via system auth",
-            time: "2 days ago",
-            img: "https://ui-avatars.com/api/?name=Hashibur&background=673ab7&color=fff",
-        },
-    ];
 
-    const invoices = [
-        {
-            id: "INV-0023-001",
-            date: "Oct 15, 2023",
-            amount: "$250.00",
-            status: "Paid",
-        },
-        {
-            id: "INV-0023-002",
-            date: "Oct 15, 2023",
-            amount: "$324.00",
-            status: "Paid",
-        },
-        {
-            id: "INV-0024-001",
-            date: "Oct 15, 2023",
-            amount: "$465.00",
-            status: "Paid",
-        },
-        {
-            id: "INV-0025-001",
-            date: "Oct 15, 2023",
-            amount: "$130.00",
-            status: "Paid",
-        },
-    ];
 
     return (
         <BusinessOwnerLayout>
@@ -113,16 +69,16 @@ export default function Dashboard({ auth }) {
                 {/* Header */}
                 <div>
                     <h1 className="text-[26px] font-bold text-slate-800">
-                        Dashboard Overview
+                        {company?.company_name || "Dashboard"} Overview
                     </h1>
                     <p className="text-slate-500 font-medium">
-                        Welcome back! Here's what's happening with your company.
+                        Welcome back, {auth.user.first_name}! Here's what's happening with your company.
                     </p>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {stats.map((stat, i) => (
+                    {statsData.map((stat, i) => (
                         <div
                             key={i}
                             className="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm transition-all hover:shadow-md"
@@ -172,7 +128,7 @@ export default function Dashboard({ auth }) {
                             </h2>
                         </div>
                         <p className="text-[12px] text-slate-400 font-medium mb-8">
-                            Professional Plan
+                            {subscription.plan}
                         </p>
 
                         <div className="space-y-6">
@@ -181,7 +137,7 @@ export default function Dashboard({ auth }) {
                                     Monthly Cost
                                 </span>
                                 <span className="font-bold text-slate-800">
-                                    $130.00
+                                    ${subscription.monthly_cost.toFixed(2)}
                                 </span>
                             </div>
                             <div className="flex justify-between text-sm">
@@ -189,7 +145,7 @@ export default function Dashboard({ auth }) {
                                     VAT (5% VAT)
                                 </span>
                                 <span className="font-bold text-slate-800">
-                                    $6.50
+                                    ${subscription.vat.toFixed(2)}
                                 </span>
                             </div>
                             <div className="flex justify-between text-sm pt-4 border-t border-slate-50">
@@ -197,7 +153,7 @@ export default function Dashboard({ auth }) {
                                     Total Payable
                                 </span>
                                 <span className="font-bold text-slate-800">
-                                    $136.50
+                                    ${subscription.total.toFixed(2)}
                                 </span>
                             </div>
 
@@ -205,32 +161,32 @@ export default function Dashboard({ auth }) {
                                 <div>
                                     <div className="flex justify-between mb-2">
                                         <span className="text-[12px] font-bold text-slate-800">
-                                            Quota (24 / 50)
+                                            Quota ({subscription.quota_used} / {subscription.quota_total})
                                         </span>
                                         <span className="text-[12px] font-bold text-slate-500">
-                                            48%
+                                            {Math.round((subscription.quota_used / subscription.quota_total) * 100)}%
                                         </span>
                                     </div>
                                     <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-emerald-500 rounded-full shadow-sm"
-                                            style={{ width: "48%" }}
+                                            style={{ width: `${(subscription.quota_used / subscription.quota_total) * 100}%` }}
                                         ></div>
                                     </div>
                                 </div>
                                 <div>
                                     <div className="flex justify-between mb-2">
                                         <span className="text-[12px] font-bold text-slate-800">
-                                            Procedures (42 / 100)
+                                            Procedures ({subscription.procedures_used} / {subscription.procedures_total})
                                         </span>
                                         <span className="text-[12px] font-bold text-slate-500">
-                                            42%
+                                            {Math.round((subscription.procedures_used / subscription.procedures_total) * 100)}%
                                         </span>
                                     </div>
                                     <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-emerald-500 rounded-full shadow-sm"
-                                            style={{ width: "42%" }}
+                                            style={{ width: `${(subscription.procedures_used / subscription.procedures_total) * 100}%` }}
                                         ></div>
                                     </div>
                                 </div>

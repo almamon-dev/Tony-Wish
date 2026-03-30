@@ -3,9 +3,8 @@ import BusinessOwnerLayout from "@/Layouts/BusinessOwnerLayout";
 import { Head, useForm, usePage } from "@inertiajs/react";
 import { Eye, EyeOff, Upload, CheckCircle2 } from "lucide-react";
 
-export default function Settings() {
-    const { auth, flash } = usePage().props;
-    const user = auth.user;
+export default function Settings({ user }) {
+    const { flash } = usePage().props;
     
     const [showPassword, setShowPassword] = useState({
         current: false,
