@@ -1,33 +1,48 @@
 <?php
 
+use App\Http\Controllers\Admin\PlanController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Administrator\CertificateController;
+use App\Http\Controllers\Administrator\DashboardController;
+use App\Http\Controllers\Administrator\PreAuditChecklistController;
+use App\Http\Controllers\Administrator\ProcedureController;
+use App\Http\Controllers\Administrator\RECFormController;
+use App\Http\Controllers\Administrator\ReportController;
+use App\Http\Controllers\BusinessOwner\AdministratorController;
+use App\Http\Controllers\BusinessOwner\CompanyController;
+use App\Http\Controllers\BusinessOwner\SettingsController;
+use App\Http\Controllers\BusinessOwner\SubscriptionController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\StripeWebhookController;
+use App\Models\Plan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\Administrator\RECFormController;
 
 Route::get('/', function () {
     return Inertia::render('Landing/Index', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'plans' => \App\Models\Plan::where('is_active', true)->get(),
+        'plans' => Plan::where('is_active', true)->get(),
     ]);
 });
 
-Route::get('/test-email', function() {
+Route::get('/test-email', function () {
     try {
-        \Illuminate\Support\Facades\Mail::raw("Test content from Web", function($message) {
-            $message->to("mamon193p@gmail.com")
-                ->subject("Test Email from Web");
+        Mail::raw('Test content from Web', function ($message) {
+            $message->to('mamon193p@gmail.com')
+                ->subject('Test Email from Web');
         });
-        return "Test email sent successfully! to mamon193p@gmail.com";
-    } catch (\Exception $e) {
-        return "Failed to send test email: " . $e->getMessage();
+
+        return 'Test email sent successfully! to mamon193p@gmail.com';
+    } catch (Exception $e) {
+        return 'Failed to send test email: '.$e->getMessage();
     }
 });
 
 Route::get('/dashboard', function () {
-    $user = \Illuminate\Support\Facades\Auth::user();
+    $user = Auth::user();
 
     return match ($user->user_type) {
         'admin' => Inertia::render('Admin/Dashboard'),
@@ -48,32 +63,31 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('dashboard');
-        
-        Route::get('/plans', [\App\Http\Controllers\Admin\PlanController::class, 'index'])->name('plans.index');
-        Route::get('/plans/create', [\App\Http\Controllers\Admin\PlanController::class, 'create'])->name('plans.create');
-        Route::post('/plans', [\App\Http\Controllers\Admin\PlanController::class, 'store'])->name('plans.store');
-        Route::get('/plans/{id}/edit', [\App\Http\Controllers\Admin\PlanController::class, 'edit'])->name('plans.edit');
-        Route::post('/plans/{id}', [\App\Http\Controllers\Admin\PlanController::class, 'update'])->name('plans.update');
-        
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
+        Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
+        Route::get('/plans/create', [PlanController::class, 'create'])->name('plans.create');
+        Route::post('/plans', [PlanController::class, 'store'])->name('plans.store');
+        Route::get('/plans/{id}/edit', [PlanController::class, 'edit'])->name('plans.edit');
+        Route::post('/plans/{id}', [PlanController::class, 'update'])->name('plans.update');
+
+        Route::resource('users', UserController::class);
     });
 
     // Administrator Routes (Company Owner)
     Route::prefix('administrator')->name('administrator.')->middleware('check-subscription')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Administrator\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'index'])->name('procedures.index');
-        Route::post('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'store'])->name('procedures.store');
-        Route::patch('/procedures/{procedure}', [\App\Http\Controllers\Administrator\ProcedureController::class, 'update'])->name('procedures.update');
-        Route::get('/pre-audit-checklists', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'index'])->name('pre-audit-checklists.index');
-        Route::post('/pre-audit-checklists', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'store'])->name('pre-audit-checklists.store');
-        Route::get('/pre-audit-checklists/{id}', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'show'])->name('pre-audit-checklists.show');
-        Route::get('/pre-audit-checklists/{id}/edit', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'edit'])->name('pre-audit-checklists.edit');
-        Route::put('/pre-audit-checklists/{id}', [\App\Http\Controllers\Administrator\PreAuditChecklistController::class, 'update'])->name('pre-audit-checklists.update');
-        Route::get('/certificates', [\App\Http\Controllers\Administrator\CertificateController::class, 'index'])->name('certificates.index');
-        Route::post('/certificates', [\App\Http\Controllers\Administrator\CertificateController::class, 'store'])->name('certificates.store');
-        Route::put('/certificates/{certificate}', [\App\Http\Controllers\Administrator\CertificateController::class, 'update'])->name('certificates.update');
-        Route::delete('/certificates/{certificate}', [\App\Http\Controllers\Administrator\CertificateController::class, 'destroy'])->name('certificates.destroy');
-
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/procedures', [ProcedureController::class, 'index'])->name('procedures.index');
+        Route::post('/procedures', [ProcedureController::class, 'store'])->name('procedures.store');
+        Route::patch('/procedures/{procedure}', [ProcedureController::class, 'update'])->name('procedures.update');
+        Route::get('/pre-audit-checklists', [PreAuditChecklistController::class, 'index'])->name('pre-audit-checklists.index');
+        Route::post('/pre-audit-checklists', [PreAuditChecklistController::class, 'store'])->name('pre-audit-checklists.store');
+        Route::get('/pre-audit-checklists/{id}', [PreAuditChecklistController::class, 'show'])->name('pre-audit-checklists.show');
+        Route::get('/pre-audit-checklists/{id}/edit', [PreAuditChecklistController::class, 'edit'])->name('pre-audit-checklists.edit');
+        Route::put('/pre-audit-checklists/{id}', [PreAuditChecklistController::class, 'update'])->name('pre-audit-checklists.update');
+        Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
+        Route::post('/certificates', [CertificateController::class, 'store'])->name('certificates.store');
+        Route::put('/certificates/{certificate}', [CertificateController::class, 'update'])->name('certificates.update');
+        Route::delete('/certificates/{certificate}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
 
         Route::get('/rec-forms', function () {
             return Inertia::render('Administrator/RECForms/Index');
@@ -158,10 +172,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/rec-forms/rec-31', function () {
             return Inertia::render('Administrator/RECForms/REC01'); // Placeholder
         })->name('rec-forms.rec-31');
-        Route::get('/upload-center', [\App\Http\Controllers\Administrator\ProcedureController::class, 'uploadCenter'])->name('upload-center.index');
-        Route::get('/users', [\App\Http\Controllers\Administrator\UserController::class, 'index'])->name('users.index');
-        Route::post('/users', [\App\Http\Controllers\Administrator\UserController::class, 'store'])->name('users.store');
-        Route::get('/reports', [\App\Http\Controllers\Administrator\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/upload-center', [ProcedureController::class, 'uploadCenter'])->name('upload-center.index');
+        Route::get('/users', [App\Http\Controllers\Administrator\UserController::class, 'index'])->name('users.index');
+        Route::post('/users', [App\Http\Controllers\Administrator\UserController::class, 'store'])->name('users.store');
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/settings', function () {
             return Inertia::render('Administrator/Settings/Index');
         })->name('settings.index');
@@ -172,29 +186,29 @@ Route::middleware('auth')->group(function () {
 
     // Business Owner Routes
     Route::prefix('business-owner')->name('business-owner.')->middleware('check-subscription')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\BusinessOwner\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/company', [\App\Http\Controllers\BusinessOwner\CompanyController::class, 'index'])->name('company.index');
-        Route::post('/company', [\App\Http\Controllers\BusinessOwner\CompanyController::class, 'store'])->name('company.store');
-        
+        Route::get('/dashboard', [App\Http\Controllers\BusinessOwner\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
+        Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
+
         // Administrator Management
-        Route::post('/administrators', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'store'])
+        Route::post('/administrators', [AdministratorController::class, 'store'])
             ->name('administrators.store')
             ->middleware('can:manage-administrators');
-            
-        Route::delete('/administrators/{id}', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'destroy'])
+
+        Route::delete('/administrators/{id}', [AdministratorController::class, 'destroy'])
             ->name('administrators.destroy')
             ->middleware('can:manage-administrators');
-            
-        Route::get('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'index'])->name('procedures.index');
+
+        Route::get('/procedures', [ProcedureController::class, 'index'])->name('procedures.index');
         Route::get('/reports', function () {
             return Inertia::render('BusinessOwner/Reports/Index');
         })->name('reports.index');
-        Route::get('/settings', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'index'])->name('settings.index');
-        Route::post('/settings/profile', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
-        Route::patch('/settings/password', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'updatePassword'])->name('settings.password.update');
-        Route::get('/subscription', [\App\Http\Controllers\BusinessOwner\SubscriptionController::class, 'index'])->name('subscription.index');
-        Route::post('/subscription/checkout/{plan}', [\App\Http\Controllers\BusinessOwner\SubscriptionController::class, 'checkout'])->name('subscription.checkout');
-        Route::get('/subscription/success', [\App\Http\Controllers\BusinessOwner\SubscriptionController::class, 'success'])->name('subscription.success');
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+        Route::patch('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password.update');
+        Route::get('/subscription', [SubscriptionController::class, 'index'])->name('subscription.index');
+        Route::post('/subscription/checkout/{plan}', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
+        Route::get('/subscription/success', [SubscriptionController::class, 'success'])->name('subscription.success');
         Route::get('/help-support', function () {
             return Inertia::render('BusinessOwner/HelpSupport/Index');
         })->name('help-support.index');
@@ -202,13 +216,13 @@ Route::middleware('auth')->group(function () {
 
     // User Routes
     Route::prefix('user')->name('user.')->middleware('check-subscription')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/procedures', [\App\Http\Controllers\User\ProcedureController::class, 'index'])->name('procedures.index');
-        Route::patch('/procedures/{procedure}', [\App\Http\Controllers\User\ProcedureController::class, 'update'])->name('procedures.update');
-        Route::get('/upload-center', [\App\Http\Controllers\User\ProcedureController::class, 'uploadCenter'])->name('upload-center.index');
-        Route::get('/certificates', [\App\Http\Controllers\User\CertificateController::class, 'index'])->name('certificates.index');
+        Route::get('/dashboard', [App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/procedures', [App\Http\Controllers\User\ProcedureController::class, 'index'])->name('procedures.index');
+        Route::patch('/procedures/{procedure}', [App\Http\Controllers\User\ProcedureController::class, 'update'])->name('procedures.update');
+        Route::get('/upload-center', [App\Http\Controllers\User\ProcedureController::class, 'uploadCenter'])->name('upload-center.index');
+        Route::get('/certificates', [App\Http\Controllers\User\CertificateController::class, 'index'])->name('certificates.index');
 
-        Route::get('/reports', [\App\Http\Controllers\User\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports', [App\Http\Controllers\User\ReportController::class, 'index'])->name('reports.index');
         Route::get('/help', function () {
             return Inertia::render('User/Help/Index');
         })->name('help.index');
@@ -217,10 +231,12 @@ Route::middleware('auth')->group(function () {
 });
 
 // Public Routes (No Auth required)
-Route::post('/stripe/webhook', [\App\Http\Controllers\StripeWebhookController::class, 'handle'])->name('stripe.webhook');
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
 // Administrator Email Verification (outside auth middleware - public link)
-Route::get('/administrator/verify-email/{id}/{hash}', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'verifyEmail'])
+Route::get('/administrator/verify-email/{id}/{hash}', [AdministratorController::class, 'verifyEmail'])
     ->name('administrator.verify-email');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
+
+// #####################helllo
