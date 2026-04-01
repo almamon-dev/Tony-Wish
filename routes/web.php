@@ -10,9 +10,20 @@ Route::get('/', function () {
     return Inertia::render('Landing/Index', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'plans' => \App\Models\Plan::where('is_active', true)->get(),
     ]);
+});
+
+Route::get('/test-email', function() {
+    try {
+        \Illuminate\Support\Facades\Mail::raw("Test content from Web", function($message) {
+            $message->to("mamon193p@gmail.com")
+                ->subject("Test Email from Web");
+        });
+        return "Test email sent successfully! to mamon193p@gmail.com";
+    } catch (\Exception $e) {
+        return "Failed to send test email: " . $e->getMessage();
+    }
 });
 
 Route::get('/dashboard', function () {
@@ -34,99 +45,21 @@ Route::middleware('auth')->group(function () {
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', function () {
+            return Inertia::render('Admin/Dashboard');
+        })->name('dashboard');
+        
+        Route::get('/plans', [\App\Http\Controllers\Admin\PlanController::class, 'index'])->name('plans.index');
+        Route::get('/plans/create', [\App\Http\Controllers\Admin\PlanController::class, 'create'])->name('plans.create');
+        Route::post('/plans', [\App\Http\Controllers\Admin\PlanController::class, 'store'])->name('plans.store');
+        Route::get('/plans/{id}/edit', [\App\Http\Controllers\Admin\PlanController::class, 'edit'])->name('plans.edit');
+        Route::post('/plans/{id}', [\App\Http\Controllers\Admin\PlanController::class, 'update'])->name('plans.update');
+        
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-        Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
-        Route::get('sub-categories', [\App\Http\Controllers\Admin\CategoryController::class, 'subCategories'])->name('sub-categories.index');
-
-        // Settings Routes
-        Route::prefix('settings')->name('settings.')->group(function () {
-            // General Settings
-            Route::prefix('general')->name('general.')->group(function () {
-                Route::get('/', function () {
-                    return Inertia::render('Admin/Settings/General/General');
-                })->name('index');
-                Route::get('profile', function () {
-                    return Inertia::render('Admin/Settings/General/Profile');
-                })->name('profile');
-                Route::get('security', function () {
-                    return Inertia::render('Admin/Settings/General/Security');
-                })->name('security');
-                Route::get('notifications', function () {
-                    return Inertia::render('Admin/Settings/General/Notifications');
-                })->name('notifications');
-            });
-
-            // Website Settings
-            Route::prefix('website')->name('website.')->group(function () {
-                Route::get('system', function () {
-                    return Inertia::render('Admin/Settings/Website/System');
-                })->name('system');
-                Route::get('company', function () {
-                    return Inertia::render('Admin/Settings/Website/Company');
-                })->name('company');
-                Route::get('localization', function () {
-                    return Inertia::render('Admin/Settings/Website/Localization');
-                })->name('localization');
-                Route::get('prefixes', function () {
-                    return Inertia::render('Admin/Settings/Website/Prefixes');
-                })->name('prefixes');
-                Route::get('preference', function () {
-                    return Inertia::render('Admin/Settings/Website/Preference');
-                })->name('preference');
-                Route::get('appearance', function () {
-                    return Inertia::render('Admin/Settings/Website/Appearance');
-                })->name('appearance');
-                Route::get('social-auth', function () {
-                    return Inertia::render('Admin/Settings/Website/SocialAuthentication');
-                })->name('social-auth');
-            });
-
-            // System Settings
-            Route::prefix('system')->name('system.')->group(function () {
-                Route::get('email', function () {
-                    return Inertia::render('Admin/Settings/System/Email');
-                })->name('email');
-                Route::get('sms', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'SMS Settings']);
-                })->name('sms');
-                Route::get('otp', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'OTP Settings']);
-                })->name('otp');
-                Route::get('gdpr', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'GDPR Settings']);
-                })->name('gdpr');
-            });
-
-            // Financial Settings
-            Route::prefix('financial')->name('financial.')->group(function () {
-                Route::get('gateway', function () {
-                    return Inertia::render('Admin/Settings/Financial/Gateway');
-                })->name('gateway');
-                Route::get('bank-accounts', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Bank Accounts']);
-                })->name('bank-accounts');
-                Route::get('tax-rates', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Tax Rates']);
-                })->name('tax-rates');
-                Route::get('currencies', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Currencies']);
-                })->name('currencies');
-            });
-
-            // Other Settings
-            Route::prefix('other')->name('other.')->group(function () {
-                Route::get('storage', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Storage Settings']);
-                })->name('storage');
-                Route::get('ban-ip', function () {
-                    return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Ban IP Address']);
-                })->name('ban-ip');
-            });
-        });
     });
 
     // Administrator Routes (Company Owner)
-    Route::prefix('administrator')->name('administrator.')->group(function () {
+    Route::prefix('administrator')->name('administrator.')->middleware('check-subscription')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Administrator\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'index'])->name('procedures.index');
         Route::post('/procedures', [\App\Http\Controllers\Administrator\ProcedureController::class, 'store'])->name('procedures.store');
@@ -238,7 +171,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Business Owner Routes
-    Route::prefix('business-owner')->name('business-owner.')->group(function () {
+    Route::prefix('business-owner')->name('business-owner.')->middleware('check-subscription')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\BusinessOwner\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/company', [\App\Http\Controllers\BusinessOwner\CompanyController::class, 'index'])->name('company.index');
         Route::post('/company', [\App\Http\Controllers\BusinessOwner\CompanyController::class, 'store'])->name('company.store');
@@ -259,20 +192,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings/profile', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
         Route::patch('/settings/password', [\App\Http\Controllers\BusinessOwner\SettingsController::class, 'updatePassword'])->name('settings.password.update');
-        Route::get('/subscription', function () {
-            return Inertia::render('BusinessOwner/Subscription/Index');
-        })->name('subscription.index');
+        Route::get('/subscription', [\App\Http\Controllers\BusinessOwner\SubscriptionController::class, 'index'])->name('subscription.index');
+        Route::post('/subscription/checkout/{plan}', [\App\Http\Controllers\BusinessOwner\SubscriptionController::class, 'checkout'])->name('subscription.checkout');
+        Route::get('/subscription/success', [\App\Http\Controllers\BusinessOwner\SubscriptionController::class, 'success'])->name('subscription.success');
         Route::get('/help-support', function () {
             return Inertia::render('BusinessOwner/HelpSupport/Index');
         })->name('help-support.index');
     });
-    
-    // Administrator Email Verification (outside auth middleware - public link)
-    Route::get('/administrator/verify-email/{id}/{hash}', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'verifyEmail'])
-        ->name('administrator.verify-email');
 
     // User Routes
-    Route::prefix('user')->name('user.')->group(function () {
+    Route::prefix('user')->name('user.')->middleware('check-subscription')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/procedures', [\App\Http\Controllers\User\ProcedureController::class, 'index'])->name('procedures.index');
         Route::patch('/procedures/{procedure}', [\App\Http\Controllers\User\ProcedureController::class, 'update'])->name('procedures.update');
@@ -287,5 +216,11 @@ Route::middleware('auth')->group(function () {
 
 });
 
+// Public Routes (No Auth required)
+Route::post('/stripe/webhook', [\App\Http\Controllers\StripeWebhookController::class, 'handle'])->name('stripe.webhook');
+
+// Administrator Email Verification (outside auth middleware - public link)
+Route::get('/administrator/verify-email/{id}/{hash}', [\App\Http\Controllers\BusinessOwner\AdministratorController::class, 'verifyEmail'])
+    ->name('administrator.verify-email');
 
 require __DIR__ . '/auth.php';

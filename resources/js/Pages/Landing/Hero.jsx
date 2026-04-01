@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Link } from "@inertiajs/react";
+import React, { useState } from "react";
+import { router, usePage, Link } from "@inertiajs/react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import Button from "./Button";
 
-export default function Hero({ auth }) {
+export default function Hero() {
+    const { auth } = usePage().props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -36,16 +37,25 @@ export default function Hero({ auth }) {
                     </nav>
 
                     {/* CTAs */}
-                    <div className="hidden lg:flex items-center gap-4">
+                    <div className="hidden lg:flex items-center gap-6">
                         {auth?.user ? (
                             <Button href={route("dashboard")}>Dashboard</Button>
                         ) : (
-                            <Button
-                                href={route("register")}
-                                className="bg-[#2c8af8] hover:bg-[#1a7ae8] px-6 h-[42px] rounded-[8px] text-[14px]"
-                            >
-                                Get Started <ArrowRight size={16} />
-                            </Button>
+                            <>
+                                <Button
+                                    href={route("login")}
+                                    variant="outline"
+                                    className="px-6 h-[42px] border-[#e3e4e8] text-[#2f3344] hover:bg-slate-50 transition-all font-bold text-[14px]"
+                                >
+                                    Login
+                                </Button>
+                                <Button
+                                    href={route("register")}
+                                    className="bg-[#2c8af8] hover:bg-[#1a7ae8] px-6 h-[42px] rounded-[8px] text-[14px] shadow-lg shadow-blue-500/20"
+                                >
+                                    Get Started <ArrowRight size={16} />
+                                </Button>
+                            </>
                         )}
                     </div>
 
@@ -82,9 +92,21 @@ export default function Hero({ auth }) {
                         <hr className="border-[#f1f2f4]" />
                         <div className="flex flex-col gap-4">
                             {!auth?.user && (
-                                <Button href={route("register")}>
-                                    Get Started
-                                </Button>
+                                <>
+                                    <Button
+                                        href={route("login")}
+                                        variant="outline"
+                                        className="w-full h-[52px]"
+                                    >
+                                        Login
+                                    </Button>
+                                    <Button 
+                                        href={route("register")}
+                                        className="w-full h-[52px]"
+                                    >
+                                        Get Started
+                                    </Button>
+                                </>
                             )}
                             {auth?.user && (
                                 <Button href={route("dashboard")}>

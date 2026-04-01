@@ -10,7 +10,7 @@ import Testimonials from "./Testimonials";
 import CTA from "./CTA";
 import Footer from "./Footer";
 
-export default function LandingIndex({ auth }) {
+export default function LandingIndex({ auth, plans }) {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 font-['DM_Sans'] selection:bg-[#2c8af8] selection:text-white overflow-x-hidden relative">
             <Head title="Welcome - Streamline Your Business" />
@@ -22,7 +22,7 @@ export default function LandingIndex({ auth }) {
                 <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] bg-gradient-to-l from-purple-100/40 to-blue-100/40 rounded-full blur-[100px] opacity-60"></div>
             </div>
 
-            <Hero auth={auth} />
+            <Hero />
             
             <Brands />
             
@@ -32,7 +32,7 @@ export default function LandingIndex({ auth }) {
             
             <Steps />
             
-            <Pricing />
+            <Pricing plans={plans} />
             
             <Testimonials />
             

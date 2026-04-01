@@ -31,10 +31,12 @@ trait HandlesOtp
         );
 
         // specific email sending logic
+        \Illuminate\Support\Facades\Log::info("Sending OTP to " . $email);
         try {
              Mail::to($email)->send(new $mailableClass($otp));
+             \Illuminate\Support\Facades\Log::info("Mail sent successfully to " . $email);
         } catch (\Exception $e) {
-            // Handle mail sending failure if necessary
+            \Illuminate\Support\Facades\Log::error("Mail fail: " . $e->getMessage());
         }
     }
 

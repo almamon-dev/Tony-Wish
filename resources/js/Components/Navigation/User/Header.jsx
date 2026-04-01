@@ -134,9 +134,7 @@ const Header = ({ onMenuClick }) => {
                                 <DropdownLink
                                     icon={Settings}
                                     label="System Settings"
-                                    href={route(
-                                        "admin.settings.website.system",
-                                    )}
+                                    href="#"
                                 />
                                 <DropdownLink
                                     icon={CreditCard}
@@ -146,9 +144,7 @@ const Header = ({ onMenuClick }) => {
                                 <DropdownLink
                                     icon={Globe}
                                     label="Region & Language"
-                                    href={route(
-                                        "admin.settings.website.localization",
-                                    )}
+                                    href="#"
                                 />
                             </div>
 

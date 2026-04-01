@@ -43,6 +43,14 @@ class HandleInertiaRequests extends Middleware
                     'country' => $request->user()->country,
                     'avatar' => $request->user()->avatar,
                     'company' => $request->user()->loadMissing('company')->company,
+                    'subscription' => ($owner = ($request->user()->user_type === 'business_owner' ? $request->user() : $request->user()->businessOwner)) ? [
+                        'status' => $owner->subscription_status,
+                        'is_active' => (bool) ($owner->plan_id && $owner->subscription_status === 'active' && $owner->expiry_date?->isFuture()),
+                        'expiry_date' => $owner->expiry_date?->format('M d, Y'),
+                        'plan' => $owner->loadMissing('plan')->plan?->name ?? 'None',
+                        'has_plan' => (bool) $owner->plan_id,
+                        'started_at' => $owner->created_at->format('M d, Y'),
+                    ] : null,
                 ] : null,
             ],
             'settings' => [

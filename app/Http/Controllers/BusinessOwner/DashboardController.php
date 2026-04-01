@@ -78,33 +78,45 @@ class DashboardController extends Controller
             ]);
         }
 
-        // Mock subscription data since table doesn't exist yet
+        // Real subscription data
+        $owner = $user->user_type === 'business_owner' ? $user : $user->businessOwner;
+        $activePlan = $owner ? $owner->loadMissing('plan')->plan : null;
+
         $subscription = [
-            'plan' => 'Professional Plan',
-            'monthly_cost' => 130.00,
-            'vat' => 6.50,
-            'total' => 136.50,
+            'plan_name' => $activePlan ? $activePlan->name : 'No Active Plan',
+            'status' => $owner ? $owner->subscription_status : 'inactive',
+            'expiry_date' => $owner && $owner->expiry_date ? \Carbon\Carbon::parse($owner->expiry_date)->format('M d, Y') : 'N/A',
+            'price' => $activePlan ? $activePlan->price : 0,
+            'currency' => $activePlan ? $activePlan->currency : 'USD',
             'quota_used' => $totalUsers,
-            'quota_total' => 50,
             'procedures_used' => $totalProcedures,
-            'procedures_total' => 100,
         ];
 
-        // Mock invoices
-        $invoices = [
-            [
-                'id' => 'INV-0023-001',
-                'date' => 'Oct 15, 2023',
-                'amount' => '$250.00',
-                'status' => 'Paid',
-            ],
-            [
-                'id' => 'INV-0023-002',
-                'date' => 'Sep 15, 2023',
-                'amount' => '$136.50',
-                'status' => 'Paid',
-            ],
-        ];
+        // Fetch real invoices from database
+        $invoices = \App\Models\Invoice::where('user_id', $ownerId)
+            ->latest()
+            ->limit(4)
+            ->get()
+            ->map(function($inv) {
+                return [
+                    'id' => $inv->invoice_number,
+                    'date' => $inv->paid_at ? \Carbon\Carbon::parse($inv->paid_at)->format('M d, Y') : $inv->created_at->format('M d, Y'),
+                    'amount' => ($inv->plan ? $inv->plan->currency : '£') . ' ' . Number_format($inv->total, 2),
+                    'status' => ucfirst($inv->status),
+                ];
+            });
+
+        // Fallback mock if none exist
+        if ($invoices->isEmpty()) {
+            $invoices = [
+                [
+                    'id' => 'INV-2026-001',
+                    'date' => now()->format('M d, Y'),
+                    'amount' => ($activePlan ? $activePlan->currency : '£') . ' ' . ($activePlan ? $activePlan->price : '0.00'),
+                    'status' => 'Paid',
+                ]
+            ];
+        }
 
         return Inertia::render('BusinessOwner/Dashboard', [
             'stats' => [

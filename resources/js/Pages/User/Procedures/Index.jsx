@@ -210,7 +210,6 @@ export default function ProceduresIndex({ procedures = [] }) {
                                         <p className="text-[11px] font-black text-slate-700 mt-1  tracking-widest">{proc.date || proc.due || 'N/A'}</p>
                                     </div>
                                 </div>
-
                                 <div className="pt-2 flex items-center gap-3">
                                     {/* pending → Accept */}
                                     {proc.raw_status === 'pending' && (

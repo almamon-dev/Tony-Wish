@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +28,8 @@ class UserSeeder extends Seeder
         );
 
         // 2. Create Business Owner (Parent)
+        $freePlan = Plan::where('name', 'Free Trial')->first();
+
         $businessOwner = User::updateOrCreate(
             ['email' => 'owner@gmail.com'],
             [
@@ -34,11 +38,27 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('5'),
                 'user_type' => 'business_owner',
                 'email_verified_at' => now(),
+                'plan_id' => $freePlan ? $freePlan->id : null,
+                'subscription_status' => $freePlan ? 'active' : 'inactive',
+                'expiry_date' => $freePlan ? now()->addDays(7) : null,
+            ]
+        );
+        $businessOwner1 = User::updateOrCreate(
+            ['email' => 'owner1@gmail.com'],
+            [
+                'first_name' => 'Account',
+                'last_name' => 'Holder',
+                'password' => Hash::make('5'),
+                'user_type' => 'business_owner',
+                'email_verified_at' => now(),
+                'plan_id' => null,
+                'subscription_status' => 'inactive',
+                'expiry_date' => null,
             ]
         );
 
         // Create Company for Business Owner
-        \App\Models\Company::updateOrCreate(
+        Company::updateOrCreate(
             ['user_id' => $businessOwner->id],
             [
                 'company_name' => 'Tony compliance Ltd.',
@@ -46,7 +66,6 @@ class UserSeeder extends Seeder
                 'industry' => 'Technology',
             ]
         );
-
 
         // 3. Create Administrator under Business Owner
         $administrator = User::updateOrCreate(

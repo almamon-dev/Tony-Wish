@@ -1,513 +1,318 @@
-import React, { useState } from "react";
+import React from "react";
 import BusinessOwnerLayout from "@/Layouts/BusinessOwnerLayout";
-import { Head, Link } from "@inertiajs/react";
-import {
-    Check,
-    X,
-    ArrowLeft,
-    ChevronDown,
-    Zap,
-    Shield,
-    Globe,
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { 
+    CheckCircle2, 
+    Zap, 
+    ShieldCheck, 
+    CreditCard, 
+    RefreshCcw, 
+    XCircle, 
+    Download, 
+    Users, 
+    ClipboardList,
+    Clock
 } from "lucide-react";
 
-const PlanCard = ({ plan, isCurrent, isAnnual }) => {
-    return (
-        <div
-            className={`relative bg-white rounded-[24px] border ${isCurrent ? "border-blue-500 ring-1 ring-blue-500" : "border-slate-100"} p-8 flex flex-col h-full shadow-sm hover:shadow-md transition-all`}
-        >
-            {isCurrent && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-emerald-500 rounded-full text-white text-[12px] font-bold">
-                    Current Plan
-                </div>
-            )}
+export default function Index({ plans = [], user = {}, usage = {}, invoices = [] }) {
+    const { auth } = usePage().props;
+    const { post, processing } = useForm();
+    
+    // Check if user has an active subscription based on shared auth or passed user
+    const activePlan = plans.find(p => p.id === user.plan_id);
+    const hasActiveSubscription = user.plan_id && user.subscription_status === 'active';
 
-            <div className="mb-8">
-                <div
-                    className={`w-10 h-10 rounded-xl mb-4 flex items-center justify-center ${plan.bg}`}
-                >
-                    <plan.icon size={20} className={plan.color} />
-                </div>
-                <h3 className="text-[20px] font-bold text-slate-800 mb-1">
-                    {plan.name}
-                </h3>
-                <p className="text-[13px] text-slate-400 font-medium">
-                    {plan.description}
-                </p>
-            </div>
+    const formattedInvoices = invoices.map(inv => ({
+        id: inv.invoice_number,
+        date: new Date(inv.paid_at || inv.created_at).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }),
+        description: 'Monthly Subscription',
+        amount: `$${Number(inv.amount).toFixed(2)}`,
+        vat: `$${Number(inv.vat).toFixed(2)}`,
+        total: `$${Number(inv.total).toFixed(2)}`,
+        status: inv.status.charAt(0).toUpperCase() + inv.status.slice(1)
+    }));
 
-            <div className="mb-8">
-                <div className="flex items-baseline gap-1">
-                    <span className="text-[36px] font-bold text-slate-800">
-                        ${isAnnual ? plan.annualPrice : plan.monthlyPrice}
-                    </span>
-                    <span className="text-slate-400 font-medium">/month</span>
-                </div>
-                {isAnnual && (
-                    <p className="text-[12px] text-emerald-500 font-bold mt-1">
-                        Save ${plan.savings} (20% off)
-                    </p>
-                )}
-            </div>
+    // Local state to toggle plan selection view even if user has a plan
+    const [showSelection, setShowSelection] = React.useState(!hasActiveSubscription);
 
-            <div className="space-y-4 mb-8 border-t border-b border-slate-50 py-6">
-                <div className="flex justify-between text-[13px]">
-                    <span className="text-slate-400">Base price</span>
-                    <span className="text-slate-700 font-bold">
-                        $
-                        {isAnnual
-                            ? (plan.annualPrice * 1).toFixed(2)
-                            : plan.monthlyPrice.toFixed(2)}
-                    </span>
-                </div>
-                <div className="flex justify-between text-[13px]">
-                    <span className="text-slate-400">VAT (20%)</span>
-                    <span className="text-slate-700 font-bold">
-                        $
-                        {isAnnual
-                            ? (plan.annualPrice * 0.2).toFixed(2)
-                            : (plan.monthlyPrice * 0.2).toFixed(2)}
-                    </span>
-                </div>
-                <div className="flex justify-between text-[15px] pt-2">
-                    <span className="text-slate-800 font-bold">Total</span>
-                    <span className="text-slate-800 font-bold">
-                        $
-                        {isAnnual
-                            ? (plan.annualPrice * 1.2).toFixed(2)
-                            : (plan.monthlyPrice * 1.2).toFixed(2)}
-                    </span>
-                </div>
-            </div>
+    const userPercent = usage?.users ? (usage.users.used / usage.users.limit) * 100 : 0;
+    const procedurePercent = usage?.procedures ? (usage.procedures.used / usage.procedures.limit) * 100 : 0;
 
-            <div className="space-y-4 mb-8 flex-1">
-                {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                            <Check
-                                size={12}
-                                className="text-emerald-500"
-                                strokeWidth={3}
-                            />
+    const [processingId, setProcessingId] = React.useState(null);
+
+    const handleSubscription = (plan) => {
+        setProcessingId(plan.id);
+        post(route("business-owner.subscription.checkout", plan.id), {
+            onFinish: () => setProcessingId(null)
+        });
+    };
+
+    if (showSelection) {
+        return (
+            <BusinessOwnerLayout user={user}>
+                <Head title="Choose Your Plan" />
+                <div className="max-w-8xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div className="flex justify-between items-center">
+                        <div className="space-y-4">
+                            <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                                Choose the Perfect Plan for Your Business
+                            </h1>
+                            <p className="text-sm text-slate-500 max-w-2xl font-medium">
+                                Flexible pricing options to match your needs. Start free, scale as you grow.
+                            </p>
                         </div>
-                        <span className="text-[13px] text-slate-600 font-medium">
-                            {feature}
-                        </span>
+                        {hasActiveSubscription && (
+                            <button 
+                                onClick={() => setShowSelection(false)}
+                                className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-all"
+                            >
+                                Back to Dashboard
+                            </button>
+                        )}
                     </div>
-                ))}
-            </div>
 
-            <button
-                disabled={isCurrent}
-                className={`w-full py-3.5 rounded-xl text-[14px] font-bold transition-all ${
-                    isCurrent
-                        ? "bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-100"
-                        : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-            >
-                {isCurrent ? "Current Plan" : plan.cta}
-            </button>
-        </div>
-    );
-};
-
-export default function SubscriptionIndex() {
-    const [isAnnual, setIsAnnual] = useState(true);
-
-    const plans = [
-        {
-            name: "Starter",
-            description: "Perfect for small teams getting started",
-            monthlyPrice: 99,
-            annualPrice: 79,
-            savings: 238,
-            icon: Zap,
-            bg: "bg-rose-50",
-            color: "text-rose-500",
-            features: [
-                "Up to 10 users",
-                "25 active procedures",
-                "5 GB storage",
-                "Basic reporting",
-                "Email support",
-            ],
-            cta: "Downgrade to Starter",
-        },
-        {
-            name: "Professional",
-            description: "Most popular for growing businesses",
-            monthlyPrice: 199,
-            annualPrice: 159,
-            savings: 478,
-            icon: Shield,
-            bg: "bg-emerald-50",
-            color: "text-emerald-500",
-            features: [
-                "Up to 50 users",
-                "100 active procedures",
-                "50 GB storage",
-                "Advanced reporting",
-                "Priority email support",
-            ],
-            cta: "Current Plan",
-        },
-        {
-            name: "Enterprise",
-            description: "For large organizations with custom needs",
-            monthlyPrice: 499,
-            annualPrice: 399,
-            savings: 1198,
-            icon: Globe,
-            bg: "bg-blue-50",
-            color: "text-blue-500",
-            features: [
-                "Unlimited users",
-                "Unlimited procedures",
-                "Unlimited storage",
-                "Custom reporting & dashboards",
-                "24/7 phone & email support",
-            ],
-            cta: "Upgrade to Enterprise",
-        },
-    ];
-
-    const comparisons = [
-        {
-            feature: "User Accounts",
-            starter: "10",
-            professional: "50",
-            enterprise: "Unlimited",
-        },
-        {
-            feature: "Active Procedures",
-            starter: "25",
-            professional: "100",
-            enterprise: "Unlimited",
-        },
-        {
-            feature: "Storage Space",
-            starter: "5 GB",
-            professional: "50 GB",
-            enterprise: "Unlimited",
-        },
-        {
-            feature: "Support Level",
-            starter: "Email (48h)",
-            professional: "Priority (12h)",
-            enterprise: "24/7 Phone",
-        },
-        {
-            feature: "API Access",
-            starter: false,
-            professional: true,
-            enterprise: true,
-        },
-        {
-            feature: "SSO & Advanced Security",
-            starter: false,
-            professional: false,
-            enterprise: true,
-        },
-        {
-            feature: "Custom Integrations",
-            starter: false,
-            professional: false,
-            enterprise: true,
-        },
-        {
-            feature: "Dedicated Account Manager",
-            starter: false,
-            professional: false,
-            enterprise: true,
-        },
-        {
-            feature: "Advanced Analytics",
-            starter: false,
-            professional: true,
-            enterprise: true,
-        },
-        {
-            feature: "Custom Reporting",
-            starter: false,
-            professional: false,
-            enterprise: true,
-        },
-    ];
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 pb-20">
+                        {plans.length > 0 ? (
+                            plans.map((plan) => (
+                                <div key={plan.id} className={`relative bg-white rounded-xl shadow-sm border p-10 flex flex-col transition-all ${user.plan_id === plan.id ? 'border-blue-500 ring-4 ring-blue-50' : 'border-slate-100'}`}>
+                                    {user.plan_id === plan.id && (
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-500 text-white text-[12px] font-black rounded-full uppercase tracking-widest shadow-lg shadow-blue-500/20">
+                                            Current Plan
+                                        </div>
+                                    )}
+                                    <div className="space-y-6 flex-1 mb-10">
+                                        <div className="space-y-1">
+                                            <h3 className="text-[15px] font-bold text-slate-400 uppercase tracking-widest">{plan.name}</h3>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-[48px] font-black text-slate-900 leading-none">
+                                                    ${Math.floor(plan.price)}
+                                                </span>
+                                                <span className="text-slate-400 font-bold text-lg">/{plan.duration}</span>
+                                            </div>
+                                        </div>
+                                        <div className="pt-6 space-y-4">
+                                            {plan.features?.map((f, i) => (
+                                                <div key={i} className="flex items-start gap-3">
+                                                    <div className="mt-1 w-5 h-5 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                                                        <CheckCircle2 size={13} strokeWidth={3} />
+                                                    </div>
+                                                    <span className="text-slate-600 font-medium text-[15px]">{f}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleSubscription(plan)} 
+                                        disabled={processing || user.plan_id === plan.id} 
+                                        className={`w-full py-4 rounded-md font-bold flex items-center justify-center gap-2 transition-all ${user.plan_id === plan.id ? 'bg-emerald-500 text-white cursor-default' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                                    >
+                                        {processingId === plan.id ? (
+                                            <>Processing...</>
+                                        ) : user.plan_id === plan.id ? (
+                                            <>Active Plan <CheckCircle2 size={18} /></>
+                                        ) : (
+                                            <>Select Plan <Zap size={18} /></>
+                                        )}
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="col-span-full py-20 text-center bg-white rounded-[40px] border border-slate-100 shadow-sm border-dashed">
+                                <div className="w-16 h-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Zap size={30} />
+                                </div>
+                                <h3 className="text-md font-black text-slate-900 mb-2">No Plans Available</h3>
+                                <p className="text-slate-500 font-medium max-w-sm mx-auto">
+                                    Our subscription plans are currently being updated. Please check back shortly or contact support.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </BusinessOwnerLayout>
+        );
+    }
 
     return (
-        <BusinessOwnerLayout>
+        <BusinessOwnerLayout user={user}>
             <Head title="Subscription & Billing" />
 
-            <div className="space-y-10 pb-20">
-                {/* Header Section */}
-                <div className="flex items-center gap-6">
-                    <button className="w-10 h-10 rounded-full border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all">
-                        <ArrowLeft size={18} />
-                    </button>
-                    <div>
-                        <h1 className="text-[26px] font-bold text-slate-800">
-                            Choose Your Plan
-                        </h1>
-                        <p className="text-slate-500 font-medium">
-                            Select the perfect plan for your organization's
-                            needs
-                        </p>
-                    </div>
+            <div className="max-w-8xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8 pb-20">
+                <div className="space-y-1">
+                    <h1 className="text-md font-black text-[#0f172a] tracking-tight">Subscription & Billing</h1>
+                    <p className="text-slate-500 font-medium text-[14px]">Manage your subscription, payments, and billing information</p>
                 </div>
 
-                {/* Billing Toggle */}
-                <div className="flex items-center justify-center gap-4">
-                    <span
-                        className={`text-[14px] font-bold ${!isAnnual ? "text-slate-800" : "text-slate-400"}`}
-                    >
-                        Monthly
-                    </span>
-                    <button
-                        onClick={() => setIsAnnual(!isAnnual)}
-                        className="w-12 h-6 bg-slate-200 rounded-full relative transition-all"
-                    >
-                        <div
-                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isAnnual ? "left-7 bg-emerald-500" : "left-1"}`}
-                        ></div>
-                    </button>
-                    <div className="flex items-center gap-3">
-                        <span
-                            className={`text-[14px] font-bold ${isAnnual ? "text-slate-800" : "text-slate-400"}`}
-                        >
-                            Annual
-                        </span>
-                        <div className="px-2 py-0.5 bg-emerald-50 text-emerald-500 rounded text-[11px] font-bold uppercase tracking-wider">
-                            Save up to 20%
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-8">
+                            <div className="space-y-1">
+                                <h2 className="text-[10px] font-bold text-slate-900">Current Plan: <span className="text-blue-500">{activePlan?.name}</span></h2>
+                                <p className="text-slate-400 text-sm font-medium">Manage your subscription plan and usage</p>
+                            </div>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="bg-blue-50/30 border border-blue-100 rounded-xl p-6 space-y-1">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Pricing Plan</span>
+                                    <div className="text-[18px] font-black text-slate-900">${Number(activePlan?.price || 0).toFixed(2)}</div>
+                                </div>
+                            </div>
+
+                            <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-8 flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <div className="text-[14px] font-bold text-slate-700">Monthly Total Payable</div>
+                                    <div className="text-[12px] text-slate-500 font-medium">Next billing date: {auth.user.subscription?.expiry_date || 'N/A'}</div>
+                                </div>
+                                <div className="text-[32px] font-black text-slate-900">${Number(activePlan?.price || 0).toFixed(2)}</div>
+                            </div>
+
+                            <div className="space-y-6 pt-2">
+                                <h3 className="font-bold text-slate-800 text-[16px]">Usage Summary</h3>
+                                <div className="space-y-6">
+                                    <div className="space-y-2 text-sm font-bold text-slate-500">
+                                        <div className="flex justify-between items-center text-[13px]">
+                                            <span className="text-slate-800">Active Users</span>
+                                            <span className="text-slate-400 font-bold">{usage?.users?.used} / {usage?.users?.limit}</span>
+                                        </div>
+                                        <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                                            <div className="h-full bg-emerald-500 rounded-full shadow-sm shadow-emerald-500/20" style={{ width: `${Math.min(userPercent, 100)}%` }}></div>
+                                        </div>
+                                        <p className="text-[11px] text-slate-400">{(usage?.users?.limit || 0) - (usage?.users?.used || 0)} users remaining</p>
+                                    </div>
+
+                                    <div className="space-y-2 text-sm font-bold text-slate-500">
+                                        <div className="flex justify-between items-center text-[13px]">
+                                            <span className="text-slate-800">Active Procedures</span>
+                                            <span className="text-slate-400 font-bold">{usage?.procedures?.used} / {usage?.procedures?.limit}</span>
+                                        </div>
+                                        <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                                            <div className="h-full bg-emerald-500 rounded-full shadow-sm shadow-emerald-500/20" style={{ width: `${Math.min(procedurePercent, 100)}%` }}></div>
+                                        </div>
+                                        <p className="text-[11px] text-slate-400">{(usage?.procedures?.limit || 0) - (usage?.procedures?.used || 0)} procedures remaining</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                           
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-8 sticky top-24">
+                            <h3 className="font-bold text-slate-900 text-[16px]">Subscription Status</h3>
+                            
+                            <div className={`${auth.user.subscription?.is_active ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'} rounded-xl p-4 space-y-2 border`}>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 ${auth.user.subscription?.is_active ? 'bg-emerald-500' : 'bg-rose-500'} rounded-full animate-pulse`}></div>
+                                    <span className={`text-[12px] font-bold ${auth.user.subscription?.is_active ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        {auth.user.subscription?.is_active ? 'Active' : (auth.user.subscription?.has_plan ? 'Expired' : 'Inactive')}
+                                    </span>
+                                </div>
+                                <p className={`text-[11px] ${auth.user.subscription?.is_active ? 'text-emerald-600/70' : 'text-rose-600/70'} font-medium`}>
+                                    {auth.user.subscription?.is_active 
+                                        ? 'Your subscription is active and in good standing' 
+                                        : (auth.user.subscription?.has_plan ? 'Your subscription has expired. Please renew.' : 'You have no active subscription.')}
+                                </p>
+                            </div>
+
+                            <div className="space-y-5">
+                                <div className="flex justify-between items-center text-sm font-medium">
+                                    <span className="text-slate-400">Status:</span>
+                                    <span className={`px-3 py-1 ${auth.user.subscription?.is_active ? 'bg-emerald-500' : 'bg-rose-500'} text-white text-[11px] font-black rounded-md uppercase tracking-tight`}>
+                                        {auth.user.subscription?.is_active ? 'Active' : (auth.user.subscription?.has_plan ? 'Expired' : 'Inactive')}
+                                    </span>
+                                </div>
+                               
+                                <div className="flex justify-between items-center text-sm font-medium">
+                                    <span className="text-slate-400">Billing Cycle:</span>
+                                    <span className="text-slate-800 font-bold">{activePlan ? (activePlan.duration === 'month' ? 'Monthly' : 'Yearly') : 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-sm font-medium">
+                                    <span className="text-slate-400">Next Billing:</span>
+                                    <span className="text-slate-800 font-bold">{auth.user.subscription?.expiry_date || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-sm font-medium">
+                                    <span className="text-slate-400">Started On:</span>
+                                    <span className="text-slate-800 font-bold">{auth.user.subscription?.started_at || 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 pt-4 border-t border-slate-50">
+                                <h4 className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Quick Actions</h4>
+                                <div className="space-y-2">
+                                    <button 
+                                        onClick={() => setShowSelection(true)}
+                                        className="w-full py-2.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all"
+                                    >
+                                        <RefreshCcw size={14} /> Change Plan
+                                    </button>
+                                    <button 
+                                        onClick={() => handleSubscription(activePlan)}
+                                        className="w-full py-2.5 bg-white border border-blue-200 text-blue-500 rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-sm shadow-blue-500/10"
+                                    >
+                                        <RefreshCcw size={14} /> Renew Now
+                                    </button>
+                                    <button className="w-full py-2.5 bg-white border border-rose-100 text-rose-500 rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 hover:bg-rose-50 transition-all">
+                                        <XCircle size={14} /> Cancel Subscription
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Pricing Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {plans.map((plan, i) => (
-                        <PlanCard
-                            key={i}
-                            plan={plan}
-                            isCurrent={plan.name === "Professional"}
-                            isAnnual={isAnnual}
-                        />
-                    ))}
-                </div>
-
-                {/* Comparison Table Section */}
-                <div className="space-y-6 pt-10">
-                    <div className="mb-6">
-                        <h2 className="text-[18px] font-bold text-slate-800">
-                            Recent Invoices
-                        </h2>
-                        <p className="text-[13px] text-slate-400 font-medium tracking-tight mt-1">
-                            Your payment history and invoices
-                        </p>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="p-8 border-b border-slate-50">
+                        <h3 className="font-bold text-slate-900 text-[18px]">Payment History</h3>
+                        <p className="text-slate-500 text-[13px] font-medium mt-1">All your invoices and payment records</p>
                     </div>
-
-                    <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
-                        <table className="w-full text-left border-collapse">
+                    <div className="overflow-x-auto p-4 pt-0">
+                        <table className="w-full text-left border-separate border-spacing-y-2 text-[14px]">
                             <thead>
-                                <tr className="bg-slate-50/50">
-                                    <th className="px-10 py-5 text-[14px] font-bold text-slate-500">
-                                        Feature
-                                    </th>
-                                    <th className="px-10 py-5 text-[14px] font-bold text-slate-500 text-center">
-                                        Starter
-                                    </th>
-                                    <th className="px-10 py-5 text-[14px] font-bold text-slate-500 text-center">
-                                        Professional
-                                    </th>
-                                    <th className="px-10 py-5 text-[14px] font-bold text-slate-500 text-center">
-                                        Enterprise
-                                    </th>
+                                <tr className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                    <th className="px-6 py-4">Invoice Number</th>
+                                    <th className="px-6 py-4">Date</th>
+                                    <th className="px-6 py-4">Description</th>
+                                    <th className="px-6 py-4">Amount</th>
+                                    <th className="px-6 py-4">VAT</th>
+                                    <th className="px-6 py-4">Total</th>
+                                    <th className="px-6 py-4 text-center">Status</th>
+                                    <th className="px-6 py-4 text-center">Download</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {comparisons.map((row, i) => (
-                                    <tr
-                                        key={i}
-                                        className="hover:bg-slate-50/30 transition-colors"
-                                    >
-                                        <td className="px-10 py-5 font-medium text-slate-600 text-[14px] flex items-center gap-3">
-                                            {row.starter === false ? (
-                                                <Shield
-                                                    className="text-slate-400"
-                                                    size={16}
-                                                />
-                                            ) : (
-                                                <Zap
-                                                    className="text-slate-400"
-                                                    size={16}
-                                                />
-                                            )}
-                                            {row.feature}
-                                        </td>
-                                        <td className="px-10 py-5 text-center text-[13px] font-bold text-slate-500">
-                                            {typeof row.starter ===
-                                            "boolean" ? (
-                                                row.starter ? (
-                                                    <Check
-                                                        className="mx-auto text-emerald-500"
-                                                        size={18}
-                                                    />
-                                                ) : (
-                                                    <X
-                                                        className="mx-auto text-slate-300"
-                                                        size={18}
-                                                    />
-                                                )
-                                            ) : (
-                                                row.starter
-                                            )}
-                                        </td>
-                                        <td className="px-10 py-5 text-center text-[13px] font-bold text-slate-800">
-                                            {typeof row.professional ===
-                                            "boolean" ? (
-                                                row.professional ? (
-                                                    <Check
-                                                        className="mx-auto text-emerald-500"
-                                                        size={18}
-                                                    />
-                                                ) : (
-                                                    <X
-                                                        className="mx-auto text-slate-300"
-                                                        size={18}
-                                                    />
-                                                )
-                                            ) : (
-                                                row.professional
-                                            )}
-                                        </td>
-                                        <td className="px-10 py-5 text-center text-[13px] font-bold text-slate-500">
-                                            {typeof row.enterprise ===
-                                            "boolean" ? (
-                                                row.enterprise ? (
-                                                    <Check
-                                                        className="mx-auto text-emerald-500"
-                                                        size={18}
-                                                    />
-                                                ) : (
-                                                    <X
-                                                        className="mx-auto text-slate-300"
-                                                        size={18}
-                                                    />
-                                                )
-                                            ) : (
-                                                row.enterprise
-                                            )}
+                            <tbody>
+                                {formattedInvoices.length > 0 ? (
+                                    formattedInvoices.map((inv, i) => (
+                                        <tr key={i} className="group transition-colors bg-white hover:bg-slate-50/50">
+                                            <td className="px-6 py-5 rounded-l-2xl font-bold text-slate-800">{inv.id}</td>
+                                            <td className="px-6 py-5 text-slate-500 font-medium">{inv.date}</td>
+                                            <td className="px-6 py-5 text-slate-500 font-medium">{inv.description}</td>
+                                            <td className="px-6 py-5 font-bold text-slate-800">{inv.amount}</td>
+                                            <td className="px-6 py-5 text-slate-800 font-bold">{inv.vat}</td>
+                                            <td className="px-6 py-5 font-black text-slate-800">{inv.total}</td>
+                                            <td className="px-6 py-5 text-center">
+                                                <span className="px-3 py-1 bg-blue-50 text-blue-500 text-[10px] font-black rounded-lg border border-blue-100 uppercase tracking-tighter">{inv.status}</span>
+                                            </td>
+                                            <td className="px-6 py-5 rounded-r-2xl text-center">
+                                                <button className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-100 text-slate-400 hover:text-blue-500 transition-all bg-white shadow-sm mx-auto">
+                                                    <Download size={15} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={8} className="px-6 py-20 text-center text-slate-400 font-medium italic">
+                                            No payment records found
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
-                </div>
-
-                {/* Info Sections */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-10">
-                    <div className="bg-white p-8 rounded-[24px] border border-slate-100 shadow-sm">
-                        <h3 className="text-[17px] font-bold text-slate-800 mb-6">
-                            What happens when I upgrade?
-                        </h3>
-                        <div className="space-y-4">
-                            {[
-                                "Changes take effect immediately",
-                                "You'll be charged a prorated amount for the current billing cycle",
-                                "All new features and limits are activated instantly",
-                                "Your data and settings remain unchanged",
-                            ].map((text, i) => (
-                                <div
-                                    key={i}
-                                    className="flex items-center gap-3"
-                                >
-                                    <Check
-                                        className="text-emerald-500"
-                                        size={16}
-                                    />
-                                    <span className="text-[13px] text-slate-600 font-medium">
-                                        {text}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="bg-white p-8 rounded-[24px] border border-slate-100 shadow-sm">
-                        <h3 className="text-[17px] font-bold text-slate-800 mb-6">
-                            Payment & Billing
-                        </h3>
-                        <div className="space-y-4">
-                            {[
-                                "All prices exclude VAT (20% will be added at checkout)",
-                                "Annual billing offers approximately 20% savings",
-                                "Cancel or downgrade anytime with no penalties",
-                                "Secure payment processing with encryption",
-                            ].map((text, i) => (
-                                <div
-                                    key={i}
-                                    className="flex items-center gap-3"
-                                >
-                                    <Check
-                                        className="text-emerald-500"
-                                        size={16}
-                                    />
-                                    <span className="text-[13px] text-slate-600 font-medium">
-                                        {text}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* FAQ Section */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-8">
-                    <div className="mb-8">
-                        <h2 className="text-[18px] font-bold text-slate-800">
-                            Frequently Asked Questions
-                        </h2>
-                        <p className="text-[13px] text-slate-400 font-medium tracking-tight mt-1">
-                            Common questions about upgrading your plan
-                        </p>
-                    </div>
-
-                    <div className="space-y-3">
-                        {[
-                            "Can I change my plan at any time?",
-                            "What happens to my data if I downgrade?",
-                            "Is VAT included in the displayed prices?",
-                            "What payment methods do you accept?",
-                            "Can I get a custom Enterprise plan?",
-                        ].map((q, i) => (
-                            <button
-                                key={i}
-                                className="w-full flex items-center justify-between px-6 py-4 bg-slate-50/50 hover:bg-slate-50 rounded-xl border border-slate-100 group transition-all"
-                            >
-                                <span className="text-[14px] font-bold text-slate-700">
-                                    {q}
-                                </span>
-                                <ChevronDown
-                                    size={18}
-                                    className="text-slate-400 group-hover:text-slate-600 transition-colors"
-                                />
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Footer FAQ Box */}
-                <div className="bg-emerald-50 p-8 rounded-[24px] flex items-center justify-between border border-emerald-100">
-                    <div>
-                        <h3 className="text-[17px] font-bold text-slate-800 mb-1">
-                            Frequently Asked Questions
-                        </h3>
-                        <p className="text-[13px] text-slate-500 font-medium">
-                            Common questions about upgrading your plan
-                        </p>
-                    </div>
-                    <button className="bg-[#2c8af8] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl text-[14px] font-bold transition-all shadow-lg shadow-blue-500/20">
-                        Contact Sales
-                    </button>
                 </div>
             </div>
         </BusinessOwnerLayout>

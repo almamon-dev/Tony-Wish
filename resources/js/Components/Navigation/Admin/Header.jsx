@@ -105,9 +105,9 @@ const Header = ({ onMenuClick }) => {
                             </div>
 
                             <div className="p-2">
-                                <DropdownLink icon={Settings} label="System Settings" href={route('admin.settings.website.system')} />
+                                <DropdownLink icon={Settings} label="System Settings" href="#" />
                                 <DropdownLink icon={CreditCard} label="Billing Details" href="#" />
-                                <DropdownLink icon={Globe} label="Region & Language" href={route('admin.settings.website.localization')} />
+                                <DropdownLink icon={Globe} label="Region & Language" href="#" />
                             </div>
 
                             <div className="p-2 border-t border-slate-50 bg-slate-50/30">

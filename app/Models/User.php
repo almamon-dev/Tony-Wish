@@ -32,6 +32,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'created_by',
         'email_verified_at',
+        'plan_id',
+        'subscription_status',
+        'expiry_date',
     ];
 
     public function businessOwner()
@@ -89,6 +92,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'expiry_date' => 'datetime',
         ];
     }
 
@@ -98,5 +102,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function company()
     {
         return $this->hasOne(Company::class);
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
     }
 }
