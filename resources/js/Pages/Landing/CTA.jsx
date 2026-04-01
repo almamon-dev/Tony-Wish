@@ -14,7 +14,7 @@ export default function CTA() {
                 <div className="flex justify-center">
                     <Button
                         href={route("register")}
-                        className="bg-white text-[#0f172a] hover:bg-white/90 px-8 h-[50px] rounded-lg font-bold text-[15px] shadow-lg transition-all transform hover:-translate-y-0.5"
+                        className="bg-[#0ea5e9] text-white px-8 h-[50px] rounded-lg font-bold text-[15px] shadow-lg transition-all"
                     >
                         Get Started
                     </Button>

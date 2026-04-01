@@ -16,7 +16,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Models\Plan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,19 +25,6 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'plans' => Plan::where('is_active', true)->get(),
     ]);
-});
-
-Route::get('/test-email', function () {
-    try {
-        Mail::raw('Test content from Web', function ($message) {
-            $message->to('mamon193p@gmail.com')
-                ->subject('Test Email from Web');
-        });
-
-        return 'Test email sent successfully! to mamon193p@gmail.com';
-    } catch (Exception $e) {
-        return 'Failed to send test email: '.$e->getMessage();
-    }
 });
 
 Route::get('/dashboard', function () {
@@ -238,5 +224,3 @@ Route::get('/administrator/verify-email/{id}/{hash}', [AdministratorController::
     ->name('administrator.verify-email');
 
 require __DIR__.'/auth.php';
-
-// #####################helllowewqeqweq
