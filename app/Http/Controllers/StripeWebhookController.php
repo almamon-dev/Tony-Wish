@@ -42,6 +42,7 @@ class StripeWebhookController extends Controller
                 $invoice = $event->data->object;
                 $this->handleInvoicePaid($invoice);
                 break;
+
         }
 
         return response()->json(['status' => 'success']);
