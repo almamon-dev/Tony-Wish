@@ -3,26 +3,17 @@ import AdministratorLayout from "@/Layouts/AdministratorLayout";
 import { Head, Link } from "@inertiajs/react";
 import {
     Search,
-    ChevronDown,
     FileText,
     CheckCircle2,
     Clock,
     AlertCircle,
-    UserCircle2,
     ShieldCheck,
     Users,
-    LayoutGrid,
-    Info,
     ArrowRight,
-    ClipboardEdit,
-    ExternalLink,
-    Eye,
 } from "lucide-react";
 
 export default function RECFormsIndex() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const [selectedRole, setSelectedRole] = useState("All roles");
 
     const stats = [
         {
@@ -66,8 +57,7 @@ export default function RECFormsIndex() {
     const rolesGuide = [
         {
             role: "Account Holder",
-            description:
-                "Company information, leadership, and strategic decisions (REC-01, REC-02)",
+            description: "Company information, leadership, and strategic decisions (REC-01, REC-02)",
             color: "text-purple-600",
             bg: "bg-purple-50/50",
             icon: <ShieldCheck size={18} />,
@@ -75,8 +65,7 @@ export default function RECFormsIndex() {
         },
         {
             role: "Administrator",
-            description:
-                "Management systems, policies, planning, and compliance (Most RECs)",
+            description: "Management systems, policies, planning, and compliance (Most RECs)",
             color: "text-blue-600",
             bg: "bg-blue-50/50",
             icon: <ShieldCheck size={18} />,
@@ -84,8 +73,7 @@ export default function RECFormsIndex() {
         },
         {
             role: "User",
-            description:
-                "Operational records, production, incidents (REC-15, REC-16, REC-17, REC-28, REC-29)",
+            description: "Operational records, production, incidents (REC-15, REC-16, REC-17, REC-28, REC-29)",
             color: "text-emerald-600",
             bg: "bg-emerald-50/50",
             icon: <Users size={18} />,
@@ -94,488 +82,144 @@ export default function RECFormsIndex() {
     ];
 
     const recForms = [
-        {
-            id: "REC-01",
-            title: "Controlled Document Register",
-            subtitle: "Master list of all REC forms",
-            description:
-                "Master list of all REC forms with revision tracking and compliance references.",
-            category: "Management",
-            fields: 4,
-            role: "Account Holder",
-            action: "View/Assign Form",
-        },
-        {
-            id: "REC-02",
-            title: "Personnel Numbers & Responsibilities",
-            subtitle: "Responsibilities and structures",
-            description:
-                "Responsibilities and structures with detailed organizational chart.",
-            category: "Management",
-            fields: 4,
-            role: "Account Holder",
-            action: "View/Assign Form",
-        },
-        {
-            id: "REC-03",
-            title: "Training & Communication Register",
-            subtitle: "Training records and protocols",
-            description:
-                "Training records and continuous monitoring protocols.",
-            category: "Management",
-            fields: 6,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-04",
-            title: "Policies Status (Meetings)",
-            subtitle: "Safety, pollution and smoking",
-            description: "Safety, pollution and smoking meeting records.",
-            category: "Planning",
-            fields: 4,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-05",
-            title: "Maintenance & Calibration",
-            subtitle: "Equipment maintenance",
-            description: "Equipment maintenance and calibration records.",
-            category: "Planning",
-            fields: 4,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-06",
-            title: "Inspection & Test Plan",
-            subtitle: "Quality inspection procedures",
-            description: "Quality inspection and testing procedures.",
-            category: "Planning",
-            fields: 3,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-07",
-            title: "Welding Specifications and Qualifications",
-            subtitle: "Working procedure and technical",
-            description: "Welding procedures and welder qualifications",
-            category: "Security",
-            fields: 3,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-08",
-            title: "Project Review & Ord. Conf.",
-            subtitle: "Project review documentation",
-            description: "Project review documentation and job cards.",
-            category: "Support",
-            fields: 12,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-09",
-            title: "Agreement & Communication",
-            subtitle: "Contract and external communication",
-            description: "Contract and external communication agreements.",
-            category: "Support",
-            fields: 3,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-10",
-            title: "Purchase Order",
-            subtitle: "Purchase order validation",
-            description: "Purchase order validation process for procurement.",
-            category: "Operations",
-            fields: 7,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-11",
-            title: "Delivery Note",
-            subtitle: "Delivery documentation",
-            description:
-                "Delivery documentation for material receipt and traceability.",
-            category: "Operations",
-            fields: 10,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-12",
-            title: "Declaration of Performance (DoP)",
-            subtitle: "UK Construction compliance",
-            description:
-                "UK Construction Products Regulations - UKCA marking and DoP compliance for EN 1090.",
-            category: "Operations",
-            fields: 4,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-13",
-            title: "Non-Conformance Register",
-            subtitle: "Register of non-conformities",
-            description: "Register of non-conformities and correction record.",
-            category: "Performance",
-            fields: 6,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-14",
-            title: "Customer Feedback",
-            subtitle: "Satisfaction monitoring",
-            description:
-                "Customer feedback and satisfaction monitoring - ISO 9001:2015 Clause 9.1.2.",
-            category: "Performance",
-            fields: 4,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-15",
-            title: "Company Policies",
-            subtitle: "Quality and Ethical Policies",
-            description:
-                "Quality, Environmental and Health & Safety Policies - ISO 9001, ISO 14001, ISO 45001.",
-            category: "Management",
-            fields: 8,
-            role: "User",
-            action: "View/Assign Form",
-        },
-        {
-            id: "REC-16",
-            title: "Legal Compliance Register",
-            subtitle: "Legal & regulatory tracking",
-            description:
-                "Legal & regulatory compliance tracking and expiry warnings - ISO 9001, ISO 14001, ISO 45001.",
-            category: "Management",
-            fields: 5,
-            role: "User",
-            action: "View/Assign Form",
-        },
-        {
-            id: "REC-17",
-            title: "Internal Audits",
-            subtitle: "ISO 9001 & ISO 14001 Audits",
-            description:
-                "EN1090 execution class 2 audit checklist - ISO 9001:2015 & ISO 14001:2015 & ISO 45001:2018.",
-            category: "Performance",
-            fields: 15,
-            role: "User",
-            action: "View/Assign Form",
-        },
-        {
-            id: "REC-18",
-            title: "Control of Non-Conforming Outputs",
-            subtitle: "Management of non-conforming",
-            description: "Management of non-conforming product/service.",
-            category: "Operations",
-            fields: 6,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-19",
-            title: "Monitoring, Measurement & Analysis",
-            subtitle: "Performance monitoring procedures",
-            description: "Performance monitoring and measurement procedures.",
-            category: "Performance",
-            fields: 4,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-20",
-            title: "Environmental Aspects & Impacts",
-            subtitle: "Aspects & Impacts register",
-            description: "Identification of environmental aspects - ISO 14001.",
-            category: "Environmental",
-            fields: 8,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-21",
-            title: "Asset Management",
-            subtitle: "Information asset inventory",
-            description:
-                "Information asset inventory and classification - ISO 27001.",
-            category: "Security",
-            fields: 12,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-22",
-            title: "Monitor & Measure",
-            subtitle: "Performance tracking log",
-            description: "Track and log all monitoring parameters and measurements - ISO 14001.",
-            category: "Environmental",
-            fields: 9,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-23",
-            title: "Incident Investigation Report",
-            subtitle: "Incident & NC tracking",
-            description: "Log and investigate all workplace incidents - ISO 45001.",
-            category: "Health & Safety",
-            fields: 10,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-24",
-            title: "Waste Handling",
-            subtitle: "Waste disposal record",
-            description: "Record and monitor all waste disposal and contractor details - ISO 14001.",
-            category: "Environmental",
-            fields: 6,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-25",
-            title: "Legal & Compliance Register",
-            subtitle: "Environmental law compliance",
-            description:
-                "Environmental legal and compliance obligations - ISO 14001.",
-            category: "Environmental",
-            fields: 9,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-26",
-            title: "Emergency Preparedness",
-            subtitle: "Emergency response plans",
-            description:
-                "Environmental emergency preparedness and response - ISO 14001.",
-            category: "Environmental",
-            fields: 5,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-27",
-            title: "Environmental Objectives & Targets",
-            subtitle: "Performance improvement goals",
-            description: "Environmental performance objectives - ISO 14001.",
-            category: "Environmental",
-            fields: 4,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-28",
-            title: "Hazard Identification & Risk Assessment",
-            subtitle: "OH&S risk management",
-            description: "OH&S hazard identification - ISO 45001.",
-            category: "Health & Safety",
-            fields: 15,
-            role: "User",
-            action: "View/Assign Form",
-        },
-        {
-            id: "REC-29",
-            title: "Safety Equipment Checklist",
-            subtitle: "Routine inspection records",
-            description:
-                "Safety equipment inspection tracking and maintenance records - ISO 45001.",
-            category: "Health & Safety",
-            fields: 9,
-            role: "User",
-            action: "View/Assign Form",
-        },
-        {
-            id: "REC-30",
-            title: "OH&S Consultation & Participation",
-            subtitle: "Worker engagement records",
-            description:
-                "Worker consultation and participation records - ISO 45001.",
-            category: "Health & Safety",
-            fields: 6,
-            role: "Administrator",
-            action: "Fill Form",
-        },
-        {
-            id: "REC-31",
-            title: "Operational Control",
-            subtitle: "Method statements & Controls",
-            description:
-                "Operational control and method statements for ISO compliance.",
-            category: "Operations",
-            fields: 8,
-            role: "Administrator",
-            action: "Fill Form",
-        },
+        { id: "REC-01", title: "Controlled Document Register", category: "Management", role: "Account Holder" },
+        { id: "REC-02", title: "Personnel Numbers & Responsibilities", category: "Management", role: "Account Holder" },
+        { id: "REC-03", title: "Training & Communication Register", category: "Management", role: "Administrator" },
+        { id: "REC-04", title: "Policies Status (Meetings)", category: "Planning", role: "Administrator" },
+        { id: "REC-05", title: "Maintenance & Calibration", category: "Planning", role: "Administrator" },
+        { id: "REC-06", title: "Inspection & Test Plan", category: "Planning", role: "Administrator" },
+        { id: "REC-07", title: "Welding Specifications and Qualifications", category: "Security", role: "Administrator" },
+        { id: "REC-08", title: "Project Review & Ord. Conf.", category: "Support", role: "Administrator" },
+        { id: "REC-09", title: "Agreement & Communication", category: "Support", role: "Administrator" },
+        { id: "REC-10", title: "Purchase Order", category: "Operations", role: "Administrator" },
+        { id: "REC-11", title: "Delivery Note", category: "Operations", role: "Administrator" },
+        { id: "REC-12", title: "Declaration of Performance (DoP)", category: "Operations", role: "Administrator" },
+        { id: "REC-13", title: "Non-Conformance Register", category: "Performance", role: "Administrator" },
+        { id: "REC-14", title: "Customer Feedback", category: "Performance", role: "Administrator" },
+        { id: "REC-15", title: "Company Policies", category: "Management", role: "User" },
+        { id: "REC-16", title: "Legal Compliance Register", category: "Management", role: "User" },
+        { id: "REC-17", title: "Internal Audits", category: "Performance", role: "User" },
+        { id: "REC-18", title: "Control of Non-Conforming Outputs", category: "Operations", role: "Administrator" },
+        { id: "REC-19", title: "Monitoring, Measurement & Analysis", category: "Performance", role: "Administrator" },
+        { id: "REC-20", title: "Environmental Aspects & Impacts", category: "Environmental", role: "Administrator" },
+        { id: "REC-21", title: "Asset Management", category: "Security", role: "Administrator" },
+        { id: "REC-22", title: "Monitor & Measure", category: "Environmental", role: "Administrator" },
+        { id: "REC-23", title: "Incident Investigation Report", category: "Health & Safety", role: "Administrator" },
+        { id: "REC-24", title: "Waste Handling", category: "Environmental", role: "Administrator" },
+        { id: "REC-25", title: "Legal & Compliance Register", category: "Environmental", role: "Administrator" },
+        { id: "REC-26", title: "Emergency Preparedness", category: "Environmental", role: "Administrator" },
+        { id: "REC-27", title: "Environmental Objectives & Targets", category: "Environmental", role: "Administrator" },
+        { id: "REC-28", title: "Hazard Identification & Risk Assessment", category: "Health & Safety", role: "User" },
+        { id: "REC-29", title: "Safety Equipment Checklist", category: "Health & Safety", role: "User" },
+        { id: "REC-30", title: "OH&S Consultation & Participation", category: "Health & Safety", role: "Administrator" },
+        { id: "REC-31", title: "Operational Control", category: "Operations", role: "Administrator" },
     ];
+
+    const filteredForms = recForms.filter(f => 
+        f.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        f.id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <AdministratorLayout>
             <Head title="REC Forms Management" />
 
-            <div className="space-y-8 pb-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-6 max-w-[1600px] mx-auto pb-12 px-4 md:px-6">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-[28px] font-black text-slate-800 tracking-tight leading-none">
+                        <h1 className="text-[26px] font-black text-slate-800 tracking-tight leading-none uppercase">
                             REC Forms Management
                         </h1>
                         <p className="text-[14px] text-slate-500 font-medium mt-3">
                             Manage and fill out REC forms and assign responsibility
                         </p>
                     </div>
+                    <div className="relative group max-w-sm w-full md:w-[300px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#2185d5] transition-colors" size={16} />
+                        <input
+                            type="text"
+                            placeholder="Search forms..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-sm text-[13px] focus:outline-none focus:border-[#2185d5] transition-all placeholder:text-slate-400"
+                        />
+                    </div>
                 </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Vertical Column for Stats on Mobile, Grid on Desktop */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {stats.map((stat, i) => (
-                        <div
-                            key={i}
-                            className="bg-white p-6 rounded-sm border border-slate-100 shadow-sm flex items-center justify-between"
-                        >
+                        <div key={i} className="bg-white p-5 rounded-sm border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-200 transition-all">
                             <div>
-                                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                                    {stat.label}
-                                </h3>
-                                <p className="text-[32px] font-black text-slate-700 leading-none">
-                                    {stat.value}
-                                </p>
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{stat.label}</h3>
+                                <p className="text-[28px] font-black text-slate-700 leading-none">{stat.value}</p>
                             </div>
-                            <div
-                                className={`w-12 h-12 rounded-sm ${stat.iconBg} ${stat.color} flex items-center justify-center`}
-                            >
+                            <div className={`w-11 h-11 rounded-sm ${stat.iconBg} ${stat.color} flex items-center justify-center transition-transform group-hover:scale-105`}>
                                 {stat.icon}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Info Alert */}
-                <div className="bg-blue-50/50 border border-blue-100 rounded-sm p-5 flex gap-4 items-center">
-                    <div className="w-10 h-10 rounded-sm bg-white border border-blue-100 flex items-center justify-center text-[#2c8af8] shrink-0">
-                        <ShieldCheck size={20} />
-                    </div>
-                    <div>
-                        <h4 className="text-[14px] font-black text-[#2c8af8] uppercase tracking-wider">
-                            Administrator Access - All REC Forms
-                        </h4>
-                        <p className="text-[13px] text-slate-500 font-medium mt-1">
-                            As an Administrator, you have access to all 31 REC
-                            forms. You can fill forms directly or assign them to
-                            Account Holder or Users. Forms are indexed by
-                            responsible role.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Roles Guide */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-[#2185d5]">
-                        <ShieldCheck size={18} />
-                        <h3 className="text-[14px] font-black text-slate-800 uppercase tracking-widest">
-                            Role Responsibility Guide
-                        </h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {rolesGuide.map((guide, i) => (
-                            <div
-                                key={i}
-                                className={`p-5 rounded-sm border ${guide.borderColor} ${guide.bg} space-y-2`}
-                            >
-                                <div
-                                    className={`flex items-center gap-2 ${guide.color}`}
-                                >
-                                    {guide.icon}
-                                    <span className="text-[14px] font-black uppercase tracking-wider">
-                                        {guide.role}
-                                    </span>
-                                </div>
-                                <p className="text-[12px] text-slate-500 font-bold leading-relaxed">
-                                    {guide.description}
-                                </p>
+                {/* Responsibility Guide Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {rolesGuide.map((guide, i) => (
+                        <div key={i} className={`p-4 rounded-sm border ${guide.borderColor} ${guide.bg} flex gap-3 items-start`}>
+                            <div className={`${guide.color} mt-0.5 shrink-0`}>{guide.icon}</div>
+                            <div className="space-y-1">
+                                <span className={`text-[12px] font-black uppercase tracking-wider ${guide.color}`}>{guide.role}</span>
+                                <p className="text-[11px] text-slate-500 font-bold leading-relaxed">{guide.description}</p>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
 
-                {/* Forms Table */}
-                <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden p-8">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                {/* Main Table with Responsive Scrolling */}
+                <div className="bg-white rounded-sm border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+                        <table className="w-full text-left border-collapse min-w-[900px]">
                             <thead>
-                                <tr className="bg-slate-50/50">
-                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest rounded-l-sm">
-                                        REC ID
-                                    </th>
-                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
-                                        Form Title
-                                    </th>
-                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
-                                        Category
-                                    </th>
-                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest">
-                                        Responsibility
-                                    </th>
-                                    <th className="px-6 py-4 text-[13px] font-black text-slate-500 uppercase tracking-widest text-right rounded-r-sm">
-                                        Action
-                                    </th>
+                                <tr className="bg-slate-50/50 border-b border-slate-100">
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500 uppercase tracking-widest w-24">ID</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500 uppercase tracking-widest min-w-[250px]">Form Title</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500 uppercase tracking-widest w-36">Category</th>
+                                    <th className="px-6 py-4 text-[11px] font-black text-slate-500 uppercase tracking-widest w-40">Responsibility</th>
+                                    <th className="px-6 py-4 text-right text-[11px] font-black text-slate-500 uppercase tracking-widest w-28">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {recForms.map((form, i) => (
-                                    <tr
-                                        key={i}
-                                        className="hover:bg-slate-50/30 transition-colors group"
-                                    >
-                                        <td className="px-6 py-5">
-                                            <div className="w-16 h-10 bg-slate-50 border border-slate-100 rounded-sm flex items-center justify-center text-[12px] font-black text-slate-400 group-hover:text-[#2185d5] group-hover:bg-blue-50 transition-all uppercase">
+                                {filteredForms.map((form, i) => (
+                                    <tr key={i} className="hover:bg-slate-50/30 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <div className="w-14 h-9 bg-slate-50 border border-slate-100 rounded-sm flex items-center justify-center text-[11px] font-black text-slate-400 group-hover:text-[#2185d5] group-hover:bg-blue-50 transition-all uppercase">
                                                 {form.id}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5">
-                                            <h3 className="text-[14px] font-bold text-slate-700 leading-tight">
-                                                {form.title}
-                                            </h3>
+                                        <td className="px-6 py-4">
+                                            <h3 className="text-[14px] font-bold text-slate-700 leading-tight group-hover:text-slate-950 transition-colors">{form.title}</h3>
                                         </td>
-                                        <td className="px-6 py-5">
-                                            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-sm border ${
-                                                form.category === "Management"
+                                        <td className="px-6 py-4">
+                                            <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-sm border whitespace-nowrap ${
+                                                ['Management', 'Planning'].includes(form.category)
                                                     ? "bg-blue-50 text-blue-500 border-blue-100"
-                                                    : form.category === "Planning"
-                                                      ? "bg-purple-50 text-purple-500 border-purple-100"
-                                                      : form.category === "Security"
-                                                        ? "bg-red-50 text-red-500 border-red-100"
-                                                        : "bg-emerald-50 text-emerald-500 border-emerald-100"
+                                                    : "bg-emerald-50 text-emerald-500 border-emerald-100"
                                             }`}>
                                                 {form.category}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-4">
                                             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter flex items-center gap-1.5">
                                                 <Users size={14} className="text-slate-300" />
                                                 {form.role}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5 text-right">
+                                        <td className="px-6 py-4 text-right">
                                             <Link
-                                                href={route(
-                                                    `administrator.rec-forms.${form.id.toLowerCase()}`
-                                                )}
-                                                className="inline-flex items-center gap-2 bg-[#2c8af8] hover:bg-blue-600 text-white px-5 h-10 rounded-sm font-black text-[12px] transition-all shadow-lg shadow-blue-500/10 active:scale-95 uppercase tracking-widest"
+                                                href={route(`administrator.rec-forms.${form.id.toLowerCase()}`)}
+                                                className="inline-flex items-center gap-2 bg-[#2c8af8] hover:bg-blue-600 text-white px-4 h-9 rounded-sm font-black text-[11px] transition-all active:scale-95 uppercase tracking-widest"
                                             >
-                                                Open Project
+                                                Open
                                                 <ArrowRight size={14} />
                                             </Link>
                                         </td>
@@ -586,6 +230,12 @@ export default function RECFormsIndex() {
                     </div>
                 </div>
             </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                .scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+                .scrollbar-thumb-slate-200::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+                .scrollbar-track-transparent::-webkit-scrollbar-track { background: transparent; }
+            `}} />
         </AdministratorLayout>
     );
 }
