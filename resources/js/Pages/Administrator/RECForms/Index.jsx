@@ -208,6 +208,8 @@ export default function RECFormsIndex() {
                                                 {form.category}
                                             </span>
                                         </td>
+
+                                        
                                         <td className="px-6 py-4">
                                             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter flex items-center gap-1.5">
                                                 <Users size={14} className="text-slate-300" />
